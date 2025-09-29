@@ -8,10 +8,10 @@ import { LocalizationProvider } from '@mui/x-date-pickers';
 import { AdapterDayjs } from '@mui/x-date-pickers/AdapterDayjs';
 
 Env.update({
-    MODULE: process.env.MODULE || '',
-    ACCESS_KEY: process.env.ACCESS_KEY, // undefined in production
-    SECRET_KEY: process.env.SECRET_KEY, // undefined in production
-    APP: process.env.APP || '',
+    MODULE: import.meta.env.MODULE || '',
+    ACCESS_KEY: import.meta.env.CLIENT_ACCESS_KEY || '', // undefined in production
+    SECRET_KEY: import.meta.env.CLIENT_SECRET_KEY || '', // undefined in production
+    APP: import.meta.env.CLIENT_APP || '',
 });
 
 /**

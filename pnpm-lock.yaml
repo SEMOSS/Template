@@ -17,8 +17,8 @@ importers:
                 specifier: ^9.1.7
                 version: 9.1.7
             lint-staged:
-                specifier: ^16.2.0
-                version: 16.2.0
+                specifier: ^16.2.3
+                version: 16.2.3
             prettier:
                 specifier: ^3.6.2
                 version: 3.6.2
@@ -733,10 +733,10 @@ packages:
             }
         engines: { node: '>= 0.8.0' }
 
-    lint-staged@16.2.0:
+    lint-staged@16.2.3:
         resolution:
             {
-                integrity: sha512-spdYSOCQ2MdZ9CM1/bu/kDmaYGsrpNOeu1InFFV8uhv14x6YIubGxbCpSmGILFoxkiheNQPDXSg5Sbb5ZuVnug==,
+                integrity: sha512-1OnJEESB9zZqsp61XHH2fvpS1es3hRCxMplF/AJUDa8Ho8VrscYDIuxGrj3m8KPXbcWZ8fT9XTMUhEQmOVKpKw==,
             }
         engines: { node: '>=20.17' }
         hasBin: true
@@ -1539,7 +1539,7 @@ snapshots:
             prelude-ls: 1.2.1
             type-check: 0.4.0
 
-    lint-staged@16.2.0:
+    lint-staged@16.2.3:
         dependencies:
             commander: 14.0.1
             listr2: 9.0.4
