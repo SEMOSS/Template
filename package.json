@@ -2,7 +2,8 @@
     "private": true,
     "scripts": {
         "fix": "prettier . --write && eslint --fix; pre-commit run --all-files || pre-commit run --all-files",
-        "dev": "pnpm --dir client dev"
+        "dev": "pnpm --dir client dev",
+        "javadoc": "mvn site; python -m http.server 2712 -d target/site/apidocs/"
     },
     "devDependencies": {
         "eslint": "^9.36.0",

@@ -1,1 +1,0 @@
-python -m http.server 2712 -d target/site/apidocs/
