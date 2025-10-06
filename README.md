@@ -6,7 +6,7 @@ This repository provides a starting point for SEMOSS React applications. It incl
 
 - A structure for connecting a React front-end with a Java back-end.
 - Example custom Java reactors and TypeScript components that interact with them.
-- Development tools: Prettier, ESLint, pre-commit, and lint-staged.
+- Development tools: Biome, pre-commit, and lint-staged.
 
 ---
 
@@ -20,6 +20,9 @@ Before using this repository, ensure you have the following:
 
 - **Basic Git knowledge:**  
   [Using SSH keys with GitHub](https://docs.github.com/en/authentication/connecting-to-github-with-ssh) is recommended for authentication.
+
+- **Install Python as part of the SEMOSS installation**
+  You'll need this for parts of the linting pipeline and just generally is a good thing to have. Refer to [Mac Install](https://workshop.cfg.deloitte.com/docs/Advanced%20Installation/Mac%20Developer%20Install#install-python) or [Windows Install](https://workshop.cfg.deloitte.com/docs/windows-developer-install#install-python)
 
 ---
 
@@ -95,10 +98,9 @@ To make changes visible to users:
 
 This repository includes several tools to help maintain code quality:
 
-- [Prettier](https://prettier.io/docs/): Formats your front-end code for consistency.
-- [ESLint](https://eslint.org/docs/latest/use/core-concepts/): Checks your front-end code for quality and common errors.
+- [Prettier](https://biomejs.dev/): Formats and lints your front-end code for consistency.
 - [pre-commit](https://pre-commit.com/): Ensures code formatting and quality checks are run before committing (primarily for back-end code).
-- [lint-staged](https://github.com/okonet/lint-staged): Runs Prettier and ESLint on staged files before each commit to prevent bad code from being pushed.
+- [lint-staged](https://github.com/okonet/lint-staged): Runs formatting and linting on staged files before each commit to prevent bad code from being pushed.
     - Note: if you are a Mac user, and your commits are erroring out with the message `" not foundECURSIVE_EXEC_FIRST_FAIL  Command "lint-staged`, then you likely need to change your line-endings in `./husky/pre-commit` and `./husky/commit-msg` from CRLF to LF.
 - [commitizen](https://www.conventionalcommits.org/en/v1.0.0/): This pre-commit hook uses conventional commit syntax. Check this link out to understand how to format your commit messages. Here are some common examples:
     - `feat: Major feature added`
