@@ -50,5 +50,17 @@
 			"!node_modules/**/*",
 			"**/*.{js,ts,mjs,cjs,jsx,tsx,json,css,scss,md,mdx,html,yaml}"
 		]
-	}
+	},
+	"overrides": [
+		{
+			"includes": ["**/*d.ts"],
+			"linter": {
+				"rules": {
+					"correctness": {
+						"noUnusedVariables": "off"
+					}
+				}
+			}
+		}
+	]
 }
