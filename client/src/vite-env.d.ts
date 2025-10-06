@@ -7,6 +7,7 @@ interface ImportMetaEnv {
 	// more env variables...
 }
 
-export interface ImportMeta {
+// biome-ignore lint/correctness/noUnusedVariables: Vite environment variable
+interface ImportMeta {
 	readonly env: ImportMetaEnv;
 }
