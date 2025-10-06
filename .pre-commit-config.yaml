@@ -10,6 +10,7 @@ repos:
           - id: mixed-line-ending
             args: ['--fix=auto']
             files: '^(java/.*\.java|py.*\.py)$'
+          - id: check-yaml
     - repo: https://github.com/macisamuele/language-formatters-pre-commit-hooks
       rev: v2.15.0
       hooks:
@@ -33,3 +34,8 @@ repos:
           - id: isort
             args: ['--profile', 'black']
             files: '^py.*\.py$'
+    - repo: https://github.com/pamoller/xmlformatter
+      rev: v0.2.8
+      hooks:
+          - id: xml-formatter
+            files: '^.*\.xml$'
