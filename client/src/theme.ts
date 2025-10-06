@@ -1,4 +1,4 @@
-import { createTheme } from '@mui/material';
+import { createTheme } from "@mui/material";
 
 /**
  * The main theme of the app.
@@ -8,10 +8,10 @@ import { createTheme } from '@mui/material';
  * @constant
  */
 export const THEME = createTheme({
-    palette: {
-        background: {
-            default: '#FFF',
-            paper: '#FAFAFA',
-        },
-    },
+	palette: {
+		background: {
+			default: "#FFF",
+			paper: "#FAFAFA",
+		},
+	},
 });

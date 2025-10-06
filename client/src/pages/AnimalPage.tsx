@@ -1,12 +1,12 @@
+import { Button, Stack, Typography } from "@mui/material";
+import { useState } from "react";
 import {
-    AddAnimalModal,
-    Animal,
-    AnimalList,
-    DeleteAnimalModal,
-} from '@/components';
-import { useLoadingPixel } from '@/hooks';
-import { Button, Stack, Typography } from '@mui/material';
-import { useState } from 'react';
+	AddAnimalModal,
+	type Animal,
+	AnimalList,
+	DeleteAnimalModal,
+} from "@/components";
+import { useLoadingPixel } from "@/hooks";
 
 /**
  * Renders a page for the animal example.
@@ -14,64 +14,64 @@ import { useState } from 'react';
  * @component
  */
 export const AnimalPage = () => {
-    /**
-     * State
-     */
-    const [animalList, isAnimalListLoading, fetchAnimalList] = useLoadingPixel<
-        Animal[]
-    >('GetAnimals( )', []);
-    const [isAddAnimalModalOpen, setIsAddAnimalModalOpen] =
-        useState<boolean>(false);
-    const [isDeleteAnimalModalOpen, setIsDeleteAnimalModalOpen] =
-        useState<boolean>(false);
-    const [animalToDelete, setAnimalToDelete] = useState<Animal | null>(null);
+	/**
+	 * State
+	 */
+	const [animalList, isAnimalListLoading, fetchAnimalList] = useLoadingPixel<
+		Animal[]
+	>("GetAnimals( )", []);
+	const [isAddAnimalModalOpen, setIsAddAnimalModalOpen] =
+		useState<boolean>(false);
+	const [isDeleteAnimalModalOpen, setIsDeleteAnimalModalOpen] =
+		useState<boolean>(false);
+	const [animalToDelete, setAnimalToDelete] = useState<Animal | null>(null);
 
-    /**
-     * Functions
-     */
-    const handleModalClose = (changedAnimals: boolean) => {
-        setIsAddAnimalModalOpen(false);
-        setIsDeleteAnimalModalOpen(false);
-        if (changedAnimals) {
-            fetchAnimalList();
-        }
-    };
+	/**
+	 * Functions
+	 */
+	const handleModalClose = (changedAnimals: boolean) => {
+		setIsAddAnimalModalOpen(false);
+		setIsDeleteAnimalModalOpen(false);
+		if (changedAnimals) {
+			fetchAnimalList();
+		}
+	};
 
-    return (
-        <Stack spacing={2}>
-            <Stack
-                direction="row"
-                alignItems="center"
-                justifyContent="space-between"
-            >
-                <Typography variant="h4">Animals</Typography>
-                <Button
-                    onClick={() => setIsAddAnimalModalOpen(true)}
-                    variant="contained"
-                >
-                    Add animal
-                </Button>
-            </Stack>
+	return (
+		<Stack spacing={2}>
+			<Stack
+				direction="row"
+				alignItems="center"
+				justifyContent="space-between"
+			>
+				<Typography variant="h4">Animals</Typography>
+				<Button
+					onClick={() => setIsAddAnimalModalOpen(true)}
+					variant="contained"
+				>
+					Add animal
+				</Button>
+			</Stack>
 
-            <AnimalList
-                animalList={animalList ?? []}
-                loading={isAnimalListLoading}
-                onDelete={(animalToDelete) => {
-                    setIsDeleteAnimalModalOpen(true);
-                    setAnimalToDelete(animalToDelete);
-                }}
-            />
+			<AnimalList
+				animalList={animalList ?? []}
+				loading={isAnimalListLoading}
+				onDelete={(animalToDelete) => {
+					setIsDeleteAnimalModalOpen(true);
+					setAnimalToDelete(animalToDelete);
+				}}
+			/>
 
-            <AddAnimalModal
-                open={isAddAnimalModalOpen}
-                onClose={handleModalClose}
-            />
+			<AddAnimalModal
+				open={isAddAnimalModalOpen}
+				onClose={handleModalClose}
+			/>
 
-            <DeleteAnimalModal
-                open={isDeleteAnimalModalOpen}
-                animalToDelete={animalToDelete}
-                onClose={handleModalClose}
-            />
-        </Stack>
-    );
+			<DeleteAnimalModal
+				open={isDeleteAnimalModalOpen}
+				animalToDelete={animalToDelete}
+				onClose={handleModalClose}
+			/>
+		</Stack>
+	);
 };

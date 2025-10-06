@@ -1,4 +1,4 @@
-import { CircularProgress, Stack } from '@mui/material';
+import { CircularProgress, Stack } from "@mui/material";
 
 /**
  * Returns a loading screen with a centered circular progress indicator
@@ -6,7 +6,7 @@ import { CircularProgress, Stack } from '@mui/material';
  * @component
  */
 export const LoadingScreen = () => (
-    <Stack height="100%" alignItems="center" justifyContent="center">
-        <CircularProgress />
-    </Stack>
+	<Stack height="100%" alignItems="center" justifyContent="center">
+		<CircularProgress />
+	</Stack>
 );

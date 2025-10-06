@@ -1,10 +1,10 @@
-import { useAppContext } from '@/contexts';
-import { Alert, Snackbar, SnackbarCloseReason } from '@mui/material';
+import { Alert, Snackbar, type SnackbarCloseReason } from "@mui/material";
+import { useAppContext } from "@/contexts";
 
 export interface MessageSnackbarProps {
-    message: string;
-    severity: 'success' | 'error' | 'info' | 'warning';
-    open: boolean;
+	message: string;
+	severity: "success" | "error" | "info" | "warning";
+	open: boolean;
 }
 
 /**
@@ -13,35 +13,35 @@ export interface MessageSnackbarProps {
  * @component
  */
 export const MessageSnackbar = ({
-    open,
-    severity,
-    message,
+	open,
+	severity,
+	message,
 }: MessageSnackbarProps) => {
-    const { setMessageSnackbarProps } = useAppContext();
+	const { setMessageSnackbarProps } = useAppContext();
 
-    /**
-     * Functions
-     */
-    const handleClose = (
-        _: React.SyntheticEvent | Event,
-        reason?: SnackbarCloseReason,
-    ) => {
-        if (reason === 'clickaway') return;
-        setMessageSnackbarProps((prev) => ({
-            ...prev,
-            open: false,
-        }));
-    };
+	/**
+	 * Functions
+	 */
+	const handleClose = (
+		_: React.SyntheticEvent | Event,
+		reason?: SnackbarCloseReason,
+	) => {
+		if (reason === "clickaway") return;
+		setMessageSnackbarProps((prev) => ({
+			...prev,
+			open: false,
+		}));
+	};
 
-    return (
-        <Snackbar
-            open={open}
-            onClose={handleClose}
-            anchorOrigin={{ vertical: 'top', horizontal: 'right' }}
-        >
-            <Alert severity={severity} onClose={handleClose}>
-                {message}
-            </Alert>
-        </Snackbar>
-    );
+	return (
+		<Snackbar
+			open={open}
+			onClose={handleClose}
+			anchorOrigin={{ vertical: "top", horizontal: "right" }}
+		>
+			<Alert severity={severity} onClose={handleClose}>
+				{message}
+			</Alert>
+		</Snackbar>
+	);
 };
