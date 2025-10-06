@@ -8,6 +8,38 @@ import java.util.Properties;
 import prerna.util.AssetUtility;
 import prerna.util.Utility;
 
+/**
+ * Singleton class responsible for loading and managing project-specific configuration properties.
+ *
+ * <p>This class implements the Singleton pattern to ensure that project configuration is loaded
+ * once and shared across all components within the same project context. It reads configuration
+ * properties from a project-specific properties file and provides thread-safe access to these
+ * configuration values throughout the application lifecycle.
+ *
+ * <p>The class automatically locates and loads the project.properties file from the project's Java
+ * assets directory, providing a centralized configuration management mechanism that supports
+ * project-specific customization while maintaining system-wide consistency.
+ *
+ * <p>Key features include:
+ *
+ * <ul>
+ *   <li>Singleton pattern implementation for configuration consistency
+ *   <li>Automatic properties file loading from project assets
+ *   <li>Comprehensive error handling for configuration loading failures
+ *   <li>Type-safe property access through getter methods
+ *   <li>Integration with SEMOSS asset management utilities
+ * </ul>
+ *
+ * <p>The configuration properties are loaded from: {@code
+ * [project-assets-folder]/java/project.properties}
+ *
+ * @author SEMOSS
+ * @version 1.0
+ * @since 1.0
+ * @see Properties
+ * @see AssetUtility
+ * @see ProjectException
+ */
 public class ProjectProperties {
 
   /**
@@ -16,7 +48,7 @@ public class ProjectProperties {
    */
   private static ProjectProperties INSTANCE = null;
 
-  // Add var for each property
+  /** The database identifier configured for this project. */
   private String databaseId;
 
   /**
@@ -86,7 +118,7 @@ public class ProjectProperties {
       Properties projectProperties = new Properties();
       projectProperties.load(fileIn);
 
-      // Add any properties to be read by the properties file and add the corresponding getter
+      // Extract and assign property values to instance fields
       newInstance.databaseId = projectProperties.getProperty("databaseId");
 
       INSTANCE = newInstance;
@@ -97,7 +129,16 @@ public class ProjectProperties {
     }
   }
 
-  // Add getters for properties
+  /**
+   * Returns the database identifier configured for this project.
+   *
+   * <p>This method provides access to the database ID that has been configured for the current
+   * project through the project.properties file. The database ID is used throughout the system to
+   * establish connections to the appropriate database instance for project-specific operations.
+   *
+   * @return the database identifier string, or null if not configured
+   * @see #loadProp(String)
+   */
   public String getDatabaseId() {
     return databaseId;
   }

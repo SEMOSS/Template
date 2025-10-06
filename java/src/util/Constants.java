@@ -14,10 +14,15 @@ package util;
  */
 public class Constants {
 
-  // TODO add any constants to be referenced in the project
-
+  /** Parameter key constant for animal unique identifier values. */
   public static final String ANIMAL_ID = "animalId";
+
+  /** Parameter key constant for animal name values. */
   public static final String ANIMAL_NAME = "animalName";
+
+  /** Parameter key constant for animal type or species classification values. */
   public static final String ANIMAL_TYPE = "animalType";
+
+  /** Parameter key constant for animal date of birth values. */
   public static final String DATE_OF_BIRTH = "dateOfBirth";
 }

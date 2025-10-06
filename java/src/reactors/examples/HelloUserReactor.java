@@ -24,11 +24,10 @@ public class HelloUserReactor extends AbstractProjectReactor {
    * sets up the reactor to accept an optional "name" parameter.
    */
   public HelloUserReactor() {
-
-    // list of keys the reactor is expecting
+    // List of keys the reactor is expecting
     this.keysToGet = new String[] {ReactorKeysEnum.NAME.getKey()};
 
-    // 1 for required keys, 0 for optional
+    // 1 for required keys, 0 for optional (name is optional)
     this.keyRequired = new int[] {0};
   }
 
@@ -49,14 +48,13 @@ public class HelloUserReactor extends AbstractProjectReactor {
    */
   @Override
   protected NounMetadata doExecute() {
-
-    // returns null if the argument is not found
+    // Returns null if the argument is not found
     String name = this.keyValue.get(ReactorKeysEnum.NAME.getKey());
 
-    // if name is not provided, use the user's name
+    // If name is not provided, use the user's name from the session
     name = (name == null) ? user.getPrimaryLoginToken().getName() : name;
 
-    // grabbing user from AbstractProjectReactor
+    // Generate personalized greeting message
     String response = "Hello, " + name + "! Welcome to SEMOSS.";
 
     return new NounMetadata(response, PixelDataType.CONST_STRING);

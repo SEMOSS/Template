@@ -45,8 +45,10 @@ public abstract class AbstractProjectReactor extends AbstractReactor {
   /** Project-specific properties and configuration settings. */
   protected ProjectProperties projectProperties;
 
-  // intialize protected variables you would like your reactors to have access to
+  /** The database identifier associated with the current project. */
   protected String databaseId;
+
+  /** The database engine instance for executing database operations. */
   protected RDBMSNativeEngine database;
 
   /** The result of the reactor execution, containing the output data and metadata. */
