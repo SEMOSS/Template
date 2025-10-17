@@ -1,5 +1,4 @@
 name: SEMOSS Compilation Validation
-authors: [ 'Patel, Parth' ]
 
 on:
   push:
