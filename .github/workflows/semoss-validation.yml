@@ -6,7 +6,6 @@ on:
     branches: [ default-app ]
   pull_request:
     branches: [ default-app ]
-    types: [ closed ]
 
 jobs:
   validate-compilation:
