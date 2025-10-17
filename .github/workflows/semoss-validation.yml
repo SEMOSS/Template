@@ -1,0 +1,61 @@
+name: SEMOSS Compilation Validation
+authors: [ 'Patel, Parth' ]
+
+on:
+  push:
+    branches: [ default-app ]
+  pull_request:
+    branches: [ default-app ]
+    types: [ closed ]
+
+jobs:
+  validate-compilation:
+    # Only run on push to main OR when PR is merged (not just closed)
+    if: github.event_name == 'push' || (github.event_name == 'pull_request' && github.event.pull_request.merged == true)
+    
+    runs-on: ubuntu-latest
+    
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v4
+      with:
+        fetch-depth: 1
+        
+    - name: Set up Python
+      uses: actions/setup-python@v4
+      with:
+        python-version: '3.12'
+        
+    - name: Install dependencies
+      run: |
+        python -m pip install --upgrade pip
+        pip install ai-server-sdk[full] requests
+        
+    - name: Validate project structure
+      run: |
+        echo "[INFO] Checking project structure..."
+        for folder in py portals java client; do
+          if [ -d "$folder" ]; then
+            echo "[SUCCESS] Found folder: $folder"
+          else
+            echo "[WARN] Missing folder: $folder"
+          fi
+        done
+        
+    - name: Run SEMOSS compilation validation
+      env:
+        AI_SERVER_URL: ${{ secrets.AI_SERVER_URL }}
+        ACCESS_KEY: ${{ secrets.ACCESS_KEY }}
+        SECRET_KEY: ${{ secrets.SECRET_KEY }}
+      run: |
+        echo "[INFO] Starting SEMOSS compilation validation..."
+        python .github/scripts/validate-semoss-compilation.py
+        
+    - name: Upload validation logs
+      if: always()
+      uses: actions/upload-artifact@v4
+      with:
+        name: validation-logs-${{ github.sha }}
+        path: |
+          *.log
+        retention-days: 7
