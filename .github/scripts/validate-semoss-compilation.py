@@ -226,8 +226,6 @@ def upload_zip_file(server_connection, zip_filename, project_id):
             headers = {'Authorization': f'Basic {encoded}'}
             
             response = requests.post(upload_url, files=files, headers=headers, timeout=60)
-            print("the response should be here:")
-            print(response)
         
         response.raise_for_status()
         upload_result = response.json()
