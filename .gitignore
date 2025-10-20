@@ -16,3 +16,5 @@ java/project.properties
 .classpath
 .project
 .settings/
+**/.env
+!client/.env

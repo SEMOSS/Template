@@ -11,10 +11,30 @@ import requests
 import base64
 from datetime import datetime
 
-def print_step_header(step_name):
-    """Print formatted step header"""
+# Total number of primary workflow steps (display-only constant)
+TOTAL_STEPS = 8
+
+def print_step_header(step_name, step_number=None, total_steps=None):
+    """Print formatted step header with optional numbering.
+
+    Args:
+        step_name (str): Descriptive name of the step.
+        step_number (int, optional): The ordinal position of the step.
+            Positive numbers indicate workflow steps.
+            Negative numbers indicate cleanup/teardown steps.
+        total_steps (int, optional): Total number of steps for context.
+    """
     print("=" * 60)
-    print(f"STEP: {step_name}")
+    if step_number is not None:
+        if step_number < 0:
+            # Cleanup/teardown step
+            print(f"CLEANUP: {step_name}")
+        elif total_steps is not None:
+            print(f"STEP {step_number}/{total_steps}: {step_name}")
+        else:
+            print(f"STEP {step_number}: {step_name}")
+    else:
+        print(f"STEP: {step_name}")
     print("=" * 60)
 
 def print_section_divider(title):
@@ -61,8 +81,8 @@ def run_pixel_with_logging(server_connection, pixel, full_response=False, show_o
     return result
 
 def create_zip():
-    """Create zip file with py, portals, java, client folders"""
-    print_step_header("Creating Project Zip File")
+    """Create zip file with py, portals, java, client folders (Step 1)."""
+    print_step_header("Creating Project Zip File", step_number=1, total_steps=TOTAL_STEPS)
     
     folders_to_zip = ['py', 'portals', 'java', 'client']
     
@@ -86,8 +106,8 @@ def create_zip():
     return zip_filename
 
 def setup_ai_server():
-    """Setup AI Server connection"""
-    print_step_header("Connecting to AI Server")
+    """Setup AI Server connection (Step 2)."""
+    print_step_header("Connecting to AI Server", step_number=2, total_steps=TOTAL_STEPS)
     
     try:
         from ai_server import ServerClient
@@ -124,7 +144,7 @@ def get_current_insight(server_connection):
     No pixel needed - uses existing connection insight
     Why: Need insight ID for all subsequent operations
     """
-    print_step_header("Getting Current Insight")
+    print_step_header("Getting Current Insight", step_number=3, total_steps=TOTAL_STEPS)
     
     try:
         insight_id = server_connection.cur_insight
@@ -139,7 +159,7 @@ def create_temporary_project(server_connection):
     Pixel: CreateProject(project=["Test-project-sep17"], portal=[true], projectType=["CODE"])
     Why: Create temporary project to test compilation without affecting existing projects
     """
-    print_step_header("Creating Temporary Project")
+    print_step_header("Creating Temporary Project", step_number=4, total_steps=TOTAL_STEPS)
     
     try:
         project_name = f"Test-project-{datetime.now().strftime('%b%d').lower()}"
@@ -167,7 +187,7 @@ def delete_existing_assets(server_connection, project_id):
     Pixel: DeleteAsset(filePath=["version/assets/"], space=["project_id"])
     Why: Clear any existing assets before uploading new code
     """
-    print_step_header("Deleting Existing Assets")
+    print_step_header("Deleting Existing Assets", step_number=5, total_steps=TOTAL_STEPS)
     
     try:
         delete_pixel = f'DeleteAsset(filePath=["version/assets/"], space=["{project_id}"]);'
@@ -183,7 +203,7 @@ def upload_zip_file(server_connection, zip_filename, project_id):
     HTTP Upload: /uploadFile/baseUpload
     Why: Upload project files to SEMOSS for compilation testing
     """
-    print_step_header("Uploading Project Files")
+    print_step_header("Uploading Project Files", step_number=6, total_steps=TOTAL_STEPS)
     
     try:
         server_url = os.getenv('AI_SERVER_URL')
@@ -226,7 +246,7 @@ def unzip_main_project(server_connection, zip_filename, project_id):
     Pixel: UnzipFile(filePath=["version/assets/project_timestamp.zip"], space=["project_id"])
     Why: Extract uploaded project files including java.zip
     """
-    print_step_header("Unzipping Main Project File")
+    print_step_header("Unzipping Main Project File", step_number=7, total_steps=TOTAL_STEPS)
     
     try:
         file_location = f"version/assets/{os.path.basename(zip_filename)}"
@@ -243,7 +263,7 @@ def compile_reactors(server_connection):
     Pixel: CompileAppReactors()
     Why: Compile Java reactors and validate no compilation errors exist
     """
-    print_step_header("Compiling App Reactors")
+    print_step_header("Compiling App Reactors", step_number=8, total_steps=TOTAL_STEPS)
     
     try:
         compile_pixel = "CompileAppReactors();"
@@ -300,7 +320,7 @@ def cleanup_project(server_connection, project_id):
     Pixel: DeleteProject(project=["project_id"])
     Why: Remove temporary project to avoid cluttering SEMOSS instance
     """
-    print_step_header("Cleaning Up Temporary Project")
+    print_step_header("Cleaning Up Temporary Project", step_number=-1)
     
     if not project_id:
         print("[INFO] No project to clean up")
@@ -366,13 +386,13 @@ def run_validation_workflow():
         compilation_success = compile_reactors(server_connection)
         if not compilation_success:
             raise Exception("Compilation failed")
-        
+
         return True
-        
+
     except Exception as e:
         print(f"[ERROR] {e}")
         return False
-        
+
     finally:
         # Always cleanup
         if server_connection and project_id:
