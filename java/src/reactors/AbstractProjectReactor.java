@@ -116,7 +116,7 @@ public abstract class AbstractProjectReactor extends AbstractReactor {
    */
   @SuppressWarnings("unchecked")
   protected Map<String, Object> getMap(String paramName) {
-    GenRowStruct mapGrs = this.store.getNoun(paramName);
+    GenRowStruct mapGrs = this.store.getGenRowStruct(paramName);
     if (mapGrs != null && !mapGrs.isEmpty()) {
       List<NounMetadata> mapInputs = mapGrs.getNounsOfType(PixelDataType.MAP);
       if (mapInputs != null && !mapInputs.isEmpty()) {
