@@ -3,6 +3,16 @@
 Script to validate Java reactor compilation in SEMOSS
 Creates temporary project, uploads code, compiles, then cleans up
 @author: Patel, Parth
+
+TODOS:
+- Print the zip size
+- Skip adding node modules to zip (or other things)
+- Build portals if not present
+- Retry potentially? Error with invalid session
+    - Log errors for sure
+- Potentially - on merge to deployment/default branch, have a cd action to just build the zip (can also have action to run manually)
+- Make python version an env var
+- Semantic versioning - work on this
 """
 
 import zipfile
@@ -210,6 +220,8 @@ def upload_zip_file(server_connection, zip_filename, project_id):
         access_key = os.getenv('ACCESS_KEY')
         secret_key = os.getenv('SECRET_KEY')
         insight_id = server_connection.cur_insight
+
+        print(insight_id)
         
         if not all([server_url, access_key, secret_key, insight_id]):
             print("[ERROR] Missing required connection details for upload")
