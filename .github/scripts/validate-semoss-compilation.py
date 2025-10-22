@@ -5,9 +5,6 @@ Creates temporary project, uploads code, compiles, then cleans up
 @author: Patel, Parth
 
 TODOS:
-- Print the zip size
-- Skip adding node modules to zip (or other things)
-- Build portals if not present
 - Retry potentially? Error with invalid session
     - Log errors for sure
 - Potentially - on merge to deployment/default branch, have a cd action to just build the zip (can also have action to run manually)
@@ -19,6 +16,7 @@ import zipfile
 import os
 import requests
 import base64
+import subprocess
 from datetime import datetime
 
 # Total number of primary workflow steps (display-only constant)
@@ -90,9 +88,65 @@ def run_pixel_with_logging(server_connection, pixel, full_response=False, show_o
     
     return result
 
+def build_portals_if_needed():
+    """Build portals using pnpm build in client folder if portals doesn't exist"""
+    if not os.path.exists('portals'):
+        print("[INFO] Portals folder not found, building from client...")
+        
+        if not os.path.exists('client'):
+            print("[ERROR] Client folder not found - cannot build portals")
+            return False
+            
+        try:
+            # Run pnpm install first to ensure dependencies are installed
+            print("[INFO] Running 'pnpm install' in client directory...")
+            install_result = subprocess.run(
+                ['pnpm', 'install'],
+                cwd='client',
+                timeout=300  # 5 minute timeout
+            )
+            
+            if install_result.returncode != 0:
+                print(f"[ERROR] pnpm install failed with return code {install_result.returncode}")
+                return False
+            
+            print("[SUCCESS] Dependencies installed successfully")
+            
+            # Run pnpm build in client directory with live output
+            print("[INFO] Running 'pnpm build' in client directory...")
+            build_result = subprocess.run(
+                ['pnpm', 'build'],
+                cwd='client',
+                timeout=300  # 5 minute timeout
+            )
+            
+            if build_result.returncode == 0:
+                print("[SUCCESS] Portals built successfully")
+                return True
+            else:
+                print(f"[ERROR] pnpm build failed with return code {build_result.returncode}")
+                return False
+                
+        except subprocess.TimeoutExpired:
+            print("[ERROR] pnpm build timed out after 5 minutes")
+            return False
+        except FileNotFoundError:
+            print("[ERROR] pnpm command not found - make sure pnpm is installed")
+            return False
+        except Exception as e:
+            print(f"[ERROR] Failed to build portals: {e}")
+            return False
+    else:
+        print("[INFO] Portals folder already exists")
+        return True
+
 def create_zip():
     """Create zip file with py, portals, java, client folders (Step 1)."""
     print_step_header("Creating Project Zip File", step_number=1, total_steps=TOTAL_STEPS)
+    
+    # Build portals if not present
+    if not build_portals_if_needed():
+        print("[ERROR] Failed to build portals - continuing without it")
     
     folders_to_zip = ['py', 'portals', 'java', 'client']
     
@@ -106,11 +160,21 @@ def create_zip():
             if os.path.exists(folder):
                 print(f"[INFO] Adding folder: {folder}")
                 for root, dirs, files in os.walk(folder):
+                    # Skip node_modules directories
+                    if 'node_modules' in dirs:
+                        dirs.remove('node_modules')
+                        print(f"[INFO] Skipping node_modules in {root}")
+                    
                     for file in files:
                         file_path = os.path.join(root, file)
                         zipf.write(file_path)
             else:
                 print(f"[WARN] Folder '{folder}' not found")
+    
+    # Get and print zip file size
+    zip_size_bytes = os.path.getsize(zip_filename)
+    zip_size_mb = zip_size_bytes / (1024 * 1024)
+    print(f"[INFO] Zip file size: {zip_size_bytes:,} bytes ({zip_size_mb:.2f} MB)")
     
     print(f"[SUCCESS] Zip file created: {zip_filename}")
     return zip_filename
