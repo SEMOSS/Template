@@ -78,8 +78,8 @@ public abstract class AbstractProjectReactor extends AbstractReactor {
       } else {
         ex = new ProjectException(ErrorCode.INTERNAL_SERVER_ERROR, e);
       }
-      LOGGER.error(String.format("Reactor %s threw an error", this.getClass().getSimpleName()), e);
 
+      LOGGER.error(String.format("Reactor %s threw an error", this.getClass().getSimpleName()), e);
       return new NounMetadata(ex.getAsMap(), PixelDataType.MAP, PixelOperationType.ERROR);
     }
   }
@@ -109,7 +109,6 @@ public abstract class AbstractProjectReactor extends AbstractReactor {
     }
 
     user = this.insight.getUser();
-
     organizeKeys();
   }
 
@@ -126,17 +125,19 @@ public abstract class AbstractProjectReactor extends AbstractReactor {
    */
   @SuppressWarnings("unchecked")
   protected Map<String, Object> getMap(String paramName) {
-    GenRowStruct mapGrs = this.store.getNoun(paramName);
+    GenRowStruct mapGrs = this.store.getGenRowStruct(paramName);
     if (mapGrs != null && !mapGrs.isEmpty()) {
       List<NounMetadata> mapInputs = mapGrs.getNounsOfType(PixelDataType.MAP);
       if (mapInputs != null && !mapInputs.isEmpty()) {
         return (Map<String, Object>) mapInputs.get(0).getValue();
       }
     }
+
     List<NounMetadata> mapInputs = this.curRow.getNounsOfType(PixelDataType.MAP);
     if (mapInputs != null && !mapInputs.isEmpty()) {
       return (Map<String, Object>) mapInputs.get(0).getValue();
     }
+
     return null;
   }
 

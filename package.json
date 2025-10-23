@@ -1,15 +1,15 @@
 {
 	"private": true,
 	"scripts": {
-		"fix": "biome format --write && biome lint; pre-commit run --all-files || pre-commit run --all-files",
+		"fix": "biome format --write && biome lint && pre-commit run --all-files || pre-commit run --all-files",
 		"dev": "pnpm --dir client dev",
-		"javadoc": "mvn clean javadoc:javadoc; mvn site; pnpm exec http-server target/site/apidocs -p 1227 -a localhost -o"
+		"javadoc": "mvn clean javadoc:javadoc && mvn site && pnpm exec http-server target/site/apidocs -p 1227 -a localhost -o"
 	},
 	"devDependencies": {
-		"@biomejs/biome": "2.2.5",
+		"@biomejs/biome": "2.2.6",
 		"http-server": "^14.1.1",
 		"husky": "^9.1.7",
-		"lint-staged": "^16.2.3"
+		"lint-staged": "^16.2.4"
 	},
 	"lint-staged": {
 		"**/*.{js,jsx,ts,tsx,json,html,css}": [
