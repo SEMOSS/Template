@@ -337,7 +337,7 @@ def unzip_main_project(server_connection, zip_filename, project_id):
         print(f"[ERROR] Failed to unzip main project: {e}")
         return False
 
-def compile_reactors(server_connection):
+def compile_reactors(server_connection, project_id):
     """
     Pixel: CompileAppReactors()
     Why: Compile Java reactors and validate no compilation errors exist
@@ -345,11 +345,8 @@ def compile_reactors(server_connection):
     print_step_header("Compiling App Reactors", step_number=8, total_steps=TOTAL_STEPS)
     
     try:
-        compile_pixel = "CompileAppReactors();"
+        compile_pixel = f"CompileAppReactors(project=\"{project_id}\");"
         result = run_pixel_with_logging(server_connection, compile_pixel, full_response=True, show_output=False)
-        
-        # Show detailed compilation output
-        print_pixel_output(result, show_detailed=True)
         
         # Analyze results for errors
         if result and 'pixelReturn' in result:
@@ -359,29 +356,35 @@ def compile_reactors(server_connection):
                 
                 # Check for actual errors (not warnings)
                 if isinstance(output, list):
-                    error_found = False
+                    error_count = 0
                     warning_count = 0
                     mandatory_warning_count = 0
                     
-                    for line in output:
-                        if isinstance(line, str):
+                    # Flatten all lines by splitting on \n
+                    all_lines = []
+                    for item in output:
+                        if isinstance(item, str):
+                            all_lines.extend(item.split('\n'))
+                    
+                    for line in all_lines:
+                        if isinstance(line, str) and line.strip():  # Skip empty lines
                             # Count warnings
                             if '[MANDATORY_WARNING]' in line:
                                 mandatory_warning_count += 1
                             elif '[WARNING]' in line:
                                 warning_count += 1
                             # Look for actual errors (not warnings)
-                            elif 'ERROR' in line.upper() and 'WARNING' not in line.upper():
+                            elif '[ERROR]' in line:
                                 print(f"[ERROR] Compilation error found: {line}")
-                                error_found = True
+                                error_count += 1
                     
-                    print(f"[INFO] Summary: {mandatory_warning_count} mandatory warnings, {warning_count} warnings")
+                    print(f"[INFO] Summary: {error_count} errors, {mandatory_warning_count} mandatory warnings, {warning_count} warnings")
                     
-                    if not error_found:
+                    if error_count == 0:
                         print("[SUCCESS] No compilation errors found")
                         return True
                     else:
-                        print("[ERROR] Compilation errors detected")
+                        print(f"[ERROR] {error_count} compilation errors detected")
                         return False
                 else:
                     print("[SUCCESS] Compilation completed")
@@ -462,7 +465,7 @@ def run_validation_workflow():
             raise Exception("Failed to unzip main project")
         
         # Step 8: Compile reactors
-        compilation_success = compile_reactors(server_connection)
+        compilation_success = compile_reactors(server_connection, project_id)
         if not compilation_success:
             raise Exception("Compilation failed")
 
