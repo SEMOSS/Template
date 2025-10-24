@@ -438,7 +438,7 @@ def cleanup_project(server_connection, project_id):
         cprint("[SUCCESS] Temporary project deleted", "green")
         return True
     except Exception as cleanup_error:
-        print(f"[WARN] Could not delete project: {cleanup_error}")
+        cprint(f"[WARN] Could not delete project: {cleanup_error}", 'yellow')
         return False
 
 def cleanup_local_files(zip_filename):
@@ -446,8 +446,8 @@ def cleanup_local_files(zip_filename):
     try:
         os.remove(zip_filename)
         cprint(f"[SUCCESS] Cleaned up local file: {zip_filename}", "green")
-    except:
-        print(f"[WARN] Could not clean up: {zip_filename}")
+    except Exception as e:
+        cprint(f"[WARN] Could not clean up {zip_filename}: {e}", 'yellow')
 
 def run_validation_workflow():
     """Execute the main validation workflow steps"""
@@ -496,7 +496,7 @@ def run_validation_workflow():
         return True
 
     except Exception as e:
-        print(f"[ERROR] {e}")
+        cprint(f"[ERROR] {e}", 'red')
         return False
 
     finally:
@@ -508,17 +508,29 @@ def run_validation_workflow():
 
 def main():
     """Main compilation validation workflow"""
-    print("[INFO] Starting compilation validation workflow")
-    print("=" * 50)
-    
-    success = run_validation_workflow()
-    
-    print("=" * 50)
-    if success:
-        cprint("[SUCCESS] Compilation validation completed successfully", "green")
-        print("[INFO] All Java reactors compiled without errors")
-    else:
-        print("[ERROR] Compilation validation failed")
+
+    tries = 2 # Retry once
+    success = False
+
+    while tries > 0:
+        print("[INFO] Starting compilation validation workflow")
+        print("=" * 50)
+        
+        success = run_validation_workflow()
+        
+        print("=" * 50)
+        if success:
+            cprint("[SUCCESS] Compilation validation completed successfully", "green")
+            cprint("[INFO] All Java reactors compiled without errors", 'blue')
+        else:
+            cprint("[ERROR] Compilation validation failed", 'red')
+        
+        if success:
+            break
+        tries -= 1
+
+        if tries > 0:
+            cprint("Retrying...", 'yellow')
     
     return success
 
