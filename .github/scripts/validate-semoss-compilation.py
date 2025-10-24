@@ -2,11 +2,9 @@
 """
 Script to validate Java reactor compilation in SEMOSS
 Creates temporary project, uploads code, compiles, then cleans up
-@author: Patel, Parth
+@author: Patel, Parth; Doshi, Rithvik
 
 TODOS:
-- Retry potentially? Error with invalid session
-    - Log errors for sure
 - Potentially - on merge to deployment/default branch, have a cd action to just build the zip (can also have action to run manually)
 - Make python version an env var
 - Semantic versioning - work on this
@@ -18,6 +16,7 @@ import requests
 import base64
 import subprocess
 from datetime import datetime
+import uuid
 
 # ANSI color wrapper
 def cprint(message: str, color: str = None):
@@ -258,7 +257,7 @@ def create_temporary_project(server_connection):
     print_step_header("Creating Temporary Project", step_number=4, total_steps=TOTAL_STEPS)
     
     try:
-        project_name = f"Test-project-{datetime.now().strftime('%b%d').lower()}"
+        project_name = f"Test-project-{datetime.now().strftime('%b%d').lower()}-{uuid.uuid1()}"
         create_project_pixel = f'CreateProject(project=["{project_name}"], portal=[true], projectType=["CODE"]);'
         
         result = run_pixel_with_logging(server_connection, create_project_pixel, full_response=True)
