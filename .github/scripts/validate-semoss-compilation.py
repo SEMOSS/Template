@@ -5,7 +5,6 @@ Creates temporary project, uploads code, compiles, then cleans up
 @author: Patel, Parth; Doshi, Rithvik
 
 TODOS:
-- Potentially - on merge to deployment/default branch, have a cd action to just build the zip (can also have action to run manually)
 - Make python version an env var
 - Semantic versioning - work on this
 """
@@ -508,7 +507,7 @@ def run_validation_workflow():
 def main():
     """Main compilation validation workflow"""
 
-    tries = 2 # Retry once
+    tries = 5 # number of retries
     success = False
 
     while tries > 0:
@@ -529,7 +528,7 @@ def main():
         tries -= 1
 
         if tries > 0:
-            cprint("Retrying...", 'yellow')
+            cprint(f"Retrying... ({tries} left)", 'yellow')
     
     return success
 
