@@ -19,6 +19,28 @@ import base64
 import subprocess
 from datetime import datetime
 
+# ANSI color wrapper
+def cprint(message: str, color: str = None):
+    """Print a message with optional ANSI color.
+
+    Args:
+        message (str): Text to print
+        color (str): One of 'green','red','yellow','blue','magenta','cyan','reset', or None
+    """
+    colors = {
+        'green': '\033[92m',
+        'red': '\033[91m',
+        'yellow': '\033[93m',
+        'blue': '\033[94m',
+        'magenta': '\033[95m',
+        'cyan': '\033[96m',
+        'reset': '\033[0m'
+    }
+    if color in colors:
+        print(f"{colors[color]}{message}{colors['reset']}")
+    else:
+        print(message)
+
 # Total number of primary workflow steps (display-only constant)
 TOTAL_STEPS = 8
 
@@ -110,7 +132,7 @@ def build_portals_if_needed():
                 print(f"[ERROR] pnpm install failed with return code {install_result.returncode}")
                 return False
             
-            print("[SUCCESS] Dependencies installed successfully")
+            cprint("[SUCCESS] Dependencies installed successfully", "green")
             
             # Run pnpm build in client directory with live output
             print("[INFO] Running 'pnpm build' in client directory...")
@@ -121,7 +143,7 @@ def build_portals_if_needed():
             )
             
             if build_result.returncode == 0:
-                print("[SUCCESS] Portals built successfully")
+                cprint("[SUCCESS] Portals built successfully", "green")
                 return True
             else:
                 print(f"[ERROR] pnpm build failed with return code {build_result.returncode}")
@@ -176,7 +198,7 @@ def create_zip():
     zip_size_mb = zip_size_bytes / (1024 * 1024)
     print(f"[INFO] Zip file size: {zip_size_bytes:,} bytes ({zip_size_mb:.2f} MB)")
     
-    print(f"[SUCCESS] Zip file created: {zip_filename}")
+    cprint(f"[SUCCESS] Zip file created: {zip_filename}", "green")
     return zip_filename
 
 def setup_ai_server():
@@ -202,7 +224,7 @@ def setup_ai_server():
             secret_key=secret_key
         )
         
-        print("[SUCCESS] Connected to AI Server")
+        cprint("[SUCCESS] Connected to AI Server", "green")
         return server_connection
         
     except ImportError:
@@ -222,7 +244,7 @@ def get_current_insight(server_connection):
     
     try:
         insight_id = server_connection.cur_insight
-        print(f"[SUCCESS] Using insight: {insight_id}")
+        cprint(f"[SUCCESS] Using insight: {insight_id}", "green")
         return insight_id
     except Exception as e:
         print(f"[ERROR] Failed to get insight ID: {e}")
@@ -246,7 +268,7 @@ def create_temporary_project(server_connection):
             pixel_result = result['pixelReturn'][0]
             if 'output' in pixel_result and 'project_id' in pixel_result['output']:
                 project_id = pixel_result['output']['project_id']
-                print(f"[SUCCESS] Temporary project created: {project_id}")
+                cprint(f"[SUCCESS] Temporary project created: {project_id}", "green")
                 return project_id
         
         print("[ERROR] Could not extract project ID from CreateProject result")
@@ -266,7 +288,7 @@ def delete_existing_assets(server_connection, project_id):
     try:
         delete_pixel = f'DeleteAsset(filePath=["version/assets/"], space=["{project_id}"]);'
         run_pixel_with_logging(server_connection, delete_pixel)
-        print("[SUCCESS] Assets deletion completed")
+        cprint("[SUCCESS] Assets deletion completed", "green")
         return True
     except Exception as e:
         print(f"[ERROR] Failed to delete assets: {e}")
@@ -310,7 +332,7 @@ def upload_zip_file(server_connection, zip_filename, project_id):
 
         
         if upload_result and upload_result[0] and upload_result[0].get('fileLocation'):
-            print("[SUCCESS] Upload completed")
+            cprint("[SUCCESS] Upload completed", "green")
             return True
         else:
             print("[ERROR] Upload failed: Invalid response")
@@ -331,7 +353,7 @@ def unzip_main_project(server_connection, zip_filename, project_id):
         file_location = f"version/assets/{os.path.basename(zip_filename)}"
         unzip_pixel = f'UnzipFile(filePath=["{file_location}"], space=["{project_id}"]);'
         run_pixel_with_logging(server_connection, unzip_pixel)
-        print("[SUCCESS] Main project file unzipped")
+        cprint("[SUCCESS] Main project file unzipped", "green")
         return True
     except Exception as e:
         print(f"[ERROR] Failed to unzip main project: {e}")
@@ -370,24 +392,26 @@ def compile_reactors(server_connection, project_id):
                         if isinstance(line, str) and line.strip():  # Skip empty lines
                             # Count warnings
                             if '[MANDATORY_WARNING]' in line:
+                                cprint(line, "yellow")
                                 mandatory_warning_count += 1
                             elif '[WARNING]' in line:
+                                cprint(line, "blue")
                                 warning_count += 1
                             # Look for actual errors (not warnings)
                             elif '[ERROR]' in line:
-                                print(f"[ERROR] Compilation error found: {line}")
+                                cprint(line, "red")
                                 error_count += 1
                     
                     print(f"[INFO] Summary: {error_count} errors, {mandatory_warning_count} mandatory warnings, {warning_count} warnings")
                     
                     if error_count == 0:
-                        print("[SUCCESS] No compilation errors found")
+                        cprint("[SUCCESS] No compilation errors found", "green")
                         return True
                     else:
-                        print(f"[ERROR] {error_count} compilation errors detected")
+                        cprint(f"[ERROR] {error_count} compilation errors detected", "red")
                         return False
                 else:
-                    print("[SUCCESS] Compilation completed")
+                    cprint("[SUCCESS] Compilation completed", "green")
                     return True
         else:
             print("[WARN] No compilation output returned")
@@ -411,7 +435,7 @@ def cleanup_project(server_connection, project_id):
     try:
         delete_project_pixel = f'DeleteProject(project=["{project_id}"]);'
         run_pixel_with_logging(server_connection, delete_project_pixel)
-        print("[SUCCESS] Temporary project deleted")
+        cprint("[SUCCESS] Temporary project deleted", "green")
         return True
     except Exception as cleanup_error:
         print(f"[WARN] Could not delete project: {cleanup_error}")
@@ -421,7 +445,7 @@ def cleanup_local_files(zip_filename):
     """Remove local zip file"""
     try:
         os.remove(zip_filename)
-        print(f"[SUCCESS] Cleaned up local file: {zip_filename}")
+        cprint(f"[SUCCESS] Cleaned up local file: {zip_filename}", "green")
     except:
         print(f"[WARN] Could not clean up: {zip_filename}")
 
@@ -491,7 +515,7 @@ def main():
     
     print("=" * 50)
     if success:
-        print("[SUCCESS] Compilation validation completed successfully")
+        cprint("[SUCCESS] Compilation validation completed successfully", "green")
         print("[INFO] All Java reactors compiled without errors")
     else:
         print("[ERROR] Compilation validation failed")
