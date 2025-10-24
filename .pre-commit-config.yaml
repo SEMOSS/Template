@@ -34,6 +34,30 @@ repos:
           - id: isort
             args: ['--profile', 'black']
             files: '^py.*\.py$'
+    - repo: https://github.com/pre-commit/mirrors-mypy
+      rev: v1.18.2
+      hooks:
+          - id: mypy
+            files: '\.py$'
+            args: [
+                "--ignore-missing-imports",
+                "--show-error-codes",
+                "--explicit-package-bases",
+                "--allow-untyped-defs",
+                "--allow-incomplete-defs", 
+                "--allow-untyped-calls",
+                "--no-strict-optional",
+                "--disable-error-code=misc",
+                "--disable-error-code=no-any-return",
+                "--disable-error-code=name-defined",
+                "--disable-error-code=attr-defined"
+            ]
+            additional_dependencies: [ # Continue to add dependencies here that have mypy extensions, such as pydantic
+                "types-requests",
+                "types-toml",
+                "pandas-stubs",
+                "numpy"
+            ]
     - repo: https://github.com/pamoller/xmlformatter
       rev: v0.2.8
       hooks:

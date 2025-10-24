@@ -43,7 +43,8 @@ public abstract class AbstractProjectReactor extends AbstractReactor {
   /** Project-specific properties and configuration settings. */
   protected ProjectProperties projectProperties;
 
-  // TODO: intialize protected variables you would like your reactors to have access to
+  // TODO: Initialize additional protected variables (engines, external services,
+  // etc.)
 
   /** The result of the reactor execution, containing the output data and metadata. */
   protected NounMetadata result = null;
@@ -72,8 +73,8 @@ public abstract class AbstractProjectReactor extends AbstractReactor {
       } else {
         ex = new ProjectException(ErrorCode.INTERNAL_SERVER_ERROR, e);
       }
-      LOGGER.error(String.format("Reactor %s threw an error", this.getClass().getSimpleName()), e);
 
+      LOGGER.error(String.format("Reactor %s threw an error", this.getClass().getSimpleName()), e);
       return new NounMetadata(ex.getAsMap(), PixelDataType.MAP, PixelOperationType.ERROR);
     }
   }
@@ -96,10 +97,9 @@ public abstract class AbstractProjectReactor extends AbstractReactor {
 
     projectProperties = ProjectProperties.getInstance(projectId);
 
-    // TODO: Update protected variables
+    // TODO: Initialize additional resources (engines, external services, etc.)
 
     user = this.insight.getUser();
-
     organizeKeys();
   }
 
@@ -123,10 +123,12 @@ public abstract class AbstractProjectReactor extends AbstractReactor {
         return (Map<String, Object>) mapInputs.get(0).getValue();
       }
     }
+
     List<NounMetadata> mapInputs = this.curRow.getNounsOfType(PixelDataType.MAP);
     if (mapInputs != null && !mapInputs.isEmpty()) {
       return (Map<String, Object>) mapInputs.get(0).getValue();
     }
+
     return null;
   }
 

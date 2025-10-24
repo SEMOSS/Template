@@ -9,20 +9,36 @@ import prerna.util.AssetUtility;
 import prerna.util.Utility;
 
 /**
- * Loads property values from a project asset at
+ * Singleton utility class responsible for loading and exposing project-specific configuration
+ * properties. Properties are sourced from the project asset file located at:
  *
- * <pre>[proj]/app_root/version/assets/java/project.properties</pre>
+ * <pre>
+ * [projectId]/app_root/version/assets/java/project.properties
+ * </pre>
  *
- * into a static instance. The project used to infer the path is an argument at runtime.
+ * <p>Invocation pattern:
  *
- * <p>File format conforms to typical java.util.Properties style load patterns: one property per
- * line with white space, {@code '='}, or {@code ':'} separating the key and value.
+ * <ul>
+ *   <li>Call {@link #getInstance(String)} once with a valid project identifier to lazily initialize
+ *       and load the backing properties file.
+ *   <li>Subsequent calls to {@link #getInstance()} retrieve the same initialized singleton
+ *       instance.
+ * </ul>
  *
- * <p>Replace the engineId applicable for your project in a format such as:
+ * <p>File format conforms to standard {@link Properties} loading rules: one property per line with
+ * supported separators (whitespace, '=' or ':'). Custom project keys (e.g., <code>engineId</code>)
+ * can be defined following that pattern:
  *
- * <pre>engineId=fc6a3fab-2425-4987-be93-58ad2efeee24</pre>
+ * <pre>
+ * engineId=fc6a3fab-2425-4987-be93-58ad2efeee24
+ * </pre>
  *
- * @see java.util.Properties#load(java.io.Reader)
+ * <p>Error handling uses {@link ProjectException} wrapping {@link domain.base.ErrorCode} values to
+ * provide consistent structured failure semantics when initialization or file IO fails.
+ *
+ * @see {@link ProjectException} for structured configuration load error reporting.
+ * @see {@link #getInstance(String)} for initial lazy load of the singleton.
+ * @see {@link Properties#load(java.io.InputStream)} for supported file parsing rules.
  */
 public class ProjectProperties {
 
@@ -35,19 +51,23 @@ public class ProjectProperties {
   // TODO: Add var for each property
 
   /**
-   * Private constructor to prevent direct instantiation. This class follows the Singleton pattern
-   * and should be accessed through {@link #getInstance()} or {@link #getInstance(String)} methods.
+   * Private constructor to prevent direct instantiation.
+   *
+   * <p>This class follows the Singleton pattern and should be accessed exclusively through {@link
+   * #getInstance()} or the lazy-loading {@link #getInstance(String)} initialization variant.
    */
   private ProjectProperties() {}
 
   /**
-   * Returns the singleton instance of ProjectProperties. This method requires that the instance has
-   * already been initialized with a project ID using {@link #getInstance(String)}. If the instance
-   * has not been initialized, it throws a {@link ProjectException}.
+   * Returns the already-initialized singleton instance of {@link ProjectProperties}.
    *
-   * @return The singleton ProjectProperties instance
-   * @throws ProjectException If the instance has not been initialized with a project ID
-   * @see {@link #getInstance(String)} for initializing the instance
+   * <p>This accessor requires prior initialization through {@link #getInstance(String)}. If the
+   * instance is still null, a {@link ProjectException} is thrown indicating an improper lifecycle
+   * usage.
+   *
+   * @return The singleton {@link ProjectProperties} instance.
+   * @throws ProjectException If the singleton has not yet been initialized.
+   * @see {@link #getInstance(String)} for first-time initialization semantics.
    */
   public static ProjectProperties getInstance() {
     if (INSTANCE == null) {
@@ -58,14 +78,15 @@ public class ProjectProperties {
   }
 
   /**
-   * Returns the singleton instance of ProjectProperties, initializing it if necessary. If this is
-   * the first call or the instance is null, this method loads the project properties from the
-   * specified project's configuration file.
+   * Lazily initializes and returns the singleton instance of {@link ProjectProperties}. If no prior
+   * instance exists, this method triggers a properties file load using the supplied project
+   * identifier.
    *
-   * @param projectId The project identifier used to locate the project.properties file
-   * @return The singleton ProjectProperties instance
-   * @throws ProjectException If there are issues loading the project configuration
-   * @see {@link #loadProp(String)} for the actual property loading logic
+   * @param projectId The project identifier used to locate the <code>project.properties</code>
+   *     file.
+   * @return The singleton {@link ProjectProperties} instance.
+   * @throws ProjectException If an IO error occurs during property loading.
+   * @see {@link #loadProp(String)} for internal file parsing and singleton assignment logic.
    */
   public static ProjectProperties getInstance(String projectId) {
     if (INSTANCE == null) {
@@ -75,21 +96,28 @@ public class ProjectProperties {
   }
 
   /**
-   * Loads project properties from the project's configuration file and initializes the singleton
-   * instance. This method reads the project.properties file from the project's assets folder and
-   * populates the ProjectProperties instance with the loaded configuration values.
+   * Internal helper that performs the actual loading of project configuration data into the
+   * singleton instance. The method constructs the properties file path using the resolved assets
+   * folder and delegates parsing to {@link Properties#load(java.io.InputStream)}.
    *
-   * <p>The properties file is expected to be located at:
+   * <p>Location pattern:
    *
-   * <pre>[projectId]/app_root/version/assets/java/project.properties</pre>
+   * <pre>
+   * [projectId]/app_root/version/assets/java/project.properties
+   * </pre>
    *
-   * <p>This method uses try-with-resources to ensure proper resource cleanup and handles any IO
-   * exceptions by converting them to {@link ProjectException} instances.
+   * <p>Lifecycle notes:
    *
-   * @param projectId The project identifier used to construct the path to the properties file
-   * @throws ProjectException If there are IO errors reading the properties file
-   * @see {@link Properties#load(java.io.InputStream)} for property file format requirements
-   * @see {@link AssetUtility#getProjectAssetsFolder(String)} for asset folder resolution
+   * <ul>
+   *   <li>On success, assigns the newly created instance to {@code INSTANCE}.
+   *   <li>On failure (IO issues), resets {@code INSTANCE} to null and throws a {@link
+   *       ProjectException} wrapping {@link domain.base.ErrorCode#INTERNAL_SERVER_ERROR}.
+   * </ul>
+   *
+   * @param projectId The project identifier used to build the canonical properties file path.
+   * @throws ProjectException If an {@link IOException} occurs during file access or parsing.
+   * @see {@link AssetUtility#getProjectAssetsFolder(String)} for asset folder resolution logic.
+   * @see {@link Properties#load(java.io.InputStream)} for specification-compliant parsing.
    */
   private static void loadProp(String projectId) {
     ProjectProperties newInstance = new ProjectProperties();
@@ -101,7 +129,8 @@ public class ProjectProperties {
       Properties projectProperties = new Properties();
       projectProperties.load(fileIn);
 
-      // TODO Add any properties to be read by the properties file and add the corresponding getter
+      // TODO Add any properties to be read by the properties file and add the
+      // corresponding getter.
 
       INSTANCE = newInstance;
     } catch (IOException e) {
@@ -111,6 +140,7 @@ public class ProjectProperties {
     }
   }
 
-  // TODO: Add getters for properties
+  // TODO: Add getters for properties with appropriate JavaDoc linking to
+  // individual property keys.
 
 }

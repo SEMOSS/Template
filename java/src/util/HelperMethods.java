@@ -10,5 +10,9 @@ package util;
  *
  * <p>As a utility class, this class should not be instantiated and all methods should be static and
  * public for easy access throughout the project.
+ *
+ * @see {@link Constants} for static configuration values that may be manipulated or referenced by
+ *     future helper methods.
+ * @see {@link ProjectProperties} for dynamic property values that helper methods may consume.
  */
 public class HelperMethods {}

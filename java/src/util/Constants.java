@@ -11,9 +11,16 @@ package util;
  *
  * <p>As a utility class, this class should not be instantiated and all members should be static and
  * public for easy access throughout the project.
+ *
+ * @see {@link HelperMethods} for complementary reusable helper functions operating on constant
+ *     values.
+ * @see {@link ProjectProperties} for dynamically loaded configuration properties that augment these
+ *     static constants.
  */
 public class Constants {
 
-  // TODO add any constants to be referenced in the project
+  // TODO add any constants to be referenced in the project (add JavaDoc for each
+  // constant when
+  // created).
 
 }

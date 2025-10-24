@@ -12,7 +12,11 @@ target/
 java/project.properties
 .admin/
 .DS_Store
-.vscode/
+**/.env
+!client/.env
+
+# cache
+py/__pycache__/
 .classpath
 .project
 .settings/
