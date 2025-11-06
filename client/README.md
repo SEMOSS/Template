@@ -20,24 +20,31 @@ After setting up your `.env.local file`, you’ll need to add a `project.propert
 
 ## Essential commands 
 
-1. **pnpm i** 
+1. **pnpm i** - Install Dependencies
 
-    1. Run "pnpm i" in the `client` folder to install dependencies for front-end React application.
-    2. Run "pnpm i" in the project root (`assets` folder) to set up the braoder project dependencies (access to Biome, etc).
+    1. Run "pnpm i" in the `client` folder to install all necessary packages for the front-end React application.
+    2. Run "pnpm i" in the project root (`assets` folder) to set up the broader project dependencies, including tools like Biome.
+
 
 2. **pnpm build:** 
 
-    1. Run "pnpm build" in `assets` in order to prepare the directory for deployment. 
+    1. Run "pnpm build" in the `assets` folder to compile and bundle your front-end code and related resources for production.
+    2. Build output is placed into the `portals` folder within `assets`. The `portals` directory is what SEMOSS displays as your local app. 
 
-pnpm build within SEMOSS packages the front-end assets (and potentially other project resources) and outputs them into the `portals` subfolder within `assets`. The `portals` folder is what is reflected on your localhost SEMOSS app. 
 
-To see your changes reflected on the app, save your code and run `pnpm build` in `assets`. Head to your apps page on SEMOSS (http://localhost:9090/SemossWeb/packages/client/dist/#/) and click the Publish Files, Refresh Files, and then the Refresh buttons.
+> **Note:**  
+> After saving changes to your code, run **pnpm build** in the `assets` 
+> folder to update the build. To see updates in your SEMOSS app (http://
+> localhost:9090/SemossWeb/packages/client/dist/#/), use the Publish 
+> Files, Refresh Files, and then Refresh buttons to ensure your changes
+> appear.
+
 
 3. **pnpm dev:** 
 
-    1. Run "pnpm dev" in `assets` in order to set up a local vite instance.
-
-pnpm dev starts a local development server with hot-reloading, so any changes you make are instantly reflected in the SEMOSS app. When you save your files, the app updates automatically so you don't need to rebuild every time.
+    1. Run "pnpm dev" in the `assets` folder to launch a local development server for your app. 
+    2. This command starts a local Vite server, which serves your project on your machine and provides hot reloading. 
+    3. When you save changes to your files, Vite immediately updates the app in your browser so you can see your latest changes without running pnpm build and manually refreshing. 
 
 
 ## Support

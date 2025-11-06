@@ -77,9 +77,10 @@ To make changes visible to users:
 1. In your file explorer, go to  
    `workspace/Semoss/project/[YourAppName]_[YourAppID]/app_root/version/`
 2. Rename `assets` to `old-assets`.
-3. Open a terminal at this location.
+3. Open a terminal in your `app_root/version` folder.
 4. Clone this repository:
    `git clone git@github.com:SEMOSS/Template.git`, if using SSH keys
+   `git clone https://github.com/SEMOSS/Template.git`, if not using SSH keys
 5. Rename the cloned `Template` folder to `assets`.
 6. Open `assets` in your code editor (VS Code recommended).
 
@@ -98,8 +99,7 @@ To make changes visible to users:
 
 This repository includes several tools to help maintain code quality:
 
-- [Prettier](https://biomejs.dev/): Formats and lints your front-end code for consistency.
-- [pre-commit](https://pre-commit.com/): Ensures code formatting and quality checks are run before committing (primarily for back-end code).
+- [Biome](https://biomejs.dev/): Formats and lints your front-end code for consistency.
 - [lint-staged](https://github.com/okonet/lint-staged): Runs formatting and linting on staged files before each commit to prevent bad code from being pushed.
     - Note: if you are a Mac user, and your commits are erroring out with the message `" not foundECURSIVE_EXEC_FIRST_FAIL  Command "lint-staged`, then you likely need to change your line-endings in `./husky/pre-commit` and `./husky/commit-msg` from CRLF to LF.
 - [commitizen](https://www.conventionalcommits.org/en/v1.0.0/): This pre-commit hook uses conventional commit syntax. Check this link out to understand how to format your commit messages. Here are some common examples:
