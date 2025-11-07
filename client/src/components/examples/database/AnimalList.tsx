@@ -29,7 +29,8 @@ export const AnimalList = ({
 					field: "date_of_birth",
 					headerName: "Date of birth",
 					type: "date",
-					valueGetter: (value) => (value ? new Date(value) : null),
+					valueGetter: (value) =>
+						value ? new Date(`${value}T00:00:00`) : null,
 				},
 				{
 					field: "actions",
