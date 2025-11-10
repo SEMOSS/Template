@@ -3,7 +3,7 @@ import { useState } from "react";
 import { useLoadingPixel } from "@/hooks";
 
 /**
- * Renders the home page.
+ * Renders an example component demonstrating pixel calls.
  *
  * @component
  */

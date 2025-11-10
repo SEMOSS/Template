@@ -1,7 +1,7 @@
 import { ExampleComponent } from "@/components";
 
 /**
- * Renders the home page.
+ * Renders the home page, currently displaying an example component.
  *
  * @component
  */
