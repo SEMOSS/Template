@@ -111,6 +111,10 @@ public class AddAnimalReactor extends AbstractProjectReactor {
 
     // Persist the animal data to the database
     // Call helper method to add animal to database
+    if (true) {
+      throw new ProjectException(
+          ErrorCode.INTERNAL_SERVER_ERROR, "AddAnimal not yet implemented in this example code.");
+    }
 
     return new NounMetadata(true, PixelDataType.BOOLEAN);
   }
