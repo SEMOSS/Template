@@ -109,7 +109,7 @@ public class AddAnimalReactor extends AbstractProjectReactor {
             UUID.randomUUID().toString(),
             animalType,
             animalName,
-            new SemossDate(dateOfBirth, "yyyy-MM-dd"));
+            new SemossDate(dateOfBirth, "yyyy-MM-dd", null));
 
     // Persist the animal data to the database
     HelperMethods.addAnimal(database, animalData);
