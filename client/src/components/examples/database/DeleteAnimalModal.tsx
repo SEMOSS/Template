@@ -1,6 +1,7 @@
 import { Button } from "@mui/material";
 import { ConfirmationDialog } from "@/components";
-import { useSettingPixel } from "@/hooks";
+import { useAppContext } from "@/contexts";
+import { useLoadingState } from "@/hooks";
 import type { Animal } from "./animal.types";
 
 export interface DeleteAnimalModalProps {
@@ -20,18 +21,26 @@ export const DeleteAnimalModal = ({
 	open,
 }: DeleteAnimalModalProps) => {
 	/**
-	 * State
+	 * Library hooks
 	 */
-	const [runPixel, isLoading] = useSettingPixel();
+	const { runPixel } = useAppContext();
+	const [isLoadingDelete, setIsLoadingDelete] = useLoadingState(false);
 
 	/**
 	 * Functions
 	 */
 	const handleSubmitClick = async () => {
-		runPixel(
-			`DeleteAnimal(${JSON.stringify(animalToDelete.animal_id)})`,
-			() => onClose(true),
-		);
+		const loadingKey = setIsLoadingDelete(true);
+		try {
+			await runPixel(
+				`DeleteAnimal(${JSON.stringify(animalToDelete.animal_id)})`,
+				"Successfully deleted animal!",
+			);
+			onClose(true);
+		} catch {
+			// Error handled in runPixel
+		}
+		setIsLoadingDelete(false, loadingKey);
 	};
 
 	return (
@@ -48,7 +57,7 @@ export const DeleteAnimalModal = ({
 						color="error"
 						variant="outlined"
 						onClick={handleSubmitClick}
-						loading={isLoading}
+						loading={isLoadingDelete}
 					>
 						{`Delete ${animalToDelete?.animal_name}`}
 					</Button>

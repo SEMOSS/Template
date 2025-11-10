@@ -2,7 +2,7 @@ import { useInsight } from "@semoss/sdk-react";
 import { Navigate, Outlet, useLocation } from "react-router-dom";
 import { LoadingScreen } from "@/components";
 import { useAppContext } from "@/contexts";
-import { ROUTE_PATH_LOGIN_PAGE } from "../routes.constants";
+import { ROUTE_PATH_LOGIN_PAGE } from "@/routes.constants";
 
 /**
  * Sends users to the login page if they are not authorized, shows a loading screen while app data is loading, otherwise renders the child components.
