@@ -14,7 +14,10 @@ import { MessageSnackbar, type MessageSnackbarProps } from "@/components";
 import { useLoadingState } from "@/hooks";
 
 export interface AppContextType {
-	runPixel: <T = unknown>(pixelString: string) => Promise<T>;
+	runPixel: <T = unknown>(
+		pixelString: string,
+		successMessage?: string,
+	) => Promise<T>;
 	login: (username: string, password: string) => Promise<boolean>;
 	logout: () => Promise<boolean>;
 	userLoginName: string;
@@ -71,7 +74,7 @@ export const AppContextProvider = ({ children }: PropsWithChildren) => {
 
 	// Function to run a pixel and return the result. Opens the snackbar if there is an error.
 	const runPixel = useCallback(
-		async <T,>(pixelString: string) => {
+		async <T,>(pixelString: string, successMessage?: string) => {
 			try {
 				const response = await runPixelSemossSdk<T[]>(
 					pixelString,
@@ -96,6 +99,13 @@ export const AppContextProvider = ({ children }: PropsWithChildren) => {
 							)
 							.join(", "),
 					);
+				if (successMessage) {
+					setMessageSnackbarProps({
+						open: true,
+						message: successMessage,
+						severity: "success",
+					});
+				}
 				return response.pixelReturn[0].output;
 			} catch (error) {
 				setMessageSnackbarProps({
