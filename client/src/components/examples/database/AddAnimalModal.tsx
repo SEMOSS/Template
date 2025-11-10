@@ -12,7 +12,8 @@ import {
 } from "@mui/material";
 import { useState } from "react";
 import { DatePicker } from "@/components";
-import { useSettingPixel } from "@/hooks";
+import { useAppContext } from "@/contexts";
+import { useLoadingState } from "@/hooks";
 
 export interface AddAnimalModalProps {
 	open: boolean;
@@ -25,7 +26,11 @@ export interface AddAnimalModalProps {
  * @component
  */
 export const AddAnimalModal = ({ open, onClose }: AddAnimalModalProps) => {
-	const [addAnimal, isLoading] = useSettingPixel();
+	/**
+	 * Library hooks
+	 */
+	const [isLoadingAdd, setIsLoadingAdd] = useLoadingState(false);
+	const { runPixel } = useAppContext();
 
 	/**
 	 * State
@@ -38,10 +43,17 @@ export const AddAnimalModal = ({ open, onClose }: AddAnimalModalProps) => {
 	 * Functions
 	 */
 	const handleSubmitClick = async () => {
-		addAnimal(
-			`AddAnimal(animalName=${JSON.stringify(animalName)}, animalType=${JSON.stringify(animalType)}, dateOfBirth=${JSON.stringify(dateOfBirth)})`,
-			() => handleClose(true),
-		);
+		const loadingKey = setIsLoadingAdd(true);
+		try {
+			await runPixel(
+				`AddAnimal(animalName=${JSON.stringify(animalName)}, animalType=${JSON.stringify(animalType)}, dateOfBirth=${JSON.stringify(dateOfBirth)})`,
+				"Successfully added animal!",
+			);
+			handleClose(true);
+		} catch {
+			// Error handled in runPixel
+		}
+		setIsLoadingAdd(false, loadingKey);
 	};
 
 	const handleClose = (madeChanges?: boolean) => {
@@ -104,7 +116,7 @@ export const AddAnimalModal = ({ open, onClose }: AddAnimalModalProps) => {
 				<Button
 					onClick={handleSubmitClick}
 					variant="contained"
-					loading={isLoading}
+					loading={isLoadingAdd}
 					disabled={!isReadyToSubmit}
 				>
 					Add animal
