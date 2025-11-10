@@ -11,7 +11,7 @@ import { useInsight } from "@semoss/sdk-react";
 import { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { SemossBlueLogo } from "@/assets";
-import { ROUTE_PATH_ANIMAL_PAGE } from "@/pages";
+import { ROUTE_PATH_ANIMAL_PAGE } from "@/routes.constants";
 import { UserProfileMenu } from "./UserProfileMenu";
 
 // A Stack with a different-colored background
