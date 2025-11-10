@@ -10,16 +10,20 @@ import {
 	useEffect,
 	useState,
 } from "react";
-import { MessageSnackbar, type MessageSnackbarProps } from "@/components";
+import type { MessageSnackbarProps } from "@/components";
 import { useLoadingState } from "@/hooks";
 
 export interface AppContextType {
-	runPixel: <T = unknown>(pixelString: string) => Promise<T>;
+	runPixel: <T = unknown>(
+		pixelString: string,
+		successMessage?: string,
+	) => Promise<T>;
 	login: (username: string, password: string) => Promise<boolean>;
 	logout: () => Promise<boolean>;
 	userLoginName: string;
 	isAppDataLoading: boolean;
-	onePlusTwo: number;
+	exampleStateData?: number;
+	messageSnackbarProps: MessageSnackbarProps;
 	setMessageSnackbarProps: Dispatch<SetStateAction<MessageSnackbarProps>>;
 }
 
@@ -63,7 +67,7 @@ export const AppContextProvider = ({ children }: PropsWithChildren) => {
 			severity: "info",
 		});
 	// Example state variable to store the result of a pixel operation
-	const [onePlusTwo, setOnePlusTwo] = useState<number>();
+	const [exampleStateData, setExampleStateData] = useState<number>();
 
 	/**
 	 * Functions
@@ -71,7 +75,7 @@ export const AppContextProvider = ({ children }: PropsWithChildren) => {
 
 	// Function to run a pixel and return the result. Opens the snackbar if there is an error.
 	const runPixel = useCallback(
-		async <T,>(pixelString: string) => {
+		async <T,>(pixelString: string, successMessage?: string) => {
 			try {
 				const response = await runPixelSemossSdk<T[]>(
 					pixelString,
@@ -96,6 +100,13 @@ export const AppContextProvider = ({ children }: PropsWithChildren) => {
 							)
 							.join(", "),
 					);
+				if (successMessage) {
+					setMessageSnackbarProps({
+						open: true,
+						message: successMessage,
+						severity: "success",
+					});
+				}
 				return response.pixelReturn[0].output;
 			} catch (error) {
 				setMessageSnackbarProps({
@@ -163,7 +174,7 @@ export const AppContextProvider = ({ children }: PropsWithChildren) => {
 			const loadSetPairs: LoadSetPair<unknown>[] = [
 				{
 					loader: "1 + 2",
-					setter: (response) => setOnePlusTwo(response),
+					setter: (response) => setExampleStateData(response),
 				} satisfies LoadSetPair<number>,
 			];
 
@@ -202,8 +213,9 @@ export const AppContextProvider = ({ children }: PropsWithChildren) => {
 		<AppContext.Provider
 			value={{
 				runPixel,
-				onePlusTwo,
+				exampleStateData,
 				isAppDataLoading,
+				messageSnackbarProps,
 				setMessageSnackbarProps,
 				login,
 				logout,
@@ -211,8 +223,6 @@ export const AppContextProvider = ({ children }: PropsWithChildren) => {
 			}}
 		>
 			{children}
-			{/* The MessageSnackbar component is rendered here so that it can be used to display messages throughout the app */}
-			<MessageSnackbar {...messageSnackbarProps} />
 		</AppContext.Provider>
 	);
 };
