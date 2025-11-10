@@ -22,7 +22,7 @@ export interface AppContextType {
 	logout: () => Promise<boolean>;
 	userLoginName: string;
 	isAppDataLoading: boolean;
-	onePlusTwo: number;
+	exampleStateData?: number;
 	setMessageSnackbarProps: Dispatch<SetStateAction<MessageSnackbarProps>>;
 }
 
@@ -66,7 +66,7 @@ export const AppContextProvider = ({ children }: PropsWithChildren) => {
 			severity: "info",
 		});
 	// Example state variable to store the result of a pixel operation
-	const [onePlusTwo, setOnePlusTwo] = useState<number>();
+	const [exampleStateData, setExampleStateData] = useState<number>();
 
 	/**
 	 * Functions
@@ -173,7 +173,7 @@ export const AppContextProvider = ({ children }: PropsWithChildren) => {
 			const loadSetPairs: LoadSetPair<unknown>[] = [
 				{
 					loader: "1 + 2",
-					setter: (response) => setOnePlusTwo(response),
+					setter: (response) => setExampleStateData(response),
 				} satisfies LoadSetPair<number>,
 			];
 
@@ -212,7 +212,7 @@ export const AppContextProvider = ({ children }: PropsWithChildren) => {
 		<AppContext.Provider
 			value={{
 				runPixel,
-				onePlusTwo,
+				exampleStateData,
 				isAppDataLoading,
 				setMessageSnackbarProps,
 				login,
