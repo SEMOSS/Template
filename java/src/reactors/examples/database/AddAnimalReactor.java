@@ -104,15 +104,13 @@ public class AddAnimalReactor extends AbstractProjectReactor {
     }
 
     // Create new animal data with generated unique identifier
-    AnimalData animalData =
-        new AnimalData(
-            UUID.randomUUID().toString(),
-            animalType,
-            animalName,
-            new SemossDate(dateOfBirth, "yyyy-MM-dd", null));
+    String animalId = UUID.randomUUID().toString();
+    SemossDate animalDob = new SemossDate(dateOfBirth, "yyyy-MM-dd", null);
+
+    // Create AnimalData object
 
     // Persist the animal data to the database
-    HelperMethods.addAnimal(database, animalData);
+    // Call helper method to add animal to database
 
     return new NounMetadata(true, PixelDataType.BOOLEAN);
   }
