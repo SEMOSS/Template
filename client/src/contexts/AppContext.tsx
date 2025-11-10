@@ -10,7 +10,7 @@ import {
 	useEffect,
 	useState,
 } from "react";
-import { MessageSnackbar, type MessageSnackbarProps } from "@/components";
+import type { MessageSnackbarProps } from "@/components";
 import { useLoadingState } from "@/hooks";
 
 export interface AppContextType {
@@ -23,6 +23,7 @@ export interface AppContextType {
 	userLoginName: string;
 	isAppDataLoading: boolean;
 	exampleStateData?: number;
+	messageSnackbarProps: MessageSnackbarProps;
 	setMessageSnackbarProps: Dispatch<SetStateAction<MessageSnackbarProps>>;
 }
 
@@ -214,6 +215,7 @@ export const AppContextProvider = ({ children }: PropsWithChildren) => {
 				runPixel,
 				exampleStateData,
 				isAppDataLoading,
+				messageSnackbarProps,
 				setMessageSnackbarProps,
 				login,
 				logout,
@@ -221,8 +223,6 @@ export const AppContextProvider = ({ children }: PropsWithChildren) => {
 			}}
 		>
 			{children}
-			{/* The MessageSnackbar component is rendered here so that it can be used to display messages throughout the app */}
-			<MessageSnackbar {...messageSnackbarProps} />
 		</AppContext.Provider>
 	);
 };
