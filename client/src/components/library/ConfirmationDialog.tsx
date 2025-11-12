@@ -1,9 +1,3 @@
-import {
-	Dialog,
-	DialogActions,
-	DialogContent,
-	DialogTitle,
-} from "@mui/material";
 import type { ReactNode } from "react";
 
 export interface ConfirmationDialogProps {
@@ -25,10 +19,11 @@ export const ConfirmationDialog = ({
 	text,
 }: ConfirmationDialogProps) => {
 	return (
-		<Dialog open={open} fullWidth maxWidth="sm">
-			<DialogTitle>{title}</DialogTitle>
-			{text && <DialogContent>{text}</DialogContent>}
-			<DialogActions>{buttons}</DialogActions>
-		</Dialog>
+		// <div open={open} fullWidth maxWidth="sm">
+		<div>
+			<div>{title}</div>
+			{text && <div>{text}</div>}
+			<div>{buttons}</div>
+		</div>
 	);
 };

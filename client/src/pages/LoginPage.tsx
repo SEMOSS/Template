@@ -1,4 +1,3 @@
-import { Button, Stack, TextField } from "@mui/material";
 import { useInsight } from "@semoss/sdk-react";
 import { type ChangeEvent, useRef, useState } from "react";
 import { Navigate, useLocation } from "react-router-dom";
@@ -56,49 +55,84 @@ export const LoginPage = () => {
 	// If the user is already authorized, we can route them off of this page. If the user was routed here, attempt to send them back to their target
 	if (isAuthorized) return <Navigate to={state?.target ?? "/"} />;
 
-	return (
-		<Stack spacing={2}>
-			<TextField
-				label="Username"
-				value={username}
-				onChange={(event) => updateState("username", event)}
-				error={showError}
-				required
-				disabled={isLoginLoading}
-				onKeyDown={(event) => {
-					if (event.key === "Enter" && username) {
-						// If the user hits enter, take them to the password box
-						passwordInputRef.current?.focus();
-					}
-				}}
-			/>
-			<TextField
-				label="Password"
-				value={password}
-				onChange={(event) => updateState("password", event)}
-				error={showError}
-				required
-				helperText={
-					showError ? "Username and password do not match" : " "
-				}
-				disabled={isLoginLoading}
-				type="password"
-				onKeyDown={(event) => {
-					if (event.key === "Enter" && isLoginReady) {
-						// If the user hits Enter, have them attempt to log in
-						passwordLogin();
-					}
-				}}
-				inputRef={passwordInputRef}
-			/>
-			<Button
-				variant="contained"
-				onClick={passwordLogin}
-				disabled={!isLoginReady}
-				loading={isLoginLoading}
-			>
-				Log in
-			</Button>
-		</Stack>
-	);
+	 return (
+        <div className="min-h-screen flex items-center justify-center p-4 relative">
+            <div className="absolute inset-0"></div>
+            <div className="relative z-10 w-full max-w-md">
+                <div className="professional-card rounded-xl p-8 mb-32 border border-primary/20 tech-border">
+                    <h2 className="text-2xl font-bold text-center mb-6">Welcome Back</h2>
+                    <form
+                        className="space-y-4"
+                        onSubmit={e => {
+                            e.preventDefault()
+                            if (isLoginReady) {
+                                passwordLogin()
+                            }
+                        }}
+                    >
+                        <div>
+                            <label htmlFor="username" className="block text-sm font-medium mb-2 text-foreground">
+                                Username
+                            </label>
+                            <input
+                                id="username"
+                                value={username}
+                                onChange={event => updateState('username', event)}
+                                onKeyDown={event => {
+                                    if (event.key === 'Enter') {
+                                        event.preventDefault()
+                                        passwordInputRef.current?.focus()
+                                    }
+                                }}
+                                required
+                                disabled={isLoginLoading}
+                                className={`w-full px-4 py-3 bg-background/50 border ${
+                                    showError ? 'border-red-500' : 'border-primary/30'
+                                } rounded-lg focus:border-primary focus:ring-1 focus:ring-primary focus:outline-none text-foreground placeholder:text-muted-foreground disabled:opacity-50 disabled:cursor-not-allowed transition-colors`}
+                                placeholder="Enter your username"
+                            />
+                        </div>
+                        <div>
+                            <label htmlFor="password" className="block text-sm font-medium mb-2 text-foreground">
+                                Password
+                            </label>
+                            <input
+                                id="password"
+                                ref={passwordInputRef}
+                                value={password}
+                                onChange={event => updateState('password', event)}
+                                required
+                                disabled={isLoginLoading}
+                                type="password"
+                                className={`w-full px-4 py-3 bg-background/50 border ${
+                                    showError ? 'border-red-500' : 'border-primary/30'
+                                } rounded-lg focus:border-primary focus:ring-1 focus:ring-primary focus:outline-none text-foreground placeholder:text-muted-foreground disabled:opacity-50 disabled:cursor-not-allowed transition-colors`}
+                                placeholder="Enter your password"
+                                onKeyDown={event => {
+                                    if (event.key === 'Enter' && isLoginReady) {
+                                        // If the user hits Enter, have them attempt to log in
+                                        event.preventDefault()
+                                        passwordLogin()
+                                    }
+                                }}
+                            />
+                        </div>
+                        {showError && (
+                            <div className="bg-red-500/10 border border-red-500 text-red-500 px-4 py-3 rounded-lg text-sm">
+                                Invalid username or password. Please try again.
+                            </div>
+                        )}
+                        <button
+                            type="submit"
+                            onClick={passwordLogin}
+                            disabled={!isLoginReady || isLoginLoading}
+                            className="w-full bg-primary hover:bg-primary/90 text-black font-medium py-3 px-4 rounded-lg transition-colors disabled:opacity-50 disabled:cursor-not-allowed disabled:hover:bg-primary"
+                        >
+                            {isLoginLoading ? 'Logging in...' : 'Log in'}
+                        </button>
+                    </form>
+                </div>
+            </div>
+        </div>
+    )
 };

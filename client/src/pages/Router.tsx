@@ -1,5 +1,5 @@
 import { createHashRouter, Navigate, RouterProvider } from "react-router-dom";
-import { ROUTE_PATH_LOGIN_PAGE } from "@/routes.constants";
+import { ROUTE_PATH_LOGIN_PAGE } from "../routes.constants";
 import { ErrorPage } from "./ErrorPage";
 import { HomePage } from "./HomePage";
 import { LoginPage } from "./LoginPage";

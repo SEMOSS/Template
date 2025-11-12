@@ -1,25 +1,20 @@
-import { AccountCircle, Logout } from "@mui/icons-material";
-import { Button, Menu, Stack, Typography } from "@mui/material";
 import { useAppContext } from "@/contexts";
 import { useLoadingState } from "@/hooks";
 
-export interface UserProfileMenuProps {
-	open: boolean;
-	anchorEl: Element;
-}
+
 
 /**
  * Renders a menu showing users their name and allowing them to log out
  *
  * @component
  */
-export const UserProfileMenu = ({ open, anchorEl }: UserProfileMenuProps) => {
+export const UserProfileMenu = () => {
 	const { logout, userLoginName } = useAppContext();
 
 	/**
 	 * State
 	 */
-	const [isLogoutLoading, setIsLogoutLoading] = useLoadingState();
+	const [, setIsLogoutLoading] = useLoadingState();
 
 	/**
 	 * Functions
@@ -33,25 +28,18 @@ export const UserProfileMenu = ({ open, anchorEl }: UserProfileMenuProps) => {
 	};
 
 	return (
-		<Menu open={open} anchorEl={anchorEl}>
-			<Stack spacing={1} alignItems="center" padding={1}>
-				<Stack direction="row" spacing={1}>
-					<AccountCircle color="action" />
-
-					<Typography variant="body1">{userLoginName}</Typography>
-				</Stack>
-
-				<Button
-					title="Logout"
-					endIcon={<Logout />}
-					onClick={handleLogout}
-					variant="contained"
-					size="small"
-					loading={isLogoutLoading}
-				>
-					Logout
-				</Button>
-			</Stack>
-		</Menu>
+		<div className="flex flex-col gap-2 p-4 min-w-[180px] rounded-xl shadow">
+			<div className="flex flex-col items-start mb-2">
+				<span className="font-semibold text-sky-900 text-base truncate max-w-[140px]">{userLoginName}</span>
+			</div>
+			<button
+				type="button"
+				title="Logout"
+				onClick={handleLogout}
+				className="w-full mt-1 px-3 py-2 rounded-md bg-sky-50 text-sky-800 hover:bg-sky-100 hover:text-sky-900 font-medium transition-colors text-left"
+			>
+				Logout
+			</button>
+		</div>
 	);
 };
