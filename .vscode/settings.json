@@ -1,13 +1,14 @@
 {
-	"java.configuration.updateBuildConfiguration": "automatic",
-	"java.compile.nullAnalysis.mode": "automatic",
-	"editor.formatOnSave": true,
-	"editor.codeActionsOnSave": {
-		"source.organizeImports.biome": "explicit",
-		"source.fixAll.biome": "explicit"
-	},
-	"[java]": {
-		"editor.defaultFormatter": null,
-		"editor.codeActionsOnSave": {}
-	}
+  "java.configuration.updateBuildConfiguration": "automatic",
+  "java.compile.nullAnalysis.mode": "automatic",
+  "editor.formatOnSave": true,
+  "editor.codeActionsOnSave": {
+    "source.organizeImports.biome": "explicit",
+    "source.fixAll.biome": "explicit"
+  },
+  "[java]": {
+    "editor.defaultFormatter": null,
+    "editor.codeActionsOnSave": {}
+  },
+  "editor.defaultFormatter": "biomejs.biome"
 }

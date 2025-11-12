@@ -1,5 +1,10 @@
-import { getSystemConfig, runPixel as runPixelSemossSdk } from "@semoss/sdk";
-import { useInsight } from "@semoss/sdk-react";
+import {
+	Env,
+	getSystemConfig,
+	Insight,
+	runPixel as runPixelSemossSdk,
+} from "@semoss/sdk";
+import { useInsight, usePixel } from "@semoss/sdk/react";
 import {
 	createContext,
 	type Dispatch,
@@ -8,10 +13,12 @@ import {
 	useCallback,
 	useContext,
 	useEffect,
+	useMemo,
 	useState,
 } from "react";
 import type { MessageSnackbarProps } from "@/components";
 import { useLoadingState } from "@/hooks";
+import type { Tool, ToolResponse, ToolStructure } from "@/types";
 
 export interface AppContextType {
 	runPixel: <T = unknown>(
@@ -25,6 +32,8 @@ export interface AppContextType {
 	exampleStateData?: number;
 	messageSnackbarProps: MessageSnackbarProps;
 	setMessageSnackbarProps: Dispatch<SetStateAction<MessageSnackbarProps>>;
+	tool: ToolResponse;
+	tools: Tool[];
 }
 
 const AppContext = createContext<AppContextType | undefined>(undefined);
@@ -53,19 +62,28 @@ export const useAppContext = (): AppContextType => {
  */
 export const AppContextProvider = ({ children }: PropsWithChildren) => {
 	// Get the current state of the current insight
-	const { actions, isReady, system, insightId } = useInsight();
+	const { actions, isReady, system, insightId: id } = useInsight();
+	const [insightId, setInsightId] = useState(id);
+
+	// New Insight for tool response
+	const insight = useMemo(() => {
+		const insight = new Insight();
+		return insight;
+	}, []);
 
 	/**
 	 * State
 	 */
 	const [isAppDataLoading, setIsAppDataLoading] = useLoadingState(true);
 	const [userLoginName, setUserLoginName] = useState<string | null>(null);
+	const [tool, setTool] = useState(null);
 	const [messageSnackbarProps, setMessageSnackbarProps] =
 		useState<MessageSnackbarProps>({
 			open: false,
 			message: "",
 			severity: "info",
 		});
+
 	// Example state variable to store the result of a pixel operation
 	const [exampleStateData, setExampleStateData] = useState<number>();
 
@@ -201,6 +219,19 @@ export const AppContextProvider = ({ children }: PropsWithChildren) => {
 		}
 	}, [isReady, runPixel, setIsAppDataLoading]);
 
+	useEffect(() => {
+		const fetchToolNames = async () => {
+			const t = await insight.initialize();
+			// biome-ignore lint/suspicious/noExplicitAny: <explanation>
+			const tool = t?.tool as any;
+			setTool(tool || null);
+			setInsightId(insight.insightId);
+		};
+		if (isReady) {
+			fetchToolNames();
+		}
+	}, [insight, isReady]);
+
 	// On start up, grab the name of the user from the config call if they are already logged in
 	useEffect(() => {
 		setUserLoginName(
@@ -208,6 +239,40 @@ export const AppContextProvider = ({ children }: PropsWithChildren) => {
 				null,
 		);
 	}, [system]);
+
+	const getTools = usePixel<ToolStructure>(
+		Env.APP ? `GetMCPTools(project=["${Env.APP}"]);` : "",
+		{
+			data: {
+				tools: [
+					{
+						name: "",
+						description: "",
+						title: "",
+						_meta: { generated_on: "" },
+						inputSchema: {
+							title: "",
+							properties: {},
+							type: "object",
+							required: [],
+						},
+					},
+				],
+				_meta: {
+					SMSS_PROJECT_ID: "",
+					SMSS_PROJECT_NAME: "",
+					SMSS_ENGINE_NAME: "",
+					SMSS_ENGINE_TYPE: "",
+					SMSS_ENGINE_ID: "",
+				},
+			},
+			onSuccess: (data) => {
+				console.log(data);
+			},
+		},
+	);
+
+	const tools = getTools?.data?.tools || [];
 
 	return (
 		<AppContext.Provider
@@ -220,6 +285,8 @@ export const AppContextProvider = ({ children }: PropsWithChildren) => {
 				login,
 				logout,
 				userLoginName,
+				tool,
+				tools,
 			}}
 		>
 			{children}

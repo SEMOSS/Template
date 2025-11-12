@@ -2,7 +2,7 @@ import { CssBaseline, ThemeProvider } from "@mui/material";
 import { LocalizationProvider } from "@mui/x-date-pickers";
 import { AdapterDayjs } from "@mui/x-date-pickers/AdapterDayjs";
 import { Env } from "@semoss/sdk";
-import { InsightProvider } from "@semoss/sdk-react";
+import { InsightProvider } from "@semoss/sdk/react";
 import { AppContextProvider } from "./contexts";
 import { Router } from "./pages";
 import { THEME } from "./theme";
@@ -11,7 +11,7 @@ Env.update({
 	MODULE: import.meta.env.MODULE || "",
 	ACCESS_KEY: import.meta.env.CLIENT_ACCESS_KEY || "", // undefined in production
 	SECRET_KEY: import.meta.env.CLIENT_SECRET_KEY || "", // undefined in production
-	APP: import.meta.env.CLIENT_APP || "",
+	APP: import.meta.env.APP || "",
 });
 
 /**

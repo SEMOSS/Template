@@ -7,7 +7,7 @@ import {
 	Typography,
 	useTheme,
 } from "@mui/material";
-import { useInsight } from "@semoss/sdk-react";
+import { useInsight } from "@semoss/sdk/react";
 import { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { SemossBlueLogo } from "@/assets";
