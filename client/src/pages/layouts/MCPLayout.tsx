@@ -1,8 +1,7 @@
-import { Navigate, useLocation } from "react-router-dom";
+import { Navigate, Outlet, useLocation } from "react-router-dom";
 import { LoadingScreen } from "@/components";
 import { useAppContext } from "@/contexts";
 import { HomePage } from "../HomePage";
-import { PAGE_TYPES } from "../routes.constants";
 
 // Function to process tool name by removing content before first underscore
 const getProcessedToolName = (toolName: string) => {
@@ -20,23 +19,48 @@ const getProcessedToolName = (toolName: string) => {
 export const MCPLayout = () => {
 	// Get the curent route, so that if we are trying to log the user in, we can take them to where they were trying to go
 	const { pathname } = useLocation();
-	const { isAppDataLoading, tool } = useAppContext();
+	const { isAppDataLoading, tool, tools } = useAppContext();
+
+	console.log("MCPLayout - isAppDataLoading:", isAppDataLoading);
+	console.log("MCPLayout - tool:", tool);
+	console.log("MCPLayout - tools:", tools);
+	console.log("MCPLayout - pathname:", pathname);
 
 	// If the app data is still loading, show a loading screen
-	if (isAppDataLoading) return <LoadingScreen />;
+	if (isAppDataLoading) {
+		console.log("MCPLayout - showing LoadingScreen");
+		return <LoadingScreen />;
+	}
 
-	if (tool && !!tool?.name) {
-		const processedToolName = getProcessedToolName(tool?.name || "");
-		if (!Object.keys(PAGE_TYPES).includes(processedToolName)) {
-			return <Navigate to={"home"} state={{ target: pathname }} />;
+	// If we have a tool, check if we need to redirect
+	if (tool?.name) {
+		const processedToolName = getProcessedToolName(tool.name);
+		const expectedPath = `/${processedToolName}`;
+
+		console.log("MCPLayout - processedToolName:", processedToolName);
+		console.log("MCPLayout - expectedPath:", expectedPath);
+		console.log("MCPLayout - current pathname:", pathname);
+
+		// If we're at root, redirect to the tool page
+		if (pathname === "/") {
+			console.log(
+				"MCPLayout - at root, navigating to:",
+				processedToolName,
+			);
+			return <Navigate to={processedToolName} replace />;
 		}
 
-		return (
-			<Navigate
-				to={`${processedToolName}`}
-				state={{ target: pathname }}
-			/>
-		);
+		// If we're on a different tool page, redirect to the correct one
+		if (pathname !== expectedPath) {
+			console.log(
+				"MCPLayout - wrong path, redirecting to:",
+				processedToolName,
+			);
+			return <Navigate to={processedToolName} replace />;
+		}
 	}
-	return <HomePage />;
+
+	// Render child routes (HomePage or tool pages)
+	console.log("MCPLayout - rendering Outlet for pathname:", pathname);
+	return <Outlet />;
 };

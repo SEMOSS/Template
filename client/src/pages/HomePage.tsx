@@ -1,47 +1,7 @@
 /** biome-ignore-all lint/suspicious/noExplicitAny: <explanation> */
-import { Box, Button, Card, styled, Typography } from "@semoss/ui";
+import { Button } from "@/components/ui/button";
+import { Card, CardContent } from "@/components/ui/card";
 import { useAppContext } from "@/contexts";
-
-const StyledContent = styled("div")(() => ({
-	display: "flex",
-	flexDirection: "column",
-	alignItems: "center",
-	justifyContent: "center",
-	position: "relative",
-	height: "100%",
-	width: "100%",
-	overflow: "hidden",
-}));
-
-const StyledCard = styled(Card)(() => ({
-	bgcolor: "background.paper",
-	width: "100%",
-	height: "100%",
-}));
-
-interface MCPTool {
-	description?: string;
-	inputSchema: {
-		properties?: { [key: string]: object };
-		required?: string[];
-		type: "object";
-		title: string;
-	};
-	name: string;
-	outputSchema?: {
-		properties?: { [key: string]: object };
-		required?: string[];
-		type: "object";
-	};
-	title?: string;
-}
-
-interface Tool extends MCPTool {
-	name: string;
-	description: string;
-	_meta: { generated_on: string };
-	title: string;
-}
 
 export const HomePage = () => {
 	const { tools } = useAppContext();
@@ -58,27 +18,18 @@ export const HomePage = () => {
 	};
 
 	return (
-		<StyledContent>
-			<StyledCard>
-				<Card.Content>
-					<Typography variant="h5" sx={{ mb: 1, fontWeight: 600 }}>
-						Select a tool
-					</Typography>
-					<Box
-						sx={{
-							display: "flex",
-							flexDirection: "column",
-							gap: 2,
-						}}
-					>
+		<div className="flex flex-col items-center justify-center relative h-full w-full overflow-hidden">
+			<Card className="w-full h-full">
+				<CardContent className="p-6">
+					<div className="flex flex-col gap-4">
 						{tools.map((tool) => {
 							const name = tool?.name || "";
 							return (
 								<Button
 									key={name}
-									variant="outlined"
-									size="large"
-									fullWidth
+									variant="outline"
+									size="lg"
+									className="w-full"
 									onClick={() => {
 										window.location.hash = `#/${name}`;
 									}}
@@ -87,9 +38,9 @@ export const HomePage = () => {
 								</Button>
 							);
 						})}
-					</Box>
-				</Card.Content>
-			</StyledCard>
-		</StyledContent>
+					</div>
+				</CardContent>
+			</Card>
+		</div>
 	);
 };

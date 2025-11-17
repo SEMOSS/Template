@@ -95,6 +95,16 @@ To make changes visible to users:
 
 ---
 
+## Create an MCP tool
+
+1. Add an 'MCP' tag to your app if not present
+2. Python: 
+  - Edit [smss_driver.py](py/smss_driver.py) to follow same function structure with descriptions
+  - Optionally add `@mcp_execution("ask" | "auto" | "disabled")` above each method to indicate playground execution type 
+  - Run pixel `MakePythonMCP('[YourAppId]')` to generate or refresh py_mcp.json
+
+---
+
 ## Plug-ins
 
 This repository includes several tools to help maintain code quality:

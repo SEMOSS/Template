@@ -1,6 +1,8 @@
 import yfinance as yf
+from smssutil import mcp_execution
 
 
+@mcp_execution("auto")
 def get_stock_price(symbol: str) -> float:
     """
     Retrieve the current stock price for the given ticker symbol.
@@ -28,6 +30,7 @@ def get_stock_price(symbol: str) -> float:
         return -1.0
 
 
+@mcp_execution("ask")
 def stock_resource(symbol: str) -> str:
     """
     Expose stock price data as a resource.
@@ -39,6 +42,7 @@ def stock_resource(symbol: str) -> str:
     return f"The current price of '{symbol}' is ${price:.2f}."
 
 
+@mcp_execution("disabled")
 def get_stock_history(symbol: str, period: str = "1mo") -> str:
     """
     Retrieve historical data for a stock given a ticker symbol and a period.

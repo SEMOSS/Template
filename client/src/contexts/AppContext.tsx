@@ -74,7 +74,8 @@ export const AppContextProvider = ({ children }: PropsWithChildren) => {
 	/**
 	 * State
 	 */
-	const [isAppDataLoading, setIsAppDataLoading] = useLoadingState(true);
+	const [isAppDataLoading, setIsAppDataLoading] =
+		useLoadingState(true);
 	const [userLoginName, setUserLoginName] = useState<string | null>(null);
 	const [tool, setTool] = useState(null);
 	const [messageSnackbarProps, setMessageSnackbarProps] =
@@ -180,10 +181,12 @@ export const AppContextProvider = ({ children }: PropsWithChildren) => {
 		const loadAppData = async () => {
 			const loadingKey = setIsAppDataLoading(true);
 
+			console.log("loadingKeyinit: " + loadingKey);
+
 			// Define a type for the loader and setter pairs
 			// This allows us to load multiple pieces of data simultaneously and set them in state
 			interface LoadSetPair<T> {
-				loader: string;
+				loader: () => Promise<T>;
 				value?: T;
 				setter?: (value: T) => void;
 			}
@@ -191,15 +194,28 @@ export const AppContextProvider = ({ children }: PropsWithChildren) => {
 			// Create an array of loadSetPairs, each containing a loader function and a setter function
 			const loadSetPairs: LoadSetPair<unknown>[] = [
 				{
-					loader: "1 + 2",
+					loader: () => runPixel("1+2"),
 					setter: (response) => setExampleStateData(response),
 				} satisfies LoadSetPair<number>,
+				{
+					loader: async () => await insight.initialize(),
+					// Optionally handle the result or remove the setter if not needed
+					setter: (tool) => setTool(tool.tool),
+				} satisfies LoadSetPair<{
+					tool: {
+						type: "MCP";
+						message: string;
+						id: string;
+						name: string;
+						parameters: Record<string, unknown>;
+					};
+				}>,
 			];
 
 			// Execute all loaders in parallel and wait for them all to complete
 			await Promise.all(
 				loadSetPairs.map(async (loadSetPair) => {
-					loadSetPair.value = await runPixel(loadSetPair.loader);
+					loadSetPair.value = await loadSetPair.loader();
 					return true;
 				}),
 			);
@@ -217,20 +233,20 @@ export const AppContextProvider = ({ children }: PropsWithChildren) => {
 			// If the insight is ready, then load the app data
 			loadAppData();
 		}
-	}, [isReady, runPixel, setIsAppDataLoading]);
+	}, [isReady, runPixel, setIsAppDataLoading, insight]);
 
-	useEffect(() => {
-		const fetchToolNames = async () => {
-			const t = await insight.initialize();
-			// biome-ignore lint/suspicious/noExplicitAny: <explanation>
-			const tool = t?.tool as any;
-			setTool(tool || null);
-			setInsightId(insight.insightId);
-		};
-		if (isReady) {
-			fetchToolNames();
-		}
-	}, [insight, isReady]);
+	// useEffect(() => {
+	// 	const fetchToolNames = async () => {
+	// 		const t = await insight.initialize();
+	// 		// biome-ignore lint/suspicious/noExplicitAny: <explanation>
+	// 		const tool = t?.tool as any;
+	// 		setTool(tool || null);
+	// 		setInsightId(insight.insightId);
+	// 	};
+	// 	if (isReady) {
+	// 		fetchToolNames();
+	// 	}
+	// }, [insight, insight.initialize, insight.insightId, isReady]);
 
 	// On start up, grab the name of the user from the config call if they are already logged in
 	useEffect(() => {
