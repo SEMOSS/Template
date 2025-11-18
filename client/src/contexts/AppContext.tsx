@@ -74,8 +74,7 @@ export const AppContextProvider = ({ children }: PropsWithChildren) => {
 	/**
 	 * State
 	 */
-	const [isAppDataLoading, setIsAppDataLoading] =
-		useLoadingState(true);
+	const [isAppDataLoading, setIsAppDataLoading] = useLoadingState(true);
 	const [userLoginName, setUserLoginName] = useState<string | null>(null);
 	const [tool, setTool] = useState(null);
 	const [messageSnackbarProps, setMessageSnackbarProps] =
@@ -181,8 +180,6 @@ export const AppContextProvider = ({ children }: PropsWithChildren) => {
 		const loadAppData = async () => {
 			const loadingKey = setIsAppDataLoading(true);
 
-			console.log("loadingKeyinit: " + loadingKey);
-
 			// Define a type for the loader and setter pairs
 			// This allows us to load multiple pieces of data simultaneously and set them in state
 			interface LoadSetPair<T> {
@@ -235,19 +232,6 @@ export const AppContextProvider = ({ children }: PropsWithChildren) => {
 		}
 	}, [isReady, runPixel, setIsAppDataLoading, insight]);
 
-	// useEffect(() => {
-	// 	const fetchToolNames = async () => {
-	// 		const t = await insight.initialize();
-	// 		// biome-ignore lint/suspicious/noExplicitAny: <explanation>
-	// 		const tool = t?.tool as any;
-	// 		setTool(tool || null);
-	// 		setInsightId(insight.insightId);
-	// 	};
-	// 	if (isReady) {
-	// 		fetchToolNames();
-	// 	}
-	// }, [insight, insight.initialize, insight.insightId, isReady]);
-
 	// On start up, grab the name of the user from the config call if they are already logged in
 	useEffect(() => {
 		setUserLoginName(
@@ -281,9 +265,6 @@ export const AppContextProvider = ({ children }: PropsWithChildren) => {
 					SMSS_ENGINE_TYPE: "",
 					SMSS_ENGINE_ID: "",
 				},
-			},
-			onSuccess: (data) => {
-				console.log(data);
 			},
 		},
 	);

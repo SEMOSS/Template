@@ -21,14 +21,8 @@ export const MCPLayout = () => {
 	const { pathname } = useLocation();
 	const { isAppDataLoading, tool, tools } = useAppContext();
 
-	console.log("MCPLayout - isAppDataLoading:", isAppDataLoading);
-	console.log("MCPLayout - tool:", tool);
-	console.log("MCPLayout - tools:", tools);
-	console.log("MCPLayout - pathname:", pathname);
-
 	// If the app data is still loading, show a loading screen
 	if (isAppDataLoading) {
-		console.log("MCPLayout - showing LoadingScreen");
 		return <LoadingScreen />;
 	}
 
@@ -37,30 +31,17 @@ export const MCPLayout = () => {
 		const processedToolName = getProcessedToolName(tool.name);
 		const expectedPath = `/${processedToolName}`;
 
-		console.log("MCPLayout - processedToolName:", processedToolName);
-		console.log("MCPLayout - expectedPath:", expectedPath);
-		console.log("MCPLayout - current pathname:", pathname);
-
 		// If we're at root, redirect to the tool page
 		if (pathname === "/") {
-			console.log(
-				"MCPLayout - at root, navigating to:",
-				processedToolName,
-			);
 			return <Navigate to={processedToolName} replace />;
 		}
 
 		// If we're on a different tool page, redirect to the correct one
 		if (pathname !== expectedPath) {
-			console.log(
-				"MCPLayout - wrong path, redirecting to:",
-				processedToolName,
-			);
 			return <Navigate to={processedToolName} replace />;
 		}
 	}
 
 	// Render child routes (HomePage or tool pages)
-	console.log("MCPLayout - rendering Outlet for pathname:", pathname);
 	return <Outlet />;
 };

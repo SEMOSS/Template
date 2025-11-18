@@ -11,7 +11,7 @@ import { HomePage } from "./HomePage";
 import { LoginPage } from "./LoginPage";
 import { AuthorizedLayout, InitializedLayout } from "./layouts";
 import { MCPLayout } from "./layouts/MCPLayout";
-import { PAGE_TYPES, ROUTE_PATH_LOGIN_PAGE } from "./routes.constants";
+import { ROUTE_PATH_LOGIN_PAGE } from "./routes.constants";
 
 const router = createHashRouter([
 	{

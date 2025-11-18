@@ -17,7 +17,6 @@ export const GetStockHistory: React.FC<GetStockHistoryProps> = () => {
 	const [stockSymbol, setStockSymbol] = useState<string>(
 		tool?.parameters?.symbol as string,
 	);
-	console.log({ tool })
 	const [loading, setLoading] = useState(false);
 	const [results, setResults] = useState<string>("");
 	const [error, setError] = useState<string | null>(null);

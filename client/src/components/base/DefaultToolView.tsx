@@ -44,8 +44,6 @@ export const DefaultToolView: React.FC<DefaultToolViewProps> = ({ name }) => {
 	const required = selectedTool?.inputSchema?.required || [];
 	const toolName = tool?.name ? getProcessedToolName(tool?.name || "") : name;
 
-	console.log(toolName, name, tool?.name);
-
 	useEffect(() => {
 		// if (tools?.status === "SUCCESS") {
 		setSelectedTool(tools.find((a) => a.name === toolName));
@@ -320,9 +318,9 @@ export const DefaultToolView: React.FC<DefaultToolViewProps> = ({ name }) => {
 	if (isAppDataLoading || !selectedTool) {
 		return <LoadingScreen />;
 	}
+
 	const lowerName = toolName.toLocaleLowerCase();
-	console.log(!!PAGE_TYPES?.[lowerName], lowerName, tool, tools);
-	console.log(Object.hasOwn(PAGE_TYPES, lowerName), lowerName, PAGE_TYPES);
+
 	// Render custom route if defined in route.constants.tsx else show default view
 	return Object.hasOwn(PAGE_TYPES, lowerName) ? (
 		PAGE_TYPES[lowerName]
