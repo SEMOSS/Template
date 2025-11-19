@@ -105,8 +105,8 @@ importers:
         specifier: ^1.2.8
         version: 1.2.8(@types/react-dom@18.3.7(@types/react@18.3.26))(@types/react@18.3.26)(react-dom@18.3.1(react@18.3.1))(react@18.3.1)
       '@semoss/sdk':
-        specifier: ^1.0.0-beta.31
-        version: 1.0.0-beta.31(react@18.3.1)
+        specifier: file:../../../../../../../apache-tomcat-9.0.102/webapps/SemossWeb/libs/sdk
+        version: file:../../../../../../../apache-tomcat-9.0.102/webapps/SemossWeb/libs/sdk(react@18.3.1)
       '@semoss/ui':
         specifier: 1.0.0-alpha.3
         version: 1.0.0-alpha.3(4bdd5246716e557504d42ab5763d71e7)
@@ -1558,8 +1558,8 @@ packages:
     cpu: [x64]
     os: [win32]
 
-  '@semoss/sdk@1.0.0-beta.31':
-    resolution: {integrity: sha512-JIo4TvJvYhkw1aa3DsQ1rEC4zJXF9Qp7ImcdyrRTZpTXC1mxzFB0tqUC4hCGSwrbXN79q20Qr+nxo2fyO7H2Rg==}
+  '@semoss/sdk@file:../../../../../../../apache-tomcat-9.0.102/webapps/SemossWeb/libs/sdk':
+    resolution: {directory: ../../../../../../../apache-tomcat-9.0.102/webapps/SemossWeb/libs/sdk, type: directory}
     peerDependencies:
       react: 18.3.1
     peerDependenciesMeta:
@@ -1731,8 +1731,8 @@ packages:
     resolution: {integrity: sha512-j5zJcx6golJYTG6c05LUZ3Z8Gi+M62zRT/ycz4Xq4iCOdpcxwg7ngEYD4KA0eWZC7U17qh/Smq8bYbACJ0ipBA==}
     hasBin: true
 
-  baseline-browser-mapping@2.8.27:
-    resolution: {integrity: sha512-2CXFpkjVnY2FT+B6GrSYxzYf65BJWEqz5tIRHCvNsZZ2F3CmsCB37h8SpYgKG7y9C4YAeTipIPWG7EmFmhAeXA==}
+  baseline-browser-mapping@2.8.29:
+    resolution: {integrity: sha512-sXdt2elaVnhpDNRDz+1BDx1JQoJRuNk7oVlAlbGiFkLikHCAQiccexF/9e91zVi6RCgqspl04aP+6Cnl9zRLrA==}
     hasBin: true
 
   browserslist@4.26.3:
@@ -1755,8 +1755,8 @@ packages:
   caniuse-lite@1.0.30001751:
     resolution: {integrity: sha512-A0QJhug0Ly64Ii3eIqHu5X51ebln3k4yTUkY1j8drqpWHVreg/VLijN48cZ1bYPiqOQuqpkIKnzr/Ul8V+p6Cw==}
 
-  caniuse-lite@1.0.30001754:
-    resolution: {integrity: sha512-x6OeBXueoAceOmotzx3PO4Zpt4rzpeIFsSr6AAePTZxSkXiYDUmpypEl7e2+8NCd9bD7bXjqyef8CJYPC1jfxg==}
+  caniuse-lite@1.0.30001756:
+    resolution: {integrity: sha512-4HnCNKbMLkLdhJz3TToeVWHSnfJvPaq6vu/eRP0Ahub/07n484XHhBF5AJoSGHdVrS8tKFauUQz8Bp9P7LVx7A==}
 
   class-variance-authority@0.7.1:
     resolution: {integrity: sha512-Ka+9Trutv7G8M6WT6SeiRWz792K5qEqIGEGzXKhAE6xOWAY6pPH8U+9IY3oCMv6kqTmLsv7Xh/2w2RigkePMsg==}
@@ -1833,8 +1833,8 @@ packages:
   electron-to-chromium@1.5.237:
     resolution: {integrity: sha512-icUt1NvfhGLar5lSWH3tHNzablaA5js3HVHacQimfP8ViEBOQv+L7DKEuHdbTZ0SKCO1ogTJTIL1Gwk9S6Qvcg==}
 
-  electron-to-chromium@1.5.250:
-    resolution: {integrity: sha512-/5UMj9IiGDMOFBnN4i7/Ry5onJrAGSbOGo3s9FEKmwobGq6xw832ccET0CE3CkkMBZ8GJSlUIesZofpyurqDXw==}
+  electron-to-chromium@1.5.257:
+    resolution: {integrity: sha512-VNSOB6JZan5IQNMqaurYpZC4bDPXcvKlUwVD/ztMeVD7SwOpMYGOY7dgt+4lNiIHIpvv/FdULnZKqKEy2KcuHQ==}
 
   enhanced-resolve@5.18.3:
     resolution: {integrity: sha512-d4lC8xfavMeBjzGr2vECC3fsGXziXZQyJxD868h2M/mBI3PwAuODxAkLkq5HYuvrPYcUtiLzsTo8U3PgX3Ocww==}
@@ -3722,7 +3722,7 @@ snapshots:
   '@rollup/rollup-win32-x64-msvc@4.52.4':
     optional: true
 
-  '@semoss/sdk@1.0.0-beta.31(react@18.3.1)':
+  '@semoss/sdk@file:../../../../../../../apache-tomcat-9.0.102/webapps/SemossWeb/libs/sdk(react@18.3.1)':
     optionalDependencies:
       react: 18.3.1
 
@@ -3891,7 +3891,7 @@ snapshots:
   autoprefixer@10.4.22(postcss@8.5.6):
     dependencies:
       browserslist: 4.28.0
-      caniuse-lite: 1.0.30001754
+      caniuse-lite: 1.0.30001756
       fraction.js: 5.3.4
       normalize-range: 0.1.2
       picocolors: 1.1.1
@@ -3906,7 +3906,7 @@ snapshots:
 
   baseline-browser-mapping@2.8.17: {}
 
-  baseline-browser-mapping@2.8.27: {}
+  baseline-browser-mapping@2.8.29: {}
 
   browserslist@4.26.3:
     dependencies:
@@ -3918,9 +3918,9 @@ snapshots:
 
   browserslist@4.28.0:
     dependencies:
-      baseline-browser-mapping: 2.8.27
-      caniuse-lite: 1.0.30001754
-      electron-to-chromium: 1.5.250
+      baseline-browser-mapping: 2.8.29
+      caniuse-lite: 1.0.30001756
+      electron-to-chromium: 1.5.257
       node-releases: 2.0.27
       update-browserslist-db: 1.1.4(browserslist@4.28.0)
 
@@ -3931,7 +3931,7 @@ snapshots:
 
   caniuse-lite@1.0.30001751: {}
 
-  caniuse-lite@1.0.30001754: {}
+  caniuse-lite@1.0.30001756: {}
 
   class-variance-authority@0.7.1:
     dependencies:
@@ -3993,7 +3993,7 @@ snapshots:
 
   electron-to-chromium@1.5.237: {}
 
-  electron-to-chromium@1.5.250: {}
+  electron-to-chromium@1.5.257: {}
 
   enhanced-resolve@5.18.3:
     dependencies:

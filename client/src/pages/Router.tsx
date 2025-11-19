@@ -1,11 +1,4 @@
-import {
-	createHashRouter,
-	Navigate,
-	RouterProvider,
-	useParams,
-} from "react-router-dom";
-import { DefaultToolView, LoadingScreen, PageWrapper } from "@/components";
-import { useAppContext } from "@/contexts";
+import { createHashRouter, Navigate, RouterProvider } from "react-router-dom";
 import { ErrorPage } from "./ErrorPage";
 import { HomePage } from "./HomePage";
 import { LoginPage } from "./LoginPage";
@@ -35,28 +28,28 @@ const router = createHashRouter([
 								index: true,
 								Component: HomePage,
 							},
-							{
-								// Route with page parameter - renders different pages based on the "page" param
-								path: ":pageName",
-								Component: () => {
-									const { isAppDataLoading } =
-										useAppContext();
-									const { pageName } = useParams<{
-										pageName: string;
-									}>();
-									if (isAppDataLoading || !pageName) {
-										return <LoadingScreen />;
-									}
-									return import.meta.env.HOME_PAGE_ENABLED ===
-										"true" ? (
-										<PageWrapper>
-											<DefaultToolView name={pageName} />
-										</PageWrapper>
-									) : (
-										<DefaultToolView name={pageName} />
-									);
-								},
-							},
+							// {
+							// 	// Route with page parameter - renders different pages based on the "page" param
+							// 	path: ":pageName",
+							// 	Component: () => {
+							// 		const { isAppDataLoading } =
+							// 			useAppContext();
+							// 		const { pageName } = useParams<{
+							// 			pageName: string;
+							// 		}>();
+							// 		if (isAppDataLoading || !pageName) {
+							// 			return <LoadingScreen />;
+							// 		}
+							// 		return import.meta.env
+							// 			.CLIENT_HOME_PAGE_ENABLED === "true" ? (
+							// 			<PageWrapper>
+							// 				<DefaultToolView name={pageName} />
+							// 			</PageWrapper>
+							// 		) : (
+							// 			<DefaultToolView name={pageName} />
+							// 		);
+							// 	},
+							// },
 						],
 					},
 					// {

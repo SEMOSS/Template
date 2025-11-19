@@ -1,7 +1,6 @@
 import {
 	Env,
 	getSystemConfig,
-	Insight,
 	runPixel as runPixelSemossSdk,
 } from "@semoss/sdk";
 import { useInsight, usePixel } from "@semoss/sdk/react";
@@ -13,12 +12,11 @@ import {
 	useCallback,
 	useContext,
 	useEffect,
-	useMemo,
 	useState,
 } from "react";
 import type { MessageSnackbarProps } from "@/components";
 import { useLoadingState } from "@/hooks";
-import type { Tool, ToolResponse, ToolStructure } from "@/types";
+import type { MCPTool } from "@/types";
 
 export interface AppContextType {
 	runPixel: <T = unknown>(
@@ -32,8 +30,7 @@ export interface AppContextType {
 	exampleStateData?: number;
 	messageSnackbarProps: MessageSnackbarProps;
 	setMessageSnackbarProps: Dispatch<SetStateAction<MessageSnackbarProps>>;
-	tool: ToolResponse;
-	tools: Tool[];
+	tools: MCPTool[];
 }
 
 const AppContext = createContext<AppContextType | undefined>(undefined);
@@ -62,21 +59,13 @@ export const useAppContext = (): AppContextType => {
  */
 export const AppContextProvider = ({ children }: PropsWithChildren) => {
 	// Get the current state of the current insight
-	const { actions, isReady, system, insightId: id } = useInsight();
-	const [insightId, setInsightId] = useState(id);
-
-	// New Insight for tool response
-	const insight = useMemo(() => {
-		const insight = new Insight();
-		return insight;
-	}, []);
+	const { actions, isReady, system, insightId } = useInsight();
 
 	/**
 	 * State
 	 */
 	const [isAppDataLoading, setIsAppDataLoading] = useLoadingState(true);
 	const [userLoginName, setUserLoginName] = useState<string | null>(null);
-	const [tool, setTool] = useState(null);
 	const [messageSnackbarProps, setMessageSnackbarProps] =
 		useState<MessageSnackbarProps>({
 			open: false,
@@ -194,19 +183,6 @@ export const AppContextProvider = ({ children }: PropsWithChildren) => {
 					loader: () => runPixel("1+2"),
 					setter: (response) => setExampleStateData(response),
 				} satisfies LoadSetPair<number>,
-				{
-					loader: async () => await insight.initialize(),
-					// Optionally handle the result or remove the setter if not needed
-					setter: (tool) => setTool(tool.tool),
-				} satisfies LoadSetPair<{
-					tool: {
-						type: "MCP";
-						message: string;
-						id: string;
-						name: string;
-						parameters: Record<string, unknown>;
-					};
-				}>,
 			];
 
 			// Execute all loaders in parallel and wait for them all to complete
@@ -230,7 +206,7 @@ export const AppContextProvider = ({ children }: PropsWithChildren) => {
 			// If the insight is ready, then load the app data
 			loadAppData();
 		}
-	}, [isReady, runPixel, setIsAppDataLoading, insight]);
+	}, [isReady, runPixel, setIsAppDataLoading]);
 
 	// On start up, grab the name of the user from the config call if they are already logged in
 	useEffect(() => {
@@ -240,16 +216,18 @@ export const AppContextProvider = ({ children }: PropsWithChildren) => {
 		);
 	}, [system]);
 
-	const getTools = usePixel<ToolStructure>(
-		Env.APP ? `GetMCPTools(project=["${Env.APP}"]);` : "",
+	const getTools = usePixel<{
+		tools: MCPTool[];
+	}>(
+		Env.APP
+			? `GetMCPTools(project=${JSON.stringify(import.meta.env.CLIENT_APP)});`
+			: "",
 		{
 			data: {
 				tools: [
 					{
 						name: "",
 						description: "",
-						title: "",
-						_meta: { generated_on: "" },
 						inputSchema: {
 							title: "",
 							properties: {},
@@ -258,13 +236,6 @@ export const AppContextProvider = ({ children }: PropsWithChildren) => {
 						},
 					},
 				],
-				_meta: {
-					SMSS_PROJECT_ID: "",
-					SMSS_PROJECT_NAME: "",
-					SMSS_ENGINE_NAME: "",
-					SMSS_ENGINE_TYPE: "",
-					SMSS_ENGINE_ID: "",
-				},
 			},
 		},
 	);
@@ -282,7 +253,6 @@ export const AppContextProvider = ({ children }: PropsWithChildren) => {
 				login,
 				logout,
 				userLoginName,
-				tool,
 				tools,
 			}}
 		>
