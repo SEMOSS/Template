@@ -16,7 +16,6 @@ import {
 } from "@/components/ui/select";
 import { Textarea } from "@/components/ui/textarea";
 import { useAppContext } from "@/contexts";
-import { PAGE_TYPES } from "@/pages";
 import type { MCPTool } from "@/types";
 import { LoadingScreen } from "./LoadingScreen";
 
@@ -32,8 +31,8 @@ interface DefaultToolViewProps {
 	name: string;
 }
 export const DefaultToolView: React.FC<DefaultToolViewProps> = ({ name }) => {
-	const { actions } = useInsight();
-	const { tool, tools, isAppDataLoading } = useAppContext();
+	const { actions, tool } = useInsight();
+	const { tools } = useAppContext();
 	const [selectedTool, setSelectedTool] = useState<MCPTool>(null);
 	const [formData, setFormData] = useState<Record<string, unknown>>(
 		tool?.parameters || {},
@@ -315,16 +314,12 @@ export const DefaultToolView: React.FC<DefaultToolViewProps> = ({ name }) => {
 		}
 	};
 
-	if (isAppDataLoading || !selectedTool) {
+	if (!selectedTool) {
 		return <LoadingScreen />;
 	}
 
-	const lowerName = toolName.toLocaleLowerCase();
-
 	// Render custom route if defined in route.constants.tsx else show default view
-	return Object.hasOwn(PAGE_TYPES, lowerName) ? (
-		PAGE_TYPES[lowerName]
-	) : (
+	return (
 		<div className="flex h-full w-full flex-col items-center justify-start overflow-hidden p-4">
 			<div className="space-y-4">
 				<div>
