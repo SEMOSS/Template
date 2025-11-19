@@ -24,9 +24,6 @@ export default defineConfig(({ mode }) => {
 			"import.meta.env.ENDPOINT": JSON.stringify(env.ENDPOINT),
 			"import.meta.env.MODULE": JSON.stringify(env.MODULE),
 			"import.meta.env.APP": JSON.stringify(env.APP),
-			"import.meta.env.HOME_PAGE_ENABLED": JSON.stringify(
-				env.HOME_PAGE_ENABLED,
-			),
 		},
 		server: {
 			proxy: {
