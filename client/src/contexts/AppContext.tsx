@@ -220,7 +220,7 @@ export const AppContextProvider = ({ children }: PropsWithChildren) => {
 		tools: MCPTool[];
 	}>(
 		Env.APP
-			? `GetMCPTools(project=${JSON.stringify(import.meta.env.CLIENT_APP)});`
+			? `GetMCPTools(project=${JSON.stringify(import.meta.env.APP)});`
 			: "",
 		{
 			data: {

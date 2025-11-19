@@ -7,7 +7,6 @@ export default defineConfig(({ mode }) => {
 		ENDPOINT: string;
 		MODULE: string;
 		APP: string;
-		HOME_PAGE_ENABLED: string;
 	};
 
 	return {
