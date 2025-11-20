@@ -1,5 +1,5 @@
 import { getSystemConfig, runPixel as runPixelSemossSdk } from "@semoss/sdk";
-import { useInsight } from "@semoss/sdk-react";
+import { useInsight } from "@semoss/sdk/react";
 import {
 	createContext,
 	type Dispatch,
@@ -12,17 +12,24 @@ import {
 } from "react";
 import type { MessageSnackbarProps } from "@/components";
 import { useLoadingState } from "@/hooks";
+import type { Engine } from "@/types";
 
 export interface AppContextType {
 	runPixel: <T = unknown>(
 		pixelString: string,
 		successMessage?: string,
 	) => Promise<T>;
+	runMCPTool: (
+		toolName: string,
+		toolInput?: Record<string, unknown>,
+		successMessage?: string,
+	) => Promise<string>;
 	login: (username: string, password: string) => Promise<boolean>;
 	logout: () => Promise<boolean>;
 	userLoginName: string;
 	isAppDataLoading: boolean;
-	exampleStateData?: number;
+	models: Engine[];
+	storageEngines: Engine[];
 	messageSnackbarProps: MessageSnackbarProps;
 	setMessageSnackbarProps: Dispatch<SetStateAction<MessageSnackbarProps>>;
 }
@@ -66,14 +73,18 @@ export const AppContextProvider = ({ children }: PropsWithChildren) => {
 			message: "",
 			severity: "info",
 		});
-	// Example state variable to store the result of a pixel operation
-	const [exampleStateData, setExampleStateData] = useState<number>();
+	const [models, setModels] = useState<Engine[]>([]);
+	const [storageEngines, setStorageEngines] = useState<Engine[]>([]);
 
 	/**
 	 * Functions
 	 */
 
-	// Function to run a pixel and return the result. Opens the snackbar if there is an error.
+	/**
+	 * Run pixel code
+	 * @param pixelString - the pixel string to run
+	 * @param successMessage - optional parameter to show a success message
+	 */
 	const runPixel = useCallback(
 		async <T,>(pixelString: string, successMessage?: string) => {
 			try {
@@ -118,6 +129,30 @@ export const AppContextProvider = ({ children }: PropsWithChildren) => {
 			}
 		},
 		[insightId],
+	);
+
+	/**
+	 * Run a MCP tool
+	 * @param name - name of the tool
+	 * @param parameters - parameters to pass to the tool
+	 */
+	const runMCPTool = useCallback(
+		async (name: string, parameters?: Record<string, unknown>) => {
+			try {
+				const response = await actions.runMCPTool(name, parameters);
+				if (!response.output)
+					throw new Error("No output from MCP tool");
+				return response.output;
+			} catch (error) {
+				setMessageSnackbarProps({
+					open: true,
+					message: `${error.message ?? "Error during operation"}`,
+					severity: "error",
+				});
+				throw error;
+			}
+		},
+		[actions],
 	);
 
 	// Allow users to log in, and grab their name when they do
@@ -173,9 +208,13 @@ export const AppContextProvider = ({ children }: PropsWithChildren) => {
 			// Create an array of loadSetPairs, each containing a loader function and a setter function
 			const loadSetPairs: LoadSetPair<unknown>[] = [
 				{
-					loader: "1 + 2",
-					setter: (response) => setExampleStateData(response),
-				} satisfies LoadSetPair<number>,
+					loader: ` MyEngines ( metaKeys = [] , metaFilters = [{ "tag" : "text-generation" }] , engineTypes = [ 'MODEL' ] )`,
+					setter: (value: Engine[]) => setModels(value),
+				} satisfies LoadSetPair<Engine[]>,
+				{
+					loader: ` MyEngines ( metaKeys = [], engineTypes = [ 'STORAGE' ] )`,
+					setter: (value: Engine[]) => setStorageEngines(value),
+				} satisfies LoadSetPair<Engine[]>,
 			];
 
 			// Execute all loaders in parallel and wait for them all to complete
@@ -213,7 +252,9 @@ export const AppContextProvider = ({ children }: PropsWithChildren) => {
 		<AppContext.Provider
 			value={{
 				runPixel,
-				exampleStateData,
+				runMCPTool,
+				models,
+				storageEngines,
 				isAppDataLoading,
 				messageSnackbarProps,
 				setMessageSnackbarProps,

@@ -7,6 +7,8 @@ import java.util.Map;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import prerna.auth.User;
+import prerna.engine.impl.model.Room;
+import prerna.engine.impl.model.RoomUtils;
 import prerna.reactor.AbstractReactor;
 import prerna.sablecc2.om.GenRowStruct;
 import prerna.sablecc2.om.PixelDataType;
@@ -43,11 +45,11 @@ public abstract class AbstractProjectReactor extends AbstractReactor {
   /** Project-specific properties and configuration settings. */
   protected ProjectProperties projectProperties;
 
-  // TODO: Initialize additional protected variables (engines, external services,
-  // etc.)
-
   /** The result of the reactor execution, containing the output data and metadata. */
   protected NounMetadata result = null;
+
+  /** The room context for this reactor execution. */
+  protected Room room;
 
   /**
    * Executes the reactor with standardized error handling and logging. This method orchestrates the
@@ -95,9 +97,13 @@ public abstract class AbstractProjectReactor extends AbstractReactor {
       projectId = this.insight.getProjectId();
     }
 
-    projectProperties = ProjectProperties.getInstance(projectId);
+    // if there is not yet a room with the same id as this insight, create a new
+    // room for this insight
+    room = RoomUtils.createRoomIfNotExists(null, insight, null, "Room " + insight.getInsightId());
+    // set the folder path for the insight
+    this.insight.setInsightFolder(room.getRoomFolderPath());
 
-    // TODO: Initialize additional resources (engines, external services, etc.)
+    projectProperties = ProjectProperties.getInstance(projectId);
 
     user = this.insight.getUser();
     organizeKeys();
