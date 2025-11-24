@@ -1,5 +1,5 @@
 import { Stack } from "@mui/material";
-import { useInsight } from "@semoss/sdk-react";
+import { useInsight } from "@semoss/sdk/react";
 import { Outlet } from "react-router-dom";
 import { LoadingScreen, MainNavigation, MessageSnackbar } from "@/components";
 import { useAppContext } from "@/contexts";

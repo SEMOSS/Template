@@ -1,4 +1,4 @@
-import { useInsight } from "@semoss/sdk-react";
+import { useInsight } from "@semoss/sdk/react";
 import { Navigate, Outlet, useLocation } from "react-router-dom";
 import { LoadingScreen } from "@/components";
 import { useAppContext } from "@/contexts";

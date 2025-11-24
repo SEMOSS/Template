@@ -1,5 +1,5 @@
 import { Button, Stack, TextField } from "@mui/material";
-import { useInsight } from "@semoss/sdk-react";
+import { useInsight } from "@semoss/sdk/react";
 import { type ChangeEvent, useRef, useState } from "react";
 import { Navigate, useLocation } from "react-router-dom";
 import { useAppContext } from "@/contexts";
