@@ -12,7 +12,6 @@ import {
 } from "react";
 import type { MessageSnackbarProps } from "@/components";
 import { useLoadingState } from "@/hooks";
-import type { Engine } from "@/types";
 
 export interface AppContextType {
 	runPixel: <T = unknown>(
@@ -28,8 +27,7 @@ export interface AppContextType {
 	logout: () => Promise<boolean>;
 	userLoginName: string;
 	isAppDataLoading: boolean;
-	models: Engine[];
-	storageEngines: Engine[];
+	exampleStateData?: number;
 	messageSnackbarProps: MessageSnackbarProps;
 	setMessageSnackbarProps: Dispatch<SetStateAction<MessageSnackbarProps>>;
 }
@@ -73,8 +71,8 @@ export const AppContextProvider = ({ children }: PropsWithChildren) => {
 			message: "",
 			severity: "info",
 		});
-	const [models, setModels] = useState<Engine[]>([]);
-	const [storageEngines, setStorageEngines] = useState<Engine[]>([]);
+	// Example state variable to store the result of a pixel operation
+	const [exampleStateData, setExampleStateData] = useState<number>();
 
 	/**
 	 * Functions
@@ -208,13 +206,9 @@ export const AppContextProvider = ({ children }: PropsWithChildren) => {
 			// Create an array of loadSetPairs, each containing a loader function and a setter function
 			const loadSetPairs: LoadSetPair<unknown>[] = [
 				{
-					loader: ` MyEngines ( metaKeys = [] , metaFilters = [{ "tag" : "text-generation" }] , engineTypes = [ 'MODEL' ] )`,
-					setter: (value: Engine[]) => setModels(value),
-				} satisfies LoadSetPair<Engine[]>,
-				{
-					loader: ` MyEngines ( metaKeys = [], engineTypes = [ 'STORAGE' ] )`,
-					setter: (value: Engine[]) => setStorageEngines(value),
-				} satisfies LoadSetPair<Engine[]>,
+					loader: "1 + 2",
+					setter: (response) => setExampleStateData(response),
+				} satisfies LoadSetPair<number>,
 			];
 
 			// Execute all loaders in parallel and wait for them all to complete
@@ -253,8 +247,7 @@ export const AppContextProvider = ({ children }: PropsWithChildren) => {
 			value={{
 				runPixel,
 				runMCPTool,
-				models,
-				storageEngines,
+				exampleStateData,
 				isAppDataLoading,
 				messageSnackbarProps,
 				setMessageSnackbarProps,

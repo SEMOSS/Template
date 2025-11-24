@@ -79,7 +79,7 @@ export const MainNavigation = () => {
 						fontWeight="bold"
 						whiteSpace="nowrap"
 					>
-						Document Vault
+						SEMOSS Template
 					</Typography>
 				</CursorStack>
 

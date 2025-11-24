@@ -14,13 +14,4 @@ export const THEME = createTheme({
 			paper: "#FAFAFA",
 		},
 	},
-	breakpoints: {
-		values: {
-			xs: 0,
-			sm: 350,
-			md: 900,
-			lg: 1200,
-			xl: 1536,
-		},
-	},
 });

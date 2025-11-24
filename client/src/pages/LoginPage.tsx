@@ -57,7 +57,7 @@ export const LoginPage = () => {
 	if (isAuthorized) return <Navigate to={state?.target ?? "/"} />;
 
 	return (
-		<Stack spacing={2} padding={2}>
+		<Stack spacing={2}>
 			<TextField
 				label="Username"
 				value={username}
