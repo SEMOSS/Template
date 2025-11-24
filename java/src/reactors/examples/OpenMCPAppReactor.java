@@ -1,0 +1,32 @@
+package reactors.examples;
+
+import prerna.sablecc2.om.PixelDataType;
+import prerna.sablecc2.om.nounmeta.NounMetadata;
+import reactors.AbstractProjectReactor;
+
+/**
+ * Dummy reactor that allows Playground to open the MCP App interface.
+ *
+ * @see {@link AbstractProjectReactor} for base reactor functionality
+ */
+public class OpenMCPAppReactor extends AbstractProjectReactor {
+
+  /**
+   * Executes the main logic of the OpenMCPAppReactor to return a default message. This method
+   * currently serves as a placeholder and returns a constant string indicating that the
+   * auto-execute response has not yet been implemented.
+   *
+   * @return A {@link NounMetadata} containing the greeting message as a constant string
+   */
+  @Override
+  protected NounMetadata doExecute() {
+    return new NounMetadata(
+        "This MCP tool's auto-execute response has not yet been implemented.",
+        PixelDataType.CONST_STRING);
+  }
+
+  @Override
+  public String getReactorDescription() {
+    return "This tool allows the user to interact with the SEMOSS Template application.";
+  }
+}
