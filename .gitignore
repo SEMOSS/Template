@@ -13,6 +13,7 @@ java/project.properties
 .admin/
 **/.DS_Store
 **/.env
+**/.env.*
 !client/.env
 
 # cache
