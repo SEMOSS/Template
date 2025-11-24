@@ -11,6 +11,15 @@ import reactors.AbstractProjectReactor;
  */
 public class OpenMCPAppReactor extends AbstractProjectReactor {
 
+  /** Constructs a OpenMCPAppReactor. This constructor does not expect any input parameters. */
+  public OpenMCPAppReactor() {
+    // list of keys the reactor is expecting
+    this.keysToGet = new String[] {};
+
+    // 1 for required keys, 0 for optional
+    this.keyRequired = new int[] {};
+  }
+
   /**
    * Executes the main logic of the OpenMCPAppReactor to return a default message. This method
    * currently serves as a placeholder and returns a constant string indicating that the

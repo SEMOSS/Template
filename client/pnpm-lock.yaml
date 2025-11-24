@@ -27,8 +27,8 @@ importers:
         specifier: ^8.17.0
         version: 8.17.0(@emotion/react@11.14.0(@types/react@18.3.26)(react@18.3.1))(@emotion/styled@11.14.1(@emotion/react@11.14.0(@types/react@18.3.26)(react@18.3.1))(@types/react@18.3.26)(react@18.3.1))(@mui/material@7.3.5(@emotion/react@11.14.0(@types/react@18.3.26)(react@18.3.1))(@emotion/styled@11.14.1(@emotion/react@11.14.0(@types/react@18.3.26)(react@18.3.1))(@types/react@18.3.26)(react@18.3.1))(@types/react@18.3.26)(react-dom@18.3.1(react@18.3.1))(react@18.3.1))(@mui/system@7.3.5(@emotion/react@11.14.0(@types/react@18.3.26)(react@18.3.1))(@emotion/styled@11.14.1(@emotion/react@11.14.0(@types/react@18.3.26)(react@18.3.1))(@types/react@18.3.26)(react@18.3.1))(@types/react@18.3.26)(react@18.3.1))(@types/react@18.3.26)(dayjs@1.11.19)(react-dom@18.3.1(react@18.3.1))(react@18.3.1)
       '@semoss/sdk':
-        specifier: file:../../../../../../../apache-tomcat-9.0.102/webapps/SemossWeb/libs/sdk
-        version: file:../../../../../../../apache-tomcat-9.0.102/webapps/SemossWeb/libs/sdk(react@18.3.1)
+        specifier: 1.0.0-beta.31
+        version: 1.0.0-beta.31(react@18.3.1)
       dayjs:
         specifier: ^1.11.19
         version: 1.11.19
@@ -652,8 +652,8 @@ packages:
     cpu: [x64]
     os: [win32]
 
-  '@semoss/sdk@file:../../../../../../../apache-tomcat-9.0.102/webapps/SemossWeb/libs/sdk':
-    resolution: {directory: ../../../../../../../apache-tomcat-9.0.102/webapps/SemossWeb/libs/sdk, type: directory}
+  '@semoss/sdk@1.0.0-beta.31':
+    resolution: {integrity: sha512-JIo4TvJvYhkw1aa3DsQ1rEC4zJXF9Qp7ImcdyrRTZpTXC1mxzFB0tqUC4hCGSwrbXN79q20Qr+nxo2fyO7H2Rg==}
     peerDependencies:
       react: 18.3.1
     peerDependenciesMeta:
@@ -1585,7 +1585,7 @@ snapshots:
   '@rollup/rollup-win32-x64-msvc@4.53.2':
     optional: true
 
-  '@semoss/sdk@file:../../../../../../../apache-tomcat-9.0.102/webapps/SemossWeb/libs/sdk(react@18.3.1)':
+  '@semoss/sdk@1.0.0-beta.31(react@18.3.1)':
     optionalDependencies:
       react: 18.3.1
 
