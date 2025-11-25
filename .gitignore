@@ -6,6 +6,7 @@ client/node_modules/
 portals/
 classes/
 target/
+test-classes/
 
 # Local configuration files
 *.local
