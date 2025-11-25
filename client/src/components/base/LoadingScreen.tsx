@@ -1,4 +1,4 @@
-import { CircularProgress, Stack } from "@mui/material";
+import { Spinner } from "@/components/ui/spinner";
 
 /**
  * Returns a loading screen with a centered circular progress indicator
@@ -6,7 +6,7 @@ import { CircularProgress, Stack } from "@mui/material";
  * @component
  */
 export const LoadingScreen = () => (
-	<Stack height="100%" alignItems="center" justifyContent="center">
-		<CircularProgress />
-	</Stack>
+	<div className="flex items-center justify-center h-full">
+		<Spinner className="size-8" />
+	</div>
 );

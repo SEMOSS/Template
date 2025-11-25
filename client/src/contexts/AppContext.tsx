@@ -1,4 +1,8 @@
-import { getSystemConfig, runPixel as runPixelSemossSdk } from "@semoss/sdk";
+import {
+	getSystemConfig,
+	Insight,
+	runPixel as runPixelSemossSdk,
+} from "@semoss/sdk";
 import { useInsight } from "@semoss/sdk/react";
 import {
 	createContext,
@@ -12,6 +16,7 @@ import {
 } from "react";
 import type { MessageSnackbarProps } from "@/components";
 import { useLoadingState } from "@/hooks";
+import type { MCPToolRequest } from "@/types";
 
 export interface AppContextType {
 	runPixel: <T = unknown>(
@@ -30,6 +35,7 @@ export interface AppContextType {
 	exampleStateData?: number;
 	messageSnackbarProps: MessageSnackbarProps;
 	setMessageSnackbarProps: Dispatch<SetStateAction<MessageSnackbarProps>>;
+	tool: MCPToolRequest;
 }
 
 const AppContext = createContext<AppContextType | undefined>(undefined);
@@ -65,6 +71,7 @@ export const AppContextProvider = ({ children }: PropsWithChildren) => {
 	 */
 	const [isAppDataLoading, setIsAppDataLoading] = useLoadingState(true);
 	const [userLoginName, setUserLoginName] = useState<string | null>(null);
+	const [tool, setTool] = useState(null);
 	const [messageSnackbarProps, setMessageSnackbarProps] =
 		useState<MessageSnackbarProps>({
 			open: false,
@@ -213,6 +220,11 @@ export const AppContextProvider = ({ children }: PropsWithChildren) => {
 						},
 						setter: (response) => setExampleStateData(response),
 					} satisfies LoadSetPair<number>,
+					{
+						loader: async () => await new Insight().initialize(),
+						// Optionally handle the result or remove the setter if not needed
+						setter: (initConfig) => setTool(initConfig.tool),
+					} satisfies LoadSetPair<{ tool: MCPToolRequest }>,
 				];
 
 				// Execute all loaders in parallel and wait for them all to complete
@@ -266,6 +278,7 @@ export const AppContextProvider = ({ children }: PropsWithChildren) => {
 				login,
 				logout,
 				userLoginName,
+				tool,
 			}}
 		>
 			{children}
