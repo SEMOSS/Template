@@ -1,9 +1,17 @@
-import { createHashRouter, Navigate, RouterProvider } from "react-router-dom";
-import { ROUTE_PATH_LOGIN_PAGE } from "@/routes.constants";
+import {
+	createHashRouter,
+	Navigate,
+	RouterProvider,
+	useParams,
+} from "react-router-dom";
+import { DefaultToolView, LoadingScreen, PageWrapper } from "@/components";
+import { useAppContext } from "@/contexts";
 import { ErrorPage } from "./ErrorPage";
 import { HomePage } from "./HomePage";
 import { LoginPage } from "./LoginPage";
 import { AuthorizedLayout, InitializedLayout } from "./layouts";
+import { MCPLayout } from "./layouts/MCPLayout";
+import { ROUTE_PATH_LOGIN_PAGE } from "./routes.constants";
 
 const router = createHashRouter([
 	{
@@ -19,9 +27,37 @@ const router = createHashRouter([
 				ErrorBoundary: ErrorPage,
 				children: [
 					{
-						// If the path is empty, use the home page
-						index: true,
-						Component: HomePage,
+						// MCPLayout handles routing logic - redirects to tool or shows children
+						Component: MCPLayout,
+						children: [
+							{
+								// Home page - shows list of available tools
+								index: true,
+								Component: HomePage,
+							},
+							{
+								// Route with page parameter - renders different pages based on the "page" param
+								path: ":pageName",
+								Component: () => {
+									const { isAppDataLoading } =
+										useAppContext();
+									const { pageName } = useParams<{
+										pageName: string;
+									}>();
+									if (isAppDataLoading || !pageName) {
+										return <LoadingScreen />;
+									}
+									return import.meta.env.HOME_PAGE_ENABLED ===
+										"true" ? (
+										<PageWrapper>
+											<DefaultToolView name={pageName} />
+										</PageWrapper>
+									) : (
+										<DefaultToolView name={pageName} />
+									);
+								},
+							},
+						],
 					},
 					// {
 					//     // Example of a new page

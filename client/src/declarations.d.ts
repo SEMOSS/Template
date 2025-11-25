@@ -1,9 +1,11 @@
 interface ImportMetaEnv {
+	readonly DEV: string;
 	readonly ENDPOINT: string;
 	readonly MODULE: string;
+	readonly APP: string;
 	readonly CLIENT_ACCESS_KEY: string;
 	readonly CLIENT_SECRET_KEY: string;
-	readonly APP: string;
+	readonly HOME_PAGE_ENABLED: string;
 	// more env variables...
 }
 

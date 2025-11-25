@@ -1,5 +1,10 @@
-import { getSystemConfig, runPixel as runPixelSemossSdk } from "@semoss/sdk";
-import { useInsight } from "@semoss/sdk/react";
+import {
+	Env,
+	getSystemConfig,
+	Insight,
+	runPixel as runPixelSemossSdk,
+} from "@semoss/sdk";
+import { useInsight, usePixel } from "@semoss/sdk/react";
 import {
 	createContext,
 	type Dispatch,
@@ -8,10 +13,12 @@ import {
 	useCallback,
 	useContext,
 	useEffect,
+	useMemo,
 	useState,
 } from "react";
 import type { MessageSnackbarProps } from "@/components";
 import { useLoadingState } from "@/hooks";
+import type { Tool, ToolResponse, ToolStructure } from "@/types";
 
 export interface AppContextType {
 	runPixel: <T = unknown>(
@@ -30,6 +37,8 @@ export interface AppContextType {
 	exampleStateData?: number;
 	messageSnackbarProps: MessageSnackbarProps;
 	setMessageSnackbarProps: Dispatch<SetStateAction<MessageSnackbarProps>>;
+	tool: ToolResponse;
+	tools: Tool[];
 }
 
 const AppContext = createContext<AppContextType | undefined>(undefined);
@@ -58,19 +67,28 @@ export const useAppContext = (): AppContextType => {
  */
 export const AppContextProvider = ({ children }: PropsWithChildren) => {
 	// Get the current state of the current insight
-	const { actions, isReady, system, insightId } = useInsight();
+	const { actions, isReady, system, insightId: id } = useInsight();
+	const [insightId] = useState(id);
+
+	// New Insight for tool response
+	const insight = useMemo(() => {
+		const insight = new Insight();
+		return insight;
+	}, []);
 
 	/**
 	 * State
 	 */
 	const [isAppDataLoading, setIsAppDataLoading] = useLoadingState(true);
 	const [userLoginName, setUserLoginName] = useState<string | null>(null);
+	const [tool, setTool] = useState(null);
 	const [messageSnackbarProps, setMessageSnackbarProps] =
 		useState<MessageSnackbarProps>({
 			open: false,
 			message: "",
 			severity: "info",
 		});
+
 	// Example state variable to store the result of a pixel operation
 	const [exampleStateData, setExampleStateData] = useState<number>();
 
@@ -198,7 +216,7 @@ export const AppContextProvider = ({ children }: PropsWithChildren) => {
 			// Define a type for the loader and setter pairs
 			// This allows us to load multiple pieces of data simultaneously and set them in state
 			interface LoadSetPair<T> {
-				loader: string;
+				loader: () => Promise<T>;
 				value?: T;
 				setter?: (value: T) => void;
 			}
@@ -206,15 +224,28 @@ export const AppContextProvider = ({ children }: PropsWithChildren) => {
 			// Create an array of loadSetPairs, each containing a loader function and a setter function
 			const loadSetPairs: LoadSetPair<unknown>[] = [
 				{
-					loader: "1 + 2",
+					loader: () => runPixel("1+2"),
 					setter: (response) => setExampleStateData(response),
 				} satisfies LoadSetPair<number>,
+				{
+					loader: async () => await insight.initialize(),
+					// Optionally handle the result or remove the setter if not needed
+					setter: (tool) => setTool(tool.tool),
+				} satisfies LoadSetPair<{
+					tool: {
+						type: "MCP";
+						message: string;
+						id: string;
+						name: string;
+						parameters: Record<string, unknown>;
+					};
+				}>,
 			];
 
 			// Execute all loaders in parallel and wait for them all to complete
 			await Promise.all(
 				loadSetPairs.map(async (loadSetPair) => {
-					loadSetPair.value = await runPixel(loadSetPair.loader);
+					loadSetPair.value = await loadSetPair.loader();
 					return true;
 				}),
 			);
@@ -232,7 +263,7 @@ export const AppContextProvider = ({ children }: PropsWithChildren) => {
 			// If the insight is ready, then load the app data
 			loadAppData();
 		}
-	}, [isReady, runPixel, setIsAppDataLoading]);
+	}, [isReady, runPixel, setIsAppDataLoading, insight]);
 
 	// On start up, grab the name of the user from the config call if they are already logged in
 	useEffect(() => {
@@ -241,6 +272,37 @@ export const AppContextProvider = ({ children }: PropsWithChildren) => {
 				null,
 		);
 	}, [system]);
+
+	const getTools = usePixel<ToolStructure>(
+		Env.APP ? `GetMCPTools(project=["${Env.APP}"]);` : "",
+		{
+			data: {
+				tools: [
+					{
+						name: "",
+						description: "",
+						title: "",
+						_meta: { generated_on: "" },
+						inputSchema: {
+							title: "",
+							properties: {},
+							type: "object",
+							required: [],
+						},
+					},
+				],
+				_meta: {
+					SMSS_PROJECT_ID: "",
+					SMSS_PROJECT_NAME: "",
+					SMSS_ENGINE_NAME: "",
+					SMSS_ENGINE_TYPE: "",
+					SMSS_ENGINE_ID: "",
+				},
+			},
+		},
+	);
+
+	const tools = getTools?.data?.tools || [];
 
 	return (
 		<AppContext.Provider
@@ -254,6 +316,8 @@ export const AppContextProvider = ({ children }: PropsWithChildren) => {
 				login,
 				logout,
 				userLoginName,
+				tool,
+				tools,
 			}}
 		>
 			{children}
