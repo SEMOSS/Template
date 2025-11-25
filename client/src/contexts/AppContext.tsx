@@ -213,50 +213,62 @@ export const AppContextProvider = ({ children }: PropsWithChildren) => {
 		const loadAppData = async () => {
 			const loadingKey = setIsAppDataLoading(true);
 
-			// Define a type for the loader and setter pairs
-			// This allows us to load multiple pieces of data simultaneously and set them in state
-			interface LoadSetPair<T> {
-				loader: () => Promise<T>;
-				value?: T;
-				setter?: (value: T) => void;
+			try {
+				// Define a type for the loader and setter pairs
+				// This allows us to load multiple pieces of data simultaneously and set them in state after everything has loaded successfully
+				interface LoadSetPair<T> {
+					loader: () => Promise<T>;
+					value?: T;
+					setter?: (value: T) => void;
+				}
+
+				// Create an array of loadSetPairs, each containing a loader function and a setter function
+				const loadSetPairs: LoadSetPair<unknown>[] = [
+					// Example pixel to load some data
+					{
+						loader: async () => {
+							return await runPixel<number>(`1 + 2`);
+						},
+						setter: (response) => setExampleStateData(response),
+					} satisfies LoadSetPair<number>,
+					{
+						loader: async () => await insight.initialize(),
+						// Optionally handle the result or remove the setter if not needed
+						setter: (tool) => setTool(tool.tool),
+					} satisfies LoadSetPair<{
+						tool: {
+							type: "MCP";
+							message: string;
+							id: string;
+							name: string;
+							parameters: Record<string, unknown>;
+						};
+					}>,
+				];
+
+				// Execute all loaders in parallel and wait for them all to complete
+				await Promise.all(
+					loadSetPairs.map(async (loadSetPair) => {
+						loadSetPair.value = await loadSetPair.loader();
+						return;
+					}),
+				);
+
+				// Once all loaders have completed, set the loading state to false
+				// and call each setter with the loaded value
+				setIsAppDataLoading(false, loadingKey, () =>
+					loadSetPairs.forEach((loadSetPair) => {
+						loadSetPair.setter?.(loadSetPair.value);
+					}),
+				);
+			} catch (e) {
+				// If any loader fails, display an error message
+				setMessageSnackbarProps({
+					open: true,
+					message: `Error initializing app data${e.message ? `: ${e.message}` : ""}`,
+					severity: "error",
+				});
 			}
-
-			// Create an array of loadSetPairs, each containing a loader function and a setter function
-			const loadSetPairs: LoadSetPair<unknown>[] = [
-				{
-					loader: () => runPixel("1+2"),
-					setter: (response) => setExampleStateData(response),
-				} satisfies LoadSetPair<number>,
-				{
-					loader: async () => await insight.initialize(),
-					// Optionally handle the result or remove the setter if not needed
-					setter: (tool) => setTool(tool.tool),
-				} satisfies LoadSetPair<{
-					tool: {
-						type: "MCP";
-						message: string;
-						id: string;
-						name: string;
-						parameters: Record<string, unknown>;
-					};
-				}>,
-			];
-
-			// Execute all loaders in parallel and wait for them all to complete
-			await Promise.all(
-				loadSetPairs.map(async (loadSetPair) => {
-					loadSetPair.value = await loadSetPair.loader();
-					return true;
-				}),
-			);
-
-			// Once all loaders have completed, set the loading state to false
-			// and call each setter with the loaded value
-			setIsAppDataLoading(false, loadingKey, () =>
-				loadSetPairs.forEach((loadSetPair) => {
-					loadSetPair.setter?.(loadSetPair.value);
-				}),
-			);
 		};
 
 		if (isReady) {
