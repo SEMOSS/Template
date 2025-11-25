@@ -15,6 +15,7 @@ java/project.properties
 **/.env
 **/.env.*
 !client/.env
+.history/
 
 # cache
 py/__pycache__/

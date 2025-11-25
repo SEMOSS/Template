@@ -1,11 +1,19 @@
-import { AccountCircle, Logout } from "@mui/icons-material";
-import { Button, Menu, Stack, Typography } from "@mui/material";
+import { LogOut, User } from "lucide-react";
+import { Button } from "@/components/ui/button";
+import {
+	DropdownMenu,
+	DropdownMenuContent,
+	DropdownMenuItem,
+	DropdownMenuLabel,
+	DropdownMenuSeparator,
+	DropdownMenuTrigger,
+} from "@/components/ui/dropdown-menu";
 import { useAppContext } from "@/contexts";
 import { useLoadingState } from "@/hooks";
 
 export interface UserProfileMenuProps {
 	open: boolean;
-	anchorEl: Element;
+	onOpenChange?: (open: boolean) => void;
 }
 
 /**
@@ -13,7 +21,10 @@ export interface UserProfileMenuProps {
  *
  * @component
  */
-export const UserProfileMenu = ({ open, anchorEl }: UserProfileMenuProps) => {
+export const UserProfileMenu = ({
+	open,
+	onOpenChange,
+}: UserProfileMenuProps) => {
 	const { logout, userLoginName } = useAppContext();
 
 	/**
@@ -33,25 +44,26 @@ export const UserProfileMenu = ({ open, anchorEl }: UserProfileMenuProps) => {
 	};
 
 	return (
-		<Menu open={open} anchorEl={anchorEl}>
-			<Stack spacing={1} alignItems="center" padding={1}>
-				<Stack direction="row" spacing={1}>
-					<AccountCircle color="action" />
-
-					<Typography variant="body1">{userLoginName}</Typography>
-				</Stack>
-
-				<Button
-					title="Logout"
-					endIcon={<Logout />}
-					onClick={handleLogout}
-					variant="contained"
-					size="small"
-					loading={isLogoutLoading}
-				>
-					Logout
+		<DropdownMenu open={open} onOpenChange={onOpenChange}>
+			<DropdownMenuTrigger asChild>
+				<Button variant="ghost" size="icon" title="View user menu">
+					<User className="h-5 w-5" />
 				</Button>
-			</Stack>
-		</Menu>
+			</DropdownMenuTrigger>
+			<DropdownMenuContent align="end" className="w-56">
+				<DropdownMenuLabel className="flex items-center space-x-2">
+					<User className="h-4 w-4" />
+					<span>{userLoginName}</span>
+				</DropdownMenuLabel>
+				<DropdownMenuSeparator />
+				<DropdownMenuItem
+					onClick={handleLogout}
+					disabled={isLogoutLoading}
+				>
+					<LogOut className="h-4 w-4 mr-2" />
+					{isLogoutLoading ? "Logging out..." : "Logout"}
+				</DropdownMenuItem>
+			</DropdownMenuContent>
+		</DropdownMenu>
 	);
 };

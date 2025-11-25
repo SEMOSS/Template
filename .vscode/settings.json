@@ -9,5 +9,6 @@
 	"[java]": {
 		"editor.defaultFormatter": null,
 		"editor.codeActionsOnSave": {}
-	}
+	},
+	"editor.defaultFormatter": "biomejs.biome"
 }
