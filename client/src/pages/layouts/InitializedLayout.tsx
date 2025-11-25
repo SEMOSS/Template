@@ -23,6 +23,7 @@ export const InitializedLayout = () => {
 
 			{/* Show message snackbar with notifications */}
 			<MessageSnackbar {...messageSnackbarProps} />
+
 			{isInitialized ? (
 				// If initialized, set up padding and scroll
 				<Stack padding={2} overflow="auto" height="100%">

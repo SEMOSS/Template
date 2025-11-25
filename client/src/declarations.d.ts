@@ -1,5 +1,4 @@
 interface ImportMetaEnv {
-	readonly DEV: string;
 	readonly ENDPOINT: string;
 	readonly MODULE: string;
 	readonly APP: string;
