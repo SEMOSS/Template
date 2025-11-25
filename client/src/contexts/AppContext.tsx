@@ -13,12 +13,11 @@ import {
 	useCallback,
 	useContext,
 	useEffect,
-	useMemo,
 	useState,
 } from "react";
 import type { MessageSnackbarProps } from "@/components";
 import { useLoadingState } from "@/hooks";
-import type { Tool, ToolResponse, ToolStructure } from "@/types";
+import type { MCPToolRequest, Tool, ToolStructure } from "@/types";
 
 export interface AppContextType {
 	runPixel: <T = unknown>(
@@ -37,8 +36,8 @@ export interface AppContextType {
 	exampleStateData?: number;
 	messageSnackbarProps: MessageSnackbarProps;
 	setMessageSnackbarProps: Dispatch<SetStateAction<MessageSnackbarProps>>;
-	tool: ToolResponse;
 	tools: Tool[];
+	tool: MCPToolRequest;
 }
 
 const AppContext = createContext<AppContextType | undefined>(undefined);
@@ -69,12 +68,6 @@ export const AppContextProvider = ({ children }: PropsWithChildren) => {
 	// Get the current state of the current insight
 	const { actions, isReady, system, insightId: id } = useInsight();
 	const [insightId] = useState(id);
-
-	// New Insight for tool response
-	const insight = useMemo(() => {
-		const insight = new Insight();
-		return insight;
-	}, []);
 
 	/**
 	 * State
@@ -232,17 +225,10 @@ export const AppContextProvider = ({ children }: PropsWithChildren) => {
 						setter: (response) => setExampleStateData(response),
 					} satisfies LoadSetPair<number>,
 					{
-						loader: async () => await insight.initialize(),
+						loader: async () => await new Insight().initialize(),
+						// Optionally handle the result or remove the setter if not needed
 						setter: (initConfig) => setTool(initConfig.tool),
-					} satisfies LoadSetPair<{
-						tool: {
-							type: "MCP";
-							message: string;
-							id: string;
-							name: string;
-							parameters: Record<string, unknown>;
-						};
-					}>,
+					} satisfies LoadSetPair<{ tool: MCPToolRequest }>,
 				];
 
 				// Execute all loaders in parallel and wait for them all to complete
@@ -274,7 +260,7 @@ export const AppContextProvider = ({ children }: PropsWithChildren) => {
 			// If the insight is ready, then load the app data
 			loadAppData();
 		}
-	}, [isReady, runPixel, setIsAppDataLoading, insight]);
+	}, [isReady, runPixel, setIsAppDataLoading]);
 
 	// On start up, grab the name of the user from the config call if they are already logged in
 	useEffect(() => {

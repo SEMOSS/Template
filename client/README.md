@@ -71,6 +71,7 @@ After setting up your `.env.local file`, you’ll need to add a `project.propert
    1. Run "pnpm dev" in the `assets` folder to launch a local development server for your app.
    2. This command starts a local Vite server, which serves your project on your machine and provides hot reloading.
    3. When you save changes to your files, Vite immediately updates the app in your browser so you can see your latest changes without running pnpm build and manually refreshing.
+   
 4. **pnpm dlx shadcn@latest add [component-name]**\
    
    1. To add a new shadcn componet to use with your front end, from the `client` folder run pnpm dlx shadcn-ui@latest add [component-name]
