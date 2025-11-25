@@ -11,8 +11,9 @@ target/
 *.local
 java/project.properties
 .admin/
-.DS_Store
+**/.DS_Store
 **/.env
+**/.env.*
 !client/.env
 .history/
 

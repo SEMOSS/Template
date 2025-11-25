@@ -25,6 +25,11 @@ export interface AppContextType {
 		pixelString: string,
 		successMessage?: string,
 	) => Promise<T>;
+	runMCPTool: (
+		toolName: string,
+		toolInput?: Record<string, unknown>,
+		successMessage?: string,
+	) => Promise<string>;
 	login: (username: string, password: string) => Promise<boolean>;
 	logout: () => Promise<boolean>;
 	userLoginName: string;
@@ -63,7 +68,7 @@ export const useAppContext = (): AppContextType => {
 export const AppContextProvider = ({ children }: PropsWithChildren) => {
 	// Get the current state of the current insight
 	const { actions, isReady, system, insightId: id } = useInsight();
-	const [insightId, setInsightId] = useState(id);
+	const [insightId] = useState(id);
 
 	// New Insight for tool response
 	const insight = useMemo(() => {
@@ -91,7 +96,11 @@ export const AppContextProvider = ({ children }: PropsWithChildren) => {
 	 * Functions
 	 */
 
-	// Function to run a pixel and return the result. Opens the snackbar if there is an error.
+	/**
+	 * Run pixel code
+	 * @param pixelString - the pixel string to run
+	 * @param successMessage - optional parameter to show a success message
+	 */
 	const runPixel = useCallback(
 		async <T,>(pixelString: string, successMessage?: string) => {
 			try {
@@ -136,6 +145,30 @@ export const AppContextProvider = ({ children }: PropsWithChildren) => {
 			}
 		},
 		[insightId],
+	);
+
+	/**
+	 * Run a MCP tool
+	 * @param name - name of the tool
+	 * @param parameters - parameters to pass to the tool
+	 */
+	const runMCPTool = useCallback(
+		async (name: string, parameters?: Record<string, unknown>) => {
+			try {
+				const response = await actions.runMCPTool(name, parameters);
+				if (!response.output)
+					throw new Error("No output from MCP tool");
+				return response.output;
+			} catch (error) {
+				setMessageSnackbarProps({
+					open: true,
+					message: `${error.message ?? "Error during operation"}`,
+					severity: "error",
+				});
+				throw error;
+			}
+		},
+		[actions],
 	);
 
 	// Allow users to log in, and grab their name when they do
@@ -275,6 +308,7 @@ export const AppContextProvider = ({ children }: PropsWithChildren) => {
 		<AppContext.Provider
 			value={{
 				runPixel,
+				runMCPTool,
 				exampleStateData,
 				isAppDataLoading,
 				messageSnackbarProps,

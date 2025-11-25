@@ -10,11 +10,11 @@ const navigationButtons: {
 	path: string;
 	text: string;
 }[] = [
-		{
-			path: "/",
-			text: "Home",
-		},
-	];
+	{
+		path: "/",
+		text: "Home",
+	},
+];
 
 /**
  * The main navigation bar allowing users to move between pages, if they are authorized.

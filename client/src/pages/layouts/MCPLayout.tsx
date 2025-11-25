@@ -1,7 +1,6 @@
 import { Navigate, Outlet, useLocation } from "react-router-dom";
 import { LoadingScreen } from "@/components";
 import { useAppContext } from "@/contexts";
-import { HomePage } from "../HomePage";
 
 // Function to process tool name by removing content before first underscore
 const getProcessedToolName = (toolName: string) => {
@@ -19,7 +18,7 @@ const getProcessedToolName = (toolName: string) => {
 export const MCPLayout = () => {
 	// Get the curent route, so that if we are trying to log the user in, we can take them to where they were trying to go
 	const { pathname } = useLocation();
-	const { isAppDataLoading, tool, tools } = useAppContext();
+	const { isAppDataLoading, tool } = useAppContext();
 
 	// If the app data is still loading, show a loading screen
 	if (isAppDataLoading) {
