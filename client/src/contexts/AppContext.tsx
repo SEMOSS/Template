@@ -1,10 +1,9 @@
 import {
-	Env,
 	getSystemConfig,
 	Insight,
 	runPixel as runPixelSemossSdk,
 } from "@semoss/sdk";
-import { useInsight, usePixel } from "@semoss/sdk/react";
+import { useInsight } from "@semoss/sdk/react";
 import {
 	createContext,
 	type Dispatch,
@@ -13,12 +12,11 @@ import {
 	useCallback,
 	useContext,
 	useEffect,
-	useMemo,
 	useState,
 } from "react";
 import type { MessageSnackbarProps } from "@/components";
 import { useLoadingState } from "@/hooks";
-import type { Tool, ToolResponse, ToolStructure } from "@/types";
+import type { ToolResponse } from "@/types";
 
 export interface AppContextType {
 	runPixel: <T = unknown>(
@@ -38,7 +36,6 @@ export interface AppContextType {
 	messageSnackbarProps: MessageSnackbarProps;
 	setMessageSnackbarProps: Dispatch<SetStateAction<MessageSnackbarProps>>;
 	tool: ToolResponse;
-	tools: Tool[];
 }
 
 const AppContext = createContext<AppContextType | undefined>(undefined);
@@ -67,15 +64,7 @@ export const useAppContext = (): AppContextType => {
  */
 export const AppContextProvider = ({ children }: PropsWithChildren) => {
 	// Get the current state of the current insight
-	const { actions, isReady, system, insightId: id } = useInsight();
-	const [insightId] = useState(id);
-
-	// New Insight for tool response
-	const insight = useMemo(() => {
-		const insight = new Insight();
-		return insight;
-	}, []);
-
+	const { actions, isReady, system, insightId } = useInsight();
 	/**
 	 * State
 	 */
@@ -232,7 +221,7 @@ export const AppContextProvider = ({ children }: PropsWithChildren) => {
 						setter: (response) => setExampleStateData(response),
 					} satisfies LoadSetPair<number>,
 					{
-						loader: async () => await insight.initialize(),
+						loader: async () => await new Insight().initialize(),
 						// Optionally handle the result or remove the setter if not needed
 						setter: (tool) => setTool(tool.tool),
 					} satisfies LoadSetPair<{
@@ -275,7 +264,7 @@ export const AppContextProvider = ({ children }: PropsWithChildren) => {
 			// If the insight is ready, then load the app data
 			loadAppData();
 		}
-	}, [isReady, runPixel, setIsAppDataLoading, insight]);
+	}, [isReady, runPixel, setIsAppDataLoading]);
 
 	// On start up, grab the name of the user from the config call if they are already logged in
 	useEffect(() => {
@@ -284,37 +273,6 @@ export const AppContextProvider = ({ children }: PropsWithChildren) => {
 				null,
 		);
 	}, [system]);
-
-	const getTools = usePixel<ToolStructure>(
-		Env.APP ? `GetMCPTools(project=["${Env.APP}"]);` : "",
-		{
-			data: {
-				tools: [
-					{
-						name: "",
-						description: "",
-						title: "",
-						_meta: { generated_on: "" },
-						inputSchema: {
-							title: "",
-							properties: {},
-							type: "object",
-							required: [],
-						},
-					},
-				],
-				_meta: {
-					SMSS_PROJECT_ID: "",
-					SMSS_PROJECT_NAME: "",
-					SMSS_ENGINE_NAME: "",
-					SMSS_ENGINE_TYPE: "",
-					SMSS_ENGINE_ID: "",
-				},
-			},
-		},
-	);
-
-	const tools = getTools?.data?.tools || [];
 
 	return (
 		<AppContext.Provider
@@ -329,7 +287,6 @@ export const AppContextProvider = ({ children }: PropsWithChildren) => {
 				logout,
 				userLoginName,
 				tool,
-				tools,
 			}}
 		>
 			{children}
