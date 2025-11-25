@@ -65,6 +65,7 @@ export const useAppContext = (): AppContextType => {
 export const AppContextProvider = ({ children }: PropsWithChildren) => {
 	// Get the current state of the current insight
 	const { actions, isReady, system, insightId } = useInsight();
+
 	/**
 	 * State
 	 */
@@ -77,7 +78,6 @@ export const AppContextProvider = ({ children }: PropsWithChildren) => {
 			message: "",
 			severity: "info",
 		});
-
 	// Example state variable to store the result of a pixel operation
 	const [exampleStateData, setExampleStateData] = useState<number>();
 
