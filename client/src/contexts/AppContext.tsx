@@ -1,6 +1,7 @@
 import {
 	getSystemConfig,
 	Insight,
+	type MCPToolRequest,
 	runPixel as runPixelSemossSdk,
 } from "@semoss/sdk";
 import { useInsight } from "@semoss/sdk/react";
@@ -223,16 +224,8 @@ export const AppContextProvider = ({ children }: PropsWithChildren) => {
 					{
 						loader: async () => await new Insight().initialize(),
 						// Optionally handle the result or remove the setter if not needed
-						setter: (tool) => setTool(tool.tool),
-					} satisfies LoadSetPair<{
-						tool: {
-							type: "MCP";
-							message: string;
-							id: string;
-							name: string;
-							parameters: Record<string, unknown>;
-						};
-					}>,
+						setter: (initConfig) => setTool(initConfig.tool),
+					} satisfies LoadSetPair<{ tool: MCPToolRequest }>,
 				];
 
 				// Execute all loaders in parallel and wait for them all to complete
