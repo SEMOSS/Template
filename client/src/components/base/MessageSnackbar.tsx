@@ -53,7 +53,6 @@ export const MessageSnackbar = ({
 				return <AlertCircle className="h-4 w-4" />;
 			case "warning":
 				return <AlertTriangle className="h-4 w-4" />;
-			case "info":
 			default:
 				return <Info className="h-4 w-4" />;
 		}
@@ -63,9 +62,6 @@ export const MessageSnackbar = ({
 		switch (severity) {
 			case "error":
 				return "destructive" as const;
-			case "success":
-			case "warning":
-			case "info":
 			default:
 				return "default" as const;
 		}
@@ -79,7 +75,6 @@ export const MessageSnackbar = ({
 				return "border-yellow-500/50 text-yellow-600 bg-yellow-50 dark:border-yellow-500 [&>svg]:text-yellow-600";
 			case "info":
 				return "border-blue-500/50 text-blue-600 bg-blue-50 dark:border-blue-500 [&>svg]:text-blue-600";
-			case "error":
 			default:
 				return "";
 		}
