@@ -1,7 +1,7 @@
 import { Stack } from "@mui/material";
 import { useInsight } from "@semoss/sdk/react";
 import { Outlet } from "react-router-dom";
-import { LoadingScreen, MessageSnackbar } from "@/components";
+import { LoadingScreen, MainNavigation, MessageSnackbar } from "@/components";
 import { useAppContext } from "@/contexts";
 
 /**
@@ -19,7 +19,8 @@ export const InitializedLayout = () => {
 	return (
 		<Stack height="100vh">
 			{/* Allow users to navigate around the app */}
-			{/* <MainNavigation /> */}
+			<MainNavigation />
+
 			{/* Show message snackbar with notifications */}
 			<MessageSnackbar {...messageSnackbarProps} />
 			{isInitialized ? (

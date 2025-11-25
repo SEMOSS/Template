@@ -1,7 +1,6 @@
 import {
 	getSystemConfig,
 	Insight,
-	type MCPToolRequest,
 	runPixel as runPixelSemossSdk,
 } from "@semoss/sdk";
 import { useInsight } from "@semoss/sdk/react";
@@ -17,7 +16,7 @@ import {
 } from "react";
 import type { MessageSnackbarProps } from "@/components";
 import { useLoadingState } from "@/hooks";
-import type { ToolResponse } from "@/types";
+import type { MCPToolRequest } from "@/types";
 
 export interface AppContextType {
 	runPixel: <T = unknown>(
@@ -36,7 +35,7 @@ export interface AppContextType {
 	exampleStateData?: number;
 	messageSnackbarProps: MessageSnackbarProps;
 	setMessageSnackbarProps: Dispatch<SetStateAction<MessageSnackbarProps>>;
-	tool: ToolResponse;
+	tool: MCPToolRequest;
 }
 
 const AppContext = createContext<AppContextType | undefined>(undefined);
