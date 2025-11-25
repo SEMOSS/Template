@@ -1,4 +1,3 @@
-import { ErrorOutline } from "@mui/icons-material";
 import { Stack, Typography } from "@mui/material";
 
 /**
@@ -14,7 +13,7 @@ export const ErrorPage = () => {
 			justifyContent="center"
 			spacing={1}
 		>
-			<ErrorOutline color="error" fontSize="large" />
+			<div>TODO: error</div>
 			<Typography variant="body1">
 				An error has occurred. Please try again or contact support if
 				the problem persists.
