@@ -9,6 +9,10 @@ import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
 import java.io.IOException;
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.nio.file.Paths;
+import java.nio.file.StandardCopyOption;
 import java.util.List;
 
 import org.junit.jupiter.api.BeforeEach;
@@ -38,24 +42,11 @@ public class CallPythonReactorTest extends BaseReactorTest {
         reactor.setInsight(insight);
         reactor.setNounStore(nounStore);
 
-        // Create the Python file in the temp directory
-        String pythonCode = """
-                # sample python function that finds the nth fibonacci number
-                def nthFibonacci(n: int) -> int:
-                    if n <= 1:
-                        return n
-
-                    dp = [0] * (n + 1)
-
-                    dp[0] = 0
-                    dp[1] = 1
-
-                    for i in range(2, n + 1):
-                        dp[i] = dp[i - 1] + dp[i - 2]
-
-                    return dp[n]
-                """;
-        createPythonFile("nthFibonacci.py", pythonCode);
+        // Copy the actual Python file from py directory to temp directory
+        Path sourcePath = Paths.get("py", "nthFibonacci.py");
+        Path targetPath = tempDir.resolve("py").resolve("nthFibonacci.py");
+        Files.createDirectories(targetPath.getParent());
+        Files.copy(sourcePath, targetPath, StandardCopyOption.REPLACE_EXISTING);
     }
 
     @Test
