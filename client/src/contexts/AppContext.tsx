@@ -6,15 +6,13 @@ import {
 import { useInsight } from "@semoss/sdk/react";
 import {
 	createContext,
-	type Dispatch,
 	type PropsWithChildren,
-	type SetStateAction,
 	useCallback,
 	useContext,
 	useEffect,
 	useState,
 } from "react";
-import type { MessageSnackbarProps } from "@/components";
+import { toast } from "sonner";
 import { useLoadingState } from "@/hooks";
 import type { MCPToolRequest } from "@/types";
 
@@ -33,8 +31,6 @@ export interface AppContextType {
 	userLoginName: string;
 	isAppDataLoading: boolean;
 	exampleStateData?: number;
-	messageSnackbarProps: MessageSnackbarProps;
-	setMessageSnackbarProps: Dispatch<SetStateAction<MessageSnackbarProps>>;
 	tool: MCPToolRequest;
 }
 
@@ -72,12 +68,6 @@ export const AppContextProvider = ({ children }: PropsWithChildren) => {
 	const [isAppDataLoading, setIsAppDataLoading] = useLoadingState(true);
 	const [userLoginName, setUserLoginName] = useState<string | null>(null);
 	const [tool, setTool] = useState(null);
-	const [messageSnackbarProps, setMessageSnackbarProps] =
-		useState<MessageSnackbarProps>({
-			open: false,
-			message: "",
-			severity: "info",
-		});
 	// Example state variable to store the result of a pixel operation
 	const [exampleStateData, setExampleStateData] = useState<number>();
 
@@ -117,19 +107,11 @@ export const AppContextProvider = ({ children }: PropsWithChildren) => {
 							.join(", "),
 					);
 				if (successMessage) {
-					setMessageSnackbarProps({
-						open: true,
-						message: successMessage,
-						severity: "success",
-					});
+					toast.success(successMessage);
 				}
 				return response.pixelReturn[0].output;
 			} catch (error) {
-				setMessageSnackbarProps({
-					open: true,
-					message: `${error.message ?? "Error during operation"}`,
-					severity: "error",
-				});
+				toast.error(`${error.message ?? "Error during operation"}`);
 				throw error;
 			}
 		},
@@ -149,11 +131,7 @@ export const AppContextProvider = ({ children }: PropsWithChildren) => {
 					throw new Error("No output from MCP tool");
 				return response.output;
 			} catch (error) {
-				setMessageSnackbarProps({
-					open: true,
-					message: `${error.message ?? "Error during operation"}`,
-					severity: "error",
-				});
+				toast.error(`${error.message ?? "Error during operation"}`);
 				throw error;
 			}
 		},
@@ -244,11 +222,9 @@ export const AppContextProvider = ({ children }: PropsWithChildren) => {
 				);
 			} catch (e) {
 				// If any loader fails, display an error message
-				setMessageSnackbarProps({
-					open: true,
-					message: `Error initializing app data${e.message ? `: ${e.message}` : ""}`,
-					severity: "error",
-				});
+				toast.error(
+					`Error initializing app data${e.message ? `: ${e.message}` : ""}`,
+				);
 			}
 		};
 
@@ -273,8 +249,6 @@ export const AppContextProvider = ({ children }: PropsWithChildren) => {
 				runMCPTool,
 				exampleStateData,
 				isAppDataLoading,
-				messageSnackbarProps,
-				setMessageSnackbarProps,
 				login,
 				logout,
 				userLoginName,
