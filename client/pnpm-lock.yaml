@@ -87,8 +87,8 @@ importers:
         specifier: ^1.2.8
         version: 1.2.8(@types/react-dom@18.3.7(@types/react@18.3.27))(@types/react@18.3.27)(react-dom@18.3.1(react@18.3.1))(react@18.3.1)
       '@semoss/sdk':
-        specifier: 1.0.0-beta.31
-        version: 1.0.0-beta.31(react@18.3.1)
+        specifier: 1.0.0-beta.32
+        version: 1.0.0-beta.32(react@18.3.1)
       '@tailwindcss/postcss':
         specifier: ^4.1.17
         version: 4.1.17
@@ -143,13 +143,13 @@ importers:
         version: 18.3.7(@types/react@18.3.27)
       '@vitejs/plugin-react':
         specifier: ^5.1.1
-        version: 5.1.1(vite@7.2.4(@types/node@24.10.1)(jiti@2.6.1)(lightningcss@1.30.2)(terser@5.44.0))
+        version: 5.1.1(vite@7.2.6(@types/node@24.10.1)(jiti@2.6.1)(lightningcss@1.30.2)(terser@5.44.0))
       typescript:
         specifier: ^5.9.3
         version: 5.9.3
       vite:
-        specifier: ^7.2.4
-        version: 7.2.4(@types/node@24.10.1)(jiti@2.6.1)(lightningcss@1.30.2)(terser@5.44.0)
+        specifier: ^7.2.6
+        version: 7.2.6(@types/node@24.10.1)(jiti@2.6.1)(lightningcss@1.30.2)(terser@5.44.0)
 
 packages:
 
@@ -1186,8 +1186,8 @@ packages:
     cpu: [x64]
     os: [win32]
 
-  '@semoss/sdk@1.0.0-beta.31':
-    resolution: {integrity: sha512-JIo4TvJvYhkw1aa3DsQ1rEC4zJXF9Qp7ImcdyrRTZpTXC1mxzFB0tqUC4hCGSwrbXN79q20Qr+nxo2fyO7H2Rg==}
+  '@semoss/sdk@1.0.0-beta.32':
+    resolution: {integrity: sha512-645fPMDQZxwbmzwXHlJi/JhxHT/upMRQHpHd9wrm3cfgdfjvG5MDDdPGGUlhk5xFPKANUsjnTx8WNQv9QzqvVQ==}
     peerDependencies:
       react: 18.3.1
     peerDependenciesMeta:
@@ -1333,8 +1333,8 @@ packages:
     peerDependencies:
       postcss: ^8.1.0
 
-  baseline-browser-mapping@2.8.31:
-    resolution: {integrity: sha512-a28v2eWrrRWPpJSzxc+mKwm0ZtVx/G8SepdQZDArnXYU/XS+IF6mp8aB/4E+hH1tyGCoDo3KlUCdlSxGDsRkAw==}
+  baseline-browser-mapping@2.8.32:
+    resolution: {integrity: sha512-OPz5aBThlyLFgxyhdwf/s2+8ab3OvT7AdTNvKHBwpXomIYeXqpUUuT8LrdtxZSsWJ4R4CU1un4XGh5Ez3nlTpw==}
     hasBin: true
 
   browserslist@4.28.0:
@@ -1361,8 +1361,8 @@ packages:
   convert-source-map@2.0.0:
     resolution: {integrity: sha512-Kvp459HrV2FEJ1CAsi1Ku+MY3kasH19TFykTz2xWmMeq6bk2NU3XXvfJ+Q61m0xktWwt+1HSYf3JZsTms3aRJg==}
 
-  cookie@1.0.2:
-    resolution: {integrity: sha512-9Kr/j4O16ISv8zBBhJoi4bXOYNTkFLOqSL3UDB0njXxCXNezjeyVrJyGOWtgfs/q2km1gwBcfH8q1yEGoMYunA==}
+  cookie@1.1.1:
+    resolution: {integrity: sha512-ei8Aos7ja0weRpFzJnEA9UHJ/7XQmqglbRwnf2ATjcB9Wq874VKH9kfjjirM6UhU2/E5fFYadylyhFldcqSidQ==}
     engines: {node: '>=18'}
 
   csstype@3.2.3:
@@ -1384,8 +1384,8 @@ packages:
   detect-node-es@1.1.0:
     resolution: {integrity: sha512-ypdmJU/TbBby2Dxibuv7ZLW3Bs1QEmM7nHjEANfohJLvE0XVujisn1qPJcZxg+qDucsr+bP6fLD1rPS3AhJ7EQ==}
 
-  electron-to-chromium@1.5.260:
-    resolution: {integrity: sha512-ov8rBoOBhVawpzdre+Cmz4FB+y66Eqrk6Gwqd8NGxuhv99GQ8XqMAr351KEkOt7gukXWDg6gJWEMKgL2RLMPtA==}
+  electron-to-chromium@1.5.262:
+    resolution: {integrity: sha512-NlAsMteRHek05jRUxUR0a5jpjYq9ykk6+kO0yRaMi5moe7u0fVIOeQ3Y30A8dIiWFBNUoQGi1ljb1i5VtS9WQQ==}
 
   enhanced-resolve@5.18.3:
     resolution: {integrity: sha512-d4lC8xfavMeBjzGr2vECC3fsGXziXZQyJxD868h2M/mBI3PwAuODxAkLkq5HYuvrPYcUtiLzsTo8U3PgX3Ocww==}
@@ -1584,8 +1584,8 @@ packages:
       '@types/react':
         optional: true
 
-  react-remove-scroll@2.7.1:
-    resolution: {integrity: sha512-HpMh8+oahmIdOuS5aFKKY6Pyog+FNaZV/XyJOq7b4YFwsFHe5yYfdbIalI4k3vU2nSDql7YskmUseHsRrJqIPA==}
+  react-remove-scroll@2.7.2:
+    resolution: {integrity: sha512-Iqb9NjCCTt6Hf+vOdNIZGdTiH1QSqr27H/Ek9sv/a97gfueI/5h1s3yRi1nngzMUaOOToin5dI1dXKdXiF+u0Q==}
     engines: {node: '>=10'}
     peerDependencies:
       '@types/react': '*'
@@ -1721,8 +1721,8 @@ packages:
     peerDependencies:
       react: ^16.8.0 || ^17.0.0 || ^18.0.0 || ^19.0.0
 
-  vite@7.2.4:
-    resolution: {integrity: sha512-NL8jTlbo0Tn4dUEXEsUg8KeyG/Lkmc4Fnzb8JXN/Ykm9G4HNImjtABMJgkQoVjOBN/j2WAwDTRytdqJbZsah7w==}
+  vite@7.2.6:
+    resolution: {integrity: sha512-tI2l/nFHC5rLh7+5+o7QjKjSR04ivXDF4jcgV0f/bTQ+OJiITy5S6gaynVsEM+7RqzufMnVbIon6Sr5x1SDYaQ==}
     engines: {node: ^20.19.0 || >=22.12.0}
     hasBin: true
     peerDependencies:
@@ -2159,7 +2159,7 @@ snapshots:
       aria-hidden: 1.2.6
       react: 18.3.1
       react-dom: 18.3.1(react@18.3.1)
-      react-remove-scroll: 2.7.1(@types/react@18.3.27)(react@18.3.1)
+      react-remove-scroll: 2.7.2(@types/react@18.3.27)(react@18.3.1)
     optionalDependencies:
       '@types/react': 18.3.27
       '@types/react-dom': 18.3.7(@types/react@18.3.27)
@@ -2269,7 +2269,7 @@ snapshots:
       aria-hidden: 1.2.6
       react: 18.3.1
       react-dom: 18.3.1(react@18.3.1)
-      react-remove-scroll: 2.7.1(@types/react@18.3.27)(react@18.3.1)
+      react-remove-scroll: 2.7.2(@types/react@18.3.27)(react@18.3.1)
     optionalDependencies:
       '@types/react': 18.3.27
       '@types/react-dom': 18.3.7(@types/react@18.3.27)
@@ -2332,7 +2332,7 @@ snapshots:
       aria-hidden: 1.2.6
       react: 18.3.1
       react-dom: 18.3.1(react@18.3.1)
-      react-remove-scroll: 2.7.1(@types/react@18.3.27)(react@18.3.1)
+      react-remove-scroll: 2.7.2(@types/react@18.3.27)(react@18.3.1)
     optionalDependencies:
       '@types/react': 18.3.27
       '@types/react-dom': 18.3.7(@types/react@18.3.27)
@@ -2479,7 +2479,7 @@ snapshots:
       aria-hidden: 1.2.6
       react: 18.3.1
       react-dom: 18.3.1(react@18.3.1)
-      react-remove-scroll: 2.7.1(@types/react@18.3.27)(react@18.3.1)
+      react-remove-scroll: 2.7.2(@types/react@18.3.27)(react@18.3.1)
     optionalDependencies:
       '@types/react': 18.3.27
       '@types/react-dom': 18.3.7(@types/react@18.3.27)
@@ -2743,7 +2743,7 @@ snapshots:
   '@rollup/rollup-win32-x64-msvc@4.53.3':
     optional: true
 
-  '@semoss/sdk@1.0.0-beta.31(react@18.3.1)':
+  '@semoss/sdk@1.0.0-beta.32(react@18.3.1)':
     optionalDependencies:
       react: 18.3.1
 
@@ -2854,7 +2854,7 @@ snapshots:
       '@types/prop-types': 15.7.15
       csstype: 3.2.3
 
-  '@vitejs/plugin-react@5.1.1(vite@7.2.4(@types/node@24.10.1)(jiti@2.6.1)(lightningcss@1.30.2)(terser@5.44.0))':
+  '@vitejs/plugin-react@5.1.1(vite@7.2.6(@types/node@24.10.1)(jiti@2.6.1)(lightningcss@1.30.2)(terser@5.44.0))':
     dependencies:
       '@babel/core': 7.28.5
       '@babel/plugin-transform-react-jsx-self': 7.27.1(@babel/core@7.28.5)
@@ -2862,7 +2862,7 @@ snapshots:
       '@rolldown/pluginutils': 1.0.0-beta.47
       '@types/babel__core': 7.20.5
       react-refresh: 0.18.0
-      vite: 7.2.4(@types/node@24.10.1)(jiti@2.6.1)(lightningcss@1.30.2)(terser@5.44.0)
+      vite: 7.2.6(@types/node@24.10.1)(jiti@2.6.1)(lightningcss@1.30.2)(terser@5.44.0)
     transitivePeerDependencies:
       - supports-color
 
@@ -2883,13 +2883,13 @@ snapshots:
       postcss: 8.5.6
       postcss-value-parser: 4.2.0
 
-  baseline-browser-mapping@2.8.31: {}
+  baseline-browser-mapping@2.8.32: {}
 
   browserslist@4.28.0:
     dependencies:
-      baseline-browser-mapping: 2.8.31
+      baseline-browser-mapping: 2.8.32
       caniuse-lite: 1.0.30001757
-      electron-to-chromium: 1.5.260
+      electron-to-chromium: 1.5.262
       node-releases: 2.0.27
       update-browserslist-db: 1.1.4(browserslist@4.28.0)
 
@@ -2909,7 +2909,7 @@ snapshots:
 
   convert-source-map@2.0.0: {}
 
-  cookie@1.0.2: {}
+  cookie@1.1.1: {}
 
   csstype@3.2.3: {}
 
@@ -2921,7 +2921,7 @@ snapshots:
 
   detect-node-es@1.1.0: {}
 
-  electron-to-chromium@1.5.260: {}
+  electron-to-chromium@1.5.262: {}
 
   enhanced-resolve@5.18.3:
     dependencies:
@@ -3088,7 +3088,7 @@ snapshots:
     optionalDependencies:
       '@types/react': 18.3.27
 
-  react-remove-scroll@2.7.1(@types/react@18.3.27)(react@18.3.1):
+  react-remove-scroll@2.7.2(@types/react@18.3.27)(react@18.3.1):
     dependencies:
       react: 18.3.1
       react-remove-scroll-bar: 2.3.8(@types/react@18.3.27)(react@18.3.1)
@@ -3107,7 +3107,7 @@ snapshots:
 
   react-router@7.9.6(react-dom@18.3.1(react@18.3.1))(react@18.3.1):
     dependencies:
-      cookie: 1.0.2
+      cookie: 1.1.1
       react: 18.3.1
       set-cookie-parser: 2.7.2
     optionalDependencies:
@@ -3229,7 +3229,7 @@ snapshots:
     dependencies:
       react: 18.3.1
 
-  vite@7.2.4(@types/node@24.10.1)(jiti@2.6.1)(lightningcss@1.30.2)(terser@5.44.0):
+  vite@7.2.6(@types/node@24.10.1)(jiti@2.6.1)(lightningcss@1.30.2)(terser@5.44.0):
     dependencies:
       esbuild: 0.25.12
       fdir: 6.5.0(picomatch@4.0.3)
