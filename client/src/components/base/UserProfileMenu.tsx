@@ -11,20 +11,12 @@ import {
 import { useAppContext } from "@/contexts";
 import { useLoadingState } from "@/hooks";
 
-export interface UserProfileMenuProps {
-	open: boolean;
-	onOpenChange?: (open: boolean) => void;
-}
-
 /**
  * Renders a menu showing users their name and allowing them to log out
  *
  * @component
  */
-export const UserProfileMenu = ({
-	open,
-	onOpenChange,
-}: UserProfileMenuProps) => {
+export const UserProfileMenu = () => {
 	const { logout, userLoginName } = useAppContext();
 
 	/**
@@ -44,7 +36,7 @@ export const UserProfileMenu = ({
 	};
 
 	return (
-		<DropdownMenu open={open} onOpenChange={onOpenChange}>
+		<DropdownMenu>
 			<DropdownMenuTrigger asChild>
 				<Button variant="ghost" size="icon" title="View user menu">
 					<User className="h-5 w-5" />
