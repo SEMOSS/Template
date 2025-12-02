@@ -9,7 +9,7 @@ import {
 } from "@/components/ui/popover";
 
 export interface DatePickerProps {
-	value: string | null;
+	value: string | null; // YYYY-MM-DD
 	onChange: (value: string | null) => void;
 	label?: string;
 	placeholder?: string;
@@ -31,7 +31,12 @@ export const DatePicker = ({
 	minDate,
 	disabled = false,
 }: DatePickerProps) => {
-	const dateValue = value ? new Date(value) : undefined;
+	const dateValue = value
+		? (() => {
+				const [year, month, day] = value.split("-").map(Number);
+				return new Date(year, month - 1, day);
+			})()
+		: undefined;
 
 	const handleSelect = (date: Date | undefined) => {
 		if (date) {
