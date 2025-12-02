@@ -25,6 +25,7 @@ export interface AppContextType {
 	logout: () => Promise<boolean>;
 	userLoginName: string;
 	isAppDataLoading: boolean;
+	isUserLoginLoading: boolean;
 	exampleStateData?: number;
 }
 
@@ -59,6 +60,7 @@ export const AppContextProvider = ({ children }: PropsWithChildren) => {
 	/**
 	 * State
 	 */
+	const [isUserLoginLoading, setIsUserLoginLoading] = useLoadingState(false);
 	const [isAppDataLoading, setIsAppDataLoading] = useLoadingState(true);
 	const [userLoginName, setUserLoginName] = useState<string | null>(null);
 	// Example state variable to store the result of a pixel operation
@@ -134,6 +136,7 @@ export const AppContextProvider = ({ children }: PropsWithChildren) => {
 	// Allow users to log in, and grab their name when they do
 	const login = useCallback(
 		async (username: string, password: string) => {
+			const loadingKey = setIsUserLoginLoading(true);
 			try {
 				await actions.login({
 					type: "native",
@@ -149,21 +152,26 @@ export const AppContextProvider = ({ children }: PropsWithChildren) => {
 				return true;
 			} catch {
 				return false;
+			} finally {
+				setIsUserLoginLoading(false, loadingKey);
 			}
 		},
-		[actions],
+		[actions, setIsUserLoginLoading],
 	);
 
 	// Allow users to log out, and clear their name when they do
 	const logout = useCallback(async () => {
+		const loadingKey = setIsUserLoginLoading(true);
 		try {
 			await actions.logout();
 			setUserLoginName(null);
 			return true;
 		} catch {
 			return false;
+		} finally {
+			setIsUserLoginLoading(false, loadingKey);
 		}
-	}, [actions]);
+	}, [actions, setIsUserLoginLoading]);
 
 	/**
 	 * Effects
@@ -240,6 +248,7 @@ export const AppContextProvider = ({ children }: PropsWithChildren) => {
 				login,
 				logout,
 				userLoginName,
+				isUserLoginLoading,
 			}}
 		>
 			{children}

@@ -9,7 +9,6 @@ import {
 	DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
 import { useAppContext } from "@/contexts";
-import { useLoadingState } from "@/hooks";
 
 /**
  * Renders a menu showing users their name and allowing them to log out
@@ -20,19 +19,12 @@ export const UserProfileMenu = () => {
 	const { logout, userLoginName } = useAppContext();
 
 	/**
-	 * State
-	 */
-	const [isLogoutLoading, setIsLogoutLoading] = useLoadingState();
-
-	/**
 	 * Functions
 	 */
 	const handleLogout = async () => {
-		const loadingKey = setIsLogoutLoading(true);
 		const success = await logout();
 		if (success) localStorage.clear();
 		window.location.reload();
-		setIsLogoutLoading(false, loadingKey);
 	};
 
 	return (
@@ -48,12 +40,9 @@ export const UserProfileMenu = () => {
 					<span>{userLoginName}</span>
 				</DropdownMenuLabel>
 				<DropdownMenuSeparator />
-				<DropdownMenuItem
-					onClick={handleLogout}
-					disabled={isLogoutLoading}
-				>
+				<DropdownMenuItem onClick={handleLogout}>
 					<LogOut className="h-4 w-4 mr-2" />
-					{isLogoutLoading ? "Logging out..." : "Logout"}
+					Logout
 				</DropdownMenuItem>
 			</DropdownMenuContent>
 		</DropdownMenu>
