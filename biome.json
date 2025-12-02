@@ -1,5 +1,5 @@
 {
-	"$schema": "https://biomejs.dev/schemas/2.3.7/schema.json",
+	"$schema": "https://biomejs.dev/schemas/2.3.8/schema.json",
 	"vcs": {
 		"enabled": true,
 		"clientKind": "git",
@@ -44,11 +44,17 @@
 			}
 		}
 	},
+	"css": {
+		"parser": {
+			"tailwindDirectives": true
+		}
+	},
 	"files": {
 		"includes": [
 			"client/**/*",
 			"!node_modules/**/*",
-			"**/*.{js,ts,mjs,cjs,jsx,tsx,json,css,scss,md,mdx,html,yaml}"
+			"**/*.{js,ts,mjs,cjs,jsx,tsx,json,css,scss,md,mdx,html,yaml}",
+			"!.history/*"
 		]
 	},
 	"overrides": [

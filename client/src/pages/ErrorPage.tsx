@@ -1,5 +1,4 @@
-import { ErrorOutline } from "@mui/icons-material";
-import { Stack, Typography } from "@mui/material";
+import { TriangleAlert } from "lucide-react";
 
 /**
  * Renders a warning message for any FE errors encountered.
@@ -8,17 +7,12 @@ import { Stack, Typography } from "@mui/material";
  */
 export const ErrorPage = () => {
 	return (
-		<Stack
-			height="100%"
-			alignItems="center"
-			justifyContent="center"
-			spacing={1}
-		>
-			<ErrorOutline color="error" fontSize="large" />
-			<Typography variant="body1">
+		<div className="flex flex-col items-center justify-center h-full">
+			<TriangleAlert className="size-8" />
+			<div>
 				An error has occurred. Please try again or contact support if
 				the problem persists.
-			</Typography>
-		</Stack>
+			</div>
+		</div>
 	);
 };
