@@ -1,10 +1,10 @@
-import { X } from "lucide-react";
 import { useState } from "react";
 import { DatePicker } from "@/components";
 import { Button } from "@/components/ui/button";
 import {
 	Dialog,
 	DialogContent,
+	DialogDescription,
 	DialogFooter,
 	DialogHeader,
 	DialogTitle,
@@ -75,15 +75,10 @@ export const AddAnimalModal = ({ open, onClose }: AddAnimalModalProps) => {
 			<DialogContent className="sm:max-w-[425px]">
 				<DialogHeader>
 					<DialogTitle>Add Animal</DialogTitle>
-					<Button
-						variant="ghost"
-						size="icon"
-						className="absolute right-4 top-4"
-						onClick={() => handleClose(false)}
-					>
-						<X className="h-4 w-4" />
-						<span className="sr-only">Close</span>
-					</Button>
+					<DialogDescription>
+						Fill in the details below to add a new animal to the
+						database.
+					</DialogDescription>
 				</DialogHeader>
 
 				<div className="space-y-4 py-4">
