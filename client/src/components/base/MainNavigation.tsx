@@ -1,5 +1,4 @@
 import { useInsight } from "@semoss/sdk/react";
-import { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { SemossBlueLogo } from "@/assets";
 import { Button } from "@/components/ui/button";
@@ -29,11 +28,6 @@ const navigationButtons: {
 export const MainNavigation = () => {
 	const { isAuthorized } = useInsight(); // Read whether the user is authorized, so that buttons only work if they are
 	const navigate = useNavigate();
-
-	/**
-	 * State
-	 */
-	const [userMenuOpen, setUserMenuOpen] = useState(false);
 
 	return (
 		<div className="bg-card border-b border-border h-16 px-4">
@@ -82,12 +76,7 @@ export const MainNavigation = () => {
 				</div>
 
 				{/* If the user is logged in, allow them to see their info */}
-				{isAuthorized && (
-					<UserProfileMenu
-						open={userMenuOpen}
-						onOpenChange={setUserMenuOpen}
-					/>
-				)}
+				{isAuthorized && <UserProfileMenu />}
 			</div>
 		</div>
 	);
