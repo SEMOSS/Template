@@ -6,7 +6,7 @@
 		"javadoc": "mvn clean javadoc:javadoc && mvn site && pnpm exec http-server target/site/apidocs -p 1227 -a localhost -o"
 	},
 	"devDependencies": {
-		"@biomejs/biome": "2.3.7",
+		"@biomejs/biome": "2.3.8",
 		"http-server": "^14.1.1",
 		"husky": "^9.1.7",
 		"lint-staged": "^16.2.7"
