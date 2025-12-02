@@ -1,5 +1,5 @@
-import { Button } from "@mui/material";
 import { ConfirmationDialog } from "@/components";
+import { Button } from "@/components/ui/button";
 import { useAppContext } from "@/contexts";
 import { useLoadingState } from "@/hooks";
 import type { Animal } from "./animal.types";
@@ -50,16 +50,17 @@ export const DeleteAnimalModal = ({
 			open={open}
 			buttons={
 				<>
-					<Button variant="contained" onClick={() => onClose(false)}>
+					<Button variant="default" onClick={() => onClose(false)}>
 						Cancel
 					</Button>
 					<Button
-						color="error"
-						variant="outlined"
+						variant="destructive"
 						onClick={handleSubmitClick}
-						loading={isLoadingDelete}
+						disabled={isLoadingDelete}
 					>
-						{`Delete ${animalToDelete?.animal_name}`}
+						{isLoadingDelete
+							? "Deleting..."
+							: `Delete ${animalToDelete?.animal_name}`}
 					</Button>
 				</>
 			}

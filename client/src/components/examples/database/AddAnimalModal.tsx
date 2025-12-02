@@ -1,17 +1,16 @@
-import { CloseRounded } from "@mui/icons-material";
-import {
-	Button,
-	Dialog,
-	DialogActions,
-	DialogContent,
-	DialogTitle,
-	IconButton,
-	Stack,
-	TextField,
-	Typography,
-} from "@mui/material";
 import { useState } from "react";
 import { DatePicker } from "@/components";
+import { Button } from "@/components/ui/button";
+import {
+	Dialog,
+	DialogContent,
+	DialogDescription,
+	DialogFooter,
+	DialogHeader,
+	DialogTitle,
+} from "@/components/ui/dialog";
+import { Input } from "@/components/ui/input";
+import { Label } from "@/components/ui/label";
 import { useAppContext } from "@/contexts";
 import { useLoadingState } from "@/hooks";
 
@@ -72,56 +71,57 @@ export const AddAnimalModal = ({ open, onClose }: AddAnimalModalProps) => {
 		dateOfBirth !== null;
 
 	return (
-		<Dialog open={open} fullWidth maxWidth="sm">
-			<DialogTitle>
-				<Stack
-					direction="row"
-					alignItems="center"
-					justifyContent="space-between"
-				>
-					<Typography variant="h6">Add Animal</Typography>
-					<IconButton onClick={() => handleClose(false)}>
-						<CloseRounded />
-					</IconButton>
-				</Stack>
-			</DialogTitle>
+		<Dialog open={open} onOpenChange={() => handleClose(false)}>
+			<DialogContent className="sm:max-w-[425px]">
+				<DialogHeader>
+					<DialogTitle>Add Animal</DialogTitle>
+					<DialogDescription>
+						Fill in the details below to add a new animal to the
+						database.
+					</DialogDescription>
+				</DialogHeader>
 
-			<DialogContent>
-				<Stack spacing={2}>
-					{/* div to prevent title clipping */}
-					<div />
+				<div className="space-y-4 py-4">
+					<div className="space-y-2">
+						<Label htmlFor="name">Name</Label>
+						<Input
+							id="name"
+							value={animalName}
+							onChange={(e) => setAnimalName(e.target.value)}
+							placeholder="Enter animal name"
+						/>
+					</div>
 
-					<TextField
-						value={animalName}
-						onChange={(e) => setAnimalName(e.target.value)}
-						label="Name"
-					/>
+					<div className="space-y-2">
+						<Label htmlFor="type">Type</Label>
+						<Input
+							id="type"
+							value={animalType}
+							onChange={(e) => setAnimalType(e.target.value)}
+							placeholder="Enter animal type"
+						/>
+					</div>
 
-					<TextField
-						value={animalType}
-						onChange={(e) => setAnimalType(e.target.value)}
-						label="Type"
-					/>
+					<div className="space-y-2">
+						<Label>Date of birth</Label>
+						<DatePicker
+							value={dateOfBirth}
+							onChange={(newValue) => setDateOfBirth(newValue)}
+							label="Date of birth"
+							maxDate={new Date()} // Prevent future dates
+						/>
+					</div>
+				</div>
 
-					<DatePicker
-						value={dateOfBirth}
-						onChange={(newValue) => setDateOfBirth(newValue)}
-						label="Date of birth"
-						maxDate={new Date()} // Prevent future dates
-					/>
-				</Stack>
+				<DialogFooter>
+					<Button
+						onClick={handleSubmitClick}
+						disabled={!isReadyToSubmit || isLoadingAdd}
+					>
+						{isLoadingAdd ? "Adding..." : "Add animal"}
+					</Button>
+				</DialogFooter>
 			</DialogContent>
-
-			<DialogActions>
-				<Button
-					onClick={handleSubmitClick}
-					variant="contained"
-					loading={isLoadingAdd}
-					disabled={!isReadyToSubmit}
-				>
-					Add animal
-				</Button>
-			</DialogActions>
 		</Dialog>
 	);
 };

@@ -1,4 +1,3 @@
-import { Button, Stack, Typography } from "@mui/material";
 import { useState } from "react";
 import {
 	AddAnimalModal,
@@ -6,6 +5,7 @@ import {
 	AnimalList,
 	DeleteAnimalModal,
 } from "@/components";
+import { Button } from "@/components/ui/button";
 import { useLoadingPixel } from "@/hooks";
 
 /**
@@ -38,20 +38,13 @@ export const AnimalPage = () => {
 	};
 
 	return (
-		<Stack spacing={2}>
-			<Stack
-				direction="row"
-				alignItems="center"
-				justifyContent="space-between"
-			>
-				<Typography variant="h4">Animals</Typography>
-				<Button
-					onClick={() => setIsAddAnimalModalOpen(true)}
-					variant="contained"
-				>
+		<div className="space-y-4">
+			<div className="flex items-center justify-between">
+				<h1 className="text-4xl font-bold">Animals</h1>
+				<Button onClick={() => setIsAddAnimalModalOpen(true)}>
 					Add animal
 				</Button>
-			</Stack>
+			</div>
 
 			<AnimalList
 				animalList={animalList ?? []}
@@ -72,6 +65,6 @@ export const AnimalPage = () => {
 				animalToDelete={animalToDelete}
 				onClose={handleModalClose}
 			/>
-		</Stack>
+		</div>
 	);
 };

@@ -1,5 +1,6 @@
-import { Stack, TextField, Typography } from "@mui/material";
+import { useInsight } from "@semoss/sdk/react";
 import { useState } from "react";
+import { Input } from "@/components/ui/input";
 import { useLoadingPixel } from "@/hooks";
 
 /**
@@ -16,6 +17,7 @@ export const ExampleComponent = () => {
 	/**
 	 * Library hooks
 	 */
+	const { tool } = useInsight();
 	const [helloUserResponse, isLoadingHelloUser] =
 		useLoadingPixel<string>("HelloUser()");
 	const [callPythonResponse, isLoadingCallPython] = useLoadingPixel<string>(
@@ -25,55 +27,59 @@ export const ExampleComponent = () => {
 	);
 
 	return (
-		<Stack spacing={2}>
-			<Typography variant="h4">Home page</Typography>
-			<Typography>
+		<div className="space-y-4">
+			<h1 className="text-4xl font-bold">Home page</h1>
+			<p>
 				Welcome to the SEMOSS Template application! This repository is
 				meant to be a starting point for your own SEMOSS application.
-			</Typography>
-			<Typography variant="h6">Example pixel calls:</Typography>
-			<ul>
+			</p>
+			<h2 className="text-xl font-semibold">Example pixel calls:</h2>
+			<ul className="space-y-4 list-disc pl-6">
 				<li>
-					<Typography variant="body1" fontWeight="bold">
-						HelloUser()
-					</Typography>
-					<ul>
+					<p className="font-bold">HelloUser()</p>
+					<ul className="list-disc pl-6">
 						<li>
-							<Typography fontStyle="italic">
+							<p className="italic">
 								{isLoadingHelloUser
 									? "Loading..."
 									: helloUserResponse}
-							</Typography>
+							</p>
 						</li>
 					</ul>
 				</li>
 				<li>
-					<Stack direction="row" spacing={1} alignItems="center">
-						<Typography variant="body1" fontWeight="bold">
-							{"CallPython( numValue ="}
-						</Typography>
-						<TextField
+					<div className="flex items-center gap-2">
+						<p className="font-bold">{"CallPython( numValue ="}</p>
+						<Input
 							value={textValue}
 							onChange={(e) =>
 								setTextValue(e.target.value?.replace(/\D/g, ""))
 							}
-							size="small"
+							className="w-24"
 						/>
-						<Typography variant="body1" fontWeight="bold">
-							{")"}
-						</Typography>
-					</Stack>
-					<ul>
+						<p className="font-bold">{")"}</p>
+					</div>
+					<ul className="list-disc pl-6">
 						<li>
-							<Typography fontStyle="italic">
+							<p className="italic">
 								{isLoadingCallPython
 									? "Loading..."
 									: callPythonResponse}
-							</Typography>
+							</p>
 						</li>
 					</ul>
 				</li>
 			</ul>
-		</Stack>
+			<h2 className="text-xl font-semibold">
+				Tool call sent from Playground:
+			</h2>
+			<ul className="space-y-4 list-disc pl-6">
+				<li>
+					<p className="italic">
+						{tool ? JSON.stringify(tool) : "No tool call sent"}
+					</p>
+				</li>
+			</ul>
+		</div>
 	);
 };

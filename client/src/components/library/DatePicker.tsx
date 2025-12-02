@@ -1,59 +1,81 @@
+import { format } from "date-fns";
+import { Calendar as CalendarIcon } from "lucide-react";
+import { Button } from "@/components/ui/button";
+import { Calendar } from "@/components/ui/calendar";
 import {
-	DatePicker as MuiDatePicker,
-	type DatePickerProps as MuiDatePickerProps,
-} from "@mui/x-date-pickers";
-import dayjs, { type Dayjs } from "dayjs";
+	Popover,
+	PopoverContent,
+	PopoverTrigger,
+} from "@/components/ui/popover";
 
-export interface DatePickerProps
-	extends Omit<
-		MuiDatePickerProps,
-		| "value"
-		| "onChange"
-		| "minDate"
-		| "maxDate"
-		| "defaultValue"
-		| "referenceDate"
-	> {
-	value?: string | Date | Dayjs | null;
-	onChange?: (value: string | null) => void;
-	minDate?: string | Date | Dayjs;
-	maxDate?: string | Date | Dayjs;
-	defaultValue?: string | Date | Dayjs;
-	referenceDate?: string | Date | Dayjs;
+export interface DatePickerProps {
+	value: string | null; // YYYY-MM-DD
+	onChange: (value: string | null) => void;
+	label?: string;
+	placeholder?: string;
+	maxDate?: Date;
+	minDate?: Date;
+	disabled?: boolean;
 }
 
 /**
- * Renders a date picker component that takes string values
+ * Date picker component using shadcn calendar
  *
  * @component
  */
-export const DatePicker = (props: DatePickerProps) => {
-	const {
-		value,
-		onChange,
-		minDate,
-		maxDate,
-		defaultValue,
-		referenceDate,
-		...muiProps
-	} = props;
+export const DatePicker = ({
+	value,
+	onChange,
+	placeholder = "Pick a date",
+	maxDate,
+	minDate,
+	disabled = false,
+}: DatePickerProps) => {
+	const dateValue = value
+		? (() => {
+				const [year, month, day] = value.split("-").map(Number);
+				return new Date(year, month - 1, day);
+			})()
+		: undefined;
 
-	const getValidDayjs = (
-		value: string | Date | Dayjs | null,
-	): Dayjs | null | undefined =>
-		value ? dayjs(value) : (value as undefined | null);
+	const handleSelect = (date: Date | undefined) => {
+		if (date) {
+			// Format as YYYY-MM-DD for consistency
+			const formattedDate = format(date, "yyyy-MM-dd");
+			onChange(formattedDate);
+		} else {
+			onChange(null);
+		}
+	};
 
 	return (
-		<MuiDatePicker
-			{...muiProps}
-			value={getValidDayjs(value)}
-			onChange={(date) =>
-				onChange?.(date ? date.format("YYYY-MM-DD") : null)
-			}
-			minDate={getValidDayjs(minDate)}
-			maxDate={getValidDayjs(maxDate)}
-			defaultValue={getValidDayjs(defaultValue)}
-			referenceDate={getValidDayjs(referenceDate)}
-		/>
+		<Popover>
+			<PopoverTrigger asChild>
+				<Button
+					variant="outline"
+					className={`w-full justify-start text-left font-normal ${dateValue ? "text-muted-foreground" : ""}`}
+					disabled={disabled}
+				>
+					<CalendarIcon className="mr-2 h-4 w-4" />
+					{dateValue ? (
+						format(dateValue, "PPP")
+					) : (
+						<span>{placeholder}</span>
+					)}
+				</Button>
+			</PopoverTrigger>
+			<PopoverContent className="w-auto p-0" align="start">
+				<Calendar
+					mode="single"
+					selected={dateValue}
+					onSelect={handleSelect}
+					disabled={(date) => {
+						if (maxDate && date > maxDate) return true;
+						if (minDate && date < minDate) return true;
+						return false;
+					}}
+				/>
+			</PopoverContent>
+		</Popover>
 	);
 };
