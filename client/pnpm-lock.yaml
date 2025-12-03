@@ -87,8 +87,8 @@ importers:
         specifier: ^1.2.8
         version: 1.2.8(@types/react-dom@18.3.7(@types/react@18.3.27))(@types/react@18.3.27)(react-dom@18.3.1(react@18.3.1))(react@18.3.1)
       '@semoss/sdk':
-        specifier: 1.0.0-beta.33
-        version: 1.0.0-beta.33(react@18.3.1)
+        specifier: 1.0.0-beta.34
+        version: 1.0.0-beta.34(react@18.3.1)
       '@tailwindcss/postcss':
         specifier: ^4.1.17
         version: 4.1.17
@@ -1198,8 +1198,8 @@ packages:
     cpu: [x64]
     os: [win32]
 
-  '@semoss/sdk@1.0.0-beta.33':
-    resolution: {integrity: sha512-RuzuYQdbqcJhMop1RcZPK04+IOBrT4kwe75MkoxUSaB+VMw70rPALxLJqmJXLKu8z4L0gXtGHpFN5A8lXO9DxA==}
+  '@semoss/sdk@1.0.0-beta.34':
+    resolution: {integrity: sha512-yQInMevwBFl1E3DnYk+8WIOUUjDIYz7hr5LwBAOt94GWDT5UKBV1tZEP4q3M97Vd9fd4aKCiU0d4D7pOqE5Nvg==}
     peerDependencies:
       react: 18.3.1
     peerDependenciesMeta:
@@ -2776,7 +2776,7 @@ snapshots:
   '@rollup/rollup-win32-x64-msvc@4.53.3':
     optional: true
 
-  '@semoss/sdk@1.0.0-beta.33(react@18.3.1)':
+  '@semoss/sdk@1.0.0-beta.34(react@18.3.1)':
     optionalDependencies:
       react: 18.3.1
 
