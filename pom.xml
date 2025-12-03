@@ -71,7 +71,16 @@
         <enabled>true</enabled>
       </releases>
       <snapshots>
+        <enabled>false</enabled>
+      </snapshots>
+    </repository>
+    <repository>
+      <id>sonatype-snapshots</id>
+      <name>Sonatype Snapshots</name>
+      <url>https://central.sonatype.com/repository/maven-snapshots</url>
+      <snapshots>
         <enabled>true</enabled>
+        <updatePolicy>always</updatePolicy>
       </snapshots>
     </repository>
     <repository>
