@@ -12,6 +12,7 @@ on:
         type: choice
         options:
           - '5.0.0-alpha-SNAPSHOT'
+          # Add other snapshot versions as needed here!
       use_cache:
         description: 'Use cached Maven dependencies if available'
         required: true
