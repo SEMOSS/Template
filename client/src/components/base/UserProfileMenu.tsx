@@ -9,42 +9,26 @@ import {
 	DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
 import { useAppContext } from "@/contexts";
-import { useLoadingState } from "@/hooks";
-
-export interface UserProfileMenuProps {
-	open: boolean;
-	onOpenChange?: (open: boolean) => void;
-}
 
 /**
  * Renders a menu showing users their name and allowing them to log out
  *
  * @component
  */
-export const UserProfileMenu = ({
-	open,
-	onOpenChange,
-}: UserProfileMenuProps) => {
+export const UserProfileMenu = () => {
 	const { logout, userLoginName } = useAppContext();
-
-	/**
-	 * State
-	 */
-	const [isLogoutLoading, setIsLogoutLoading] = useLoadingState();
 
 	/**
 	 * Functions
 	 */
 	const handleLogout = async () => {
-		const loadingKey = setIsLogoutLoading(true);
 		const success = await logout();
 		if (success) localStorage.clear();
 		window.location.reload();
-		setIsLogoutLoading(false, loadingKey);
 	};
 
 	return (
-		<DropdownMenu open={open} onOpenChange={onOpenChange}>
+		<DropdownMenu>
 			<DropdownMenuTrigger asChild>
 				<Button variant="ghost" size="icon" title="View user menu">
 					<User className="h-5 w-5" />
@@ -56,12 +40,9 @@ export const UserProfileMenu = ({
 					<span>{userLoginName}</span>
 				</DropdownMenuLabel>
 				<DropdownMenuSeparator />
-				<DropdownMenuItem
-					onClick={handleLogout}
-					disabled={isLogoutLoading}
-				>
+				<DropdownMenuItem onClick={handleLogout}>
 					<LogOut className="h-4 w-4 mr-2" />
-					{isLogoutLoading ? "Logging out..." : "Logout"}
+					Logout
 				</DropdownMenuItem>
 			</DropdownMenuContent>
 		</DropdownMenu>

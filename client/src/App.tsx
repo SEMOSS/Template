@@ -1,5 +1,6 @@
 import { Env } from "@semoss/sdk";
 import { InsightProvider } from "@semoss/sdk/react";
+import { Toaster } from "sonner";
 import { AppContextProvider } from "./contexts";
 import { Router } from "./pages";
 
@@ -26,6 +27,9 @@ export const App = () => {
 					This component is custom to this project, and can be edited in Router.tsx */}
 				<Router />
 			</AppContextProvider>
+
+			{/* Toaster for displaying toast notifications */}
+			<Toaster />
 		</InsightProvider>
 	);
 };

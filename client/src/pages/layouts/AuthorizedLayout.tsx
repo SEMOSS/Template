@@ -13,7 +13,7 @@ export const AuthorizedLayout = () => {
 	const { isAuthorized } = useInsight(); // Read whether the user is authorized
 	// Get the curent route, so that if we are trying to log the user in, we can take them to where they were trying to go
 	const { pathname } = useLocation();
-	const { isAppDataLoading } = useAppContext();
+	const { isAppDataLoading, isUserLoginLoading } = useAppContext();
 
 	// If the user is not authorized, take them to the login page, and pass their intended route
 	if (!isAuthorized)
@@ -25,5 +25,10 @@ export const AuthorizedLayout = () => {
 	if (isAppDataLoading) return <LoadingScreen />;
 
 	// Outlet is a react router component; it allows the router to choose the child based on the route
-	return <Outlet />;
+	return (
+		<>
+			{isUserLoginLoading && <LoadingScreen overlay />}
+			<Outlet />
+		</>
+	);
 };
