@@ -6,13 +6,6 @@ on:
     branches: [ default-app ]
   workflow_dispatch:
     inputs:
-      semoss_branch:
-        description: 'SEMOSS branch to use for jar'
-        required: true
-        default: 'dev'
-        type: choice
-        options:
-          - dev
       snapshot:
         description: 'CI version snapshot'
         required: true
@@ -22,7 +15,7 @@ on:
           - '5.0.0-alpha-SNAPSHOT'
       clean_install:
         description: 'Run clean install with -U flag'
-        required: false
+        required: true
         default: false
         type: boolean
 
@@ -31,6 +24,9 @@ jobs:
     name: Run Test Suite
     runs-on: ubuntu-latest
     container: maven:3.9.9-amazoncorretto-21-debian
+    env:
+      SNAPSHOT: ${{ inputs.snapshot }}
+      CLEAN_INSTALL: ${{ inputs.clean_install }}
     
     steps:
       - name: Checkout code
@@ -46,63 +42,64 @@ jobs:
 
       - name: Maven Clean Install
         run: |
-          if [ "${{ github.event.inputs.clean_install }}" = "true" ] || [ -z "${{ github.event.inputs.clean_install }}" ]; then
+          if [ "${CLEAN_INSTALL}" = "true" ] || [ -z "${CLEAN_INSTALL}" ]; then
             echo "Running mvn clean install with -U flag"
-            mvn clean install -U -DskipTests=true -Dci.version=${{ github.event.inputs.snapshot || '5.0.0-alpha-SNAPSHOT' }}
+            mvn clean install -U -DskipTests=true -Dci.version="${SNAPSHOT}"
           else
             echo "Running mvn install without -U flag"
-            mvn install -DskipTests=true -Dci.version=${{ github.event.inputs.snapshot || '5.0.0-alpha-SNAPSHOT' }}
+            mvn install -DskipTests=true -Dci.version="${SNAPSHOT}"
           fi
             
       - name: Run Unit Tests
-        run: mvn test -Dci.version=${{ github.event.inputs.snapshot || '5.0.0-alpha-SNAPSHOT' }}
+        run: |
+          mvn test -Dci.version="${SNAPSHOT}"
       
-      - name: Install git
-        if: always()
-        run: |
-          apt-get update && apt-get install -y git
-          git config --global --add safe.directory '*'
+    #   - name: Install git
+    #     if: always()
+    #     run: |
+    #       apt-get update && apt-get install -y git
+    #       git config --global --add safe.directory '*'
         
-      - name: Generate test report
-        if: always()
-        uses: dorny/test-reporter@v1
-        with:
-          name: Maven Test Results
-          path: target/surefire-reports/*.xml
-          reporter: java-junit
-          fail-on-error: true
+    #   - name: Generate test report
+    #     if: always()
+    #     uses: dorny/test-reporter@v1
+    #     with:
+    #       name: Maven Test Results
+    #       path: target/surefire-reports/*.xml
+    #       reporter: java-junit
+    #       fail-on-error: true
           
-      - name: Upload test results
-        if: always()
-        uses: actions/upload-artifact@v4
-        with:
-          name: test-results
-          path: |
-            target/surefire-reports/
-            target/site/
-          retention-days: 30
+    #   - name: Upload test results
+    #     if: always()
+    #     uses: actions/upload-artifact@v4
+    #     with:
+    #       name: test-results
+    #       path: |
+    #         target/surefire-reports/
+    #         target/site/
+    #       retention-days: 30
           
-      - name: Publish test summary
-        if: always()
-        run: |
-          echo "## Test Results :test_tube:" >> $GITHUB_STEP_SUMMARY
-          echo "" >> $GITHUB_STEP_SUMMARY
-          if [ -f target/surefire-reports/TEST-*.xml ]; then
-            TESTS=$(grep -oP 'tests="\K[^"]+' target/surefire-reports/TEST-*.xml | head -1)
-            FAILURES=$(grep -oP 'failures="\K[^"]+' target/surefire-reports/TEST-*.xml | head -1)
-            ERRORS=$(grep -oP 'errors="\K[^"]+' target/surefire-reports/TEST-*.xml | head -1)
-            SKIPPED=$(grep -oP 'skipped="\K[^"]+' target/surefire-reports/TEST-*.xml | head -1)
+    #   - name: Publish test summary
+    #     if: always()
+    #     run: |
+    #       echo "## Test Results :test_tube:" >> $GITHUB_STEP_SUMMARY
+    #       echo "" >> $GITHUB_STEP_SUMMARY
+    #       if [ -f target/surefire-reports/TEST-*.xml ]; then
+    #         TESTS=$(grep -oP 'tests="\K[^"]+' target/surefire-reports/TEST-*.xml | head -1)
+    #         FAILURES=$(grep -oP 'failures="\K[^"]+' target/surefire-reports/TEST-*.xml | head -1)
+    #         ERRORS=$(grep -oP 'errors="\K[^"]+' target/surefire-reports/TEST-*.xml | head -1)
+    #         SKIPPED=$(grep -oP 'skipped="\K[^"]+' target/surefire-reports/TEST-*.xml | head -1)
             
-            echo "- **Total Tests:** $TESTS" >> $GITHUB_STEP_SUMMARY
-            echo "- **Failures:** $FAILURES" >> $GITHUB_STEP_SUMMARY
-            echo "- **Errors:** $ERRORS" >> $GITHUB_STEP_SUMMARY
-            echo "- **Skipped:** $SKIPPED" >> $GITHUB_STEP_SUMMARY
+    #         echo "- **Total Tests:** $TESTS" >> $GITHUB_STEP_SUMMARY
+    #         echo "- **Failures:** $FAILURES" >> $GITHUB_STEP_SUMMARY
+    #         echo "- **Errors:** $ERRORS" >> $GITHUB_STEP_SUMMARY
+    #         echo "- **Skipped:** $SKIPPED" >> $GITHUB_STEP_SUMMARY
             
-            if [ "$FAILURES" = "0" ] && [ "$ERRORS" = "0" ]; then
-              echo "" >> $GITHUB_STEP_SUMMARY
-              echo "### ✅ All tests passed!" >> $GITHUB_STEP_SUMMARY
-            else
-              echo "" >> $GITHUB_STEP_SUMMARY
-              echo "### ❌ Some tests failed!" >> $GITHUB_STEP_SUMMARY
-            fi
-          fi
+    #         if [ "$FAILURES" = "0" ] && [ "$ERRORS" = "0" ]; then
+    #           echo "" >> $GITHUB_STEP_SUMMARY
+    #           echo "### ✅ All tests passed!" >> $GITHUB_STEP_SUMMARY
+    #         else
+    #           echo "" >> $GITHUB_STEP_SUMMARY
+    #           echo "### ❌ Some tests failed!" >> $GITHUB_STEP_SUMMARY
+    #         fi
+    #       fi
