@@ -43,19 +43,16 @@ jobs:
           key: ${{ runner.os }}-maven-${{ hashFiles('**/pom.xml') }}
           restore-keys: |
             ${{ runner.os }}-maven-
-                
+
       - name: Maven Clean Install
         run: |
           if [ "${{ github.event.inputs.clean_install }}" = "true" ] || [ -z "${{ github.event.inputs.clean_install }}" ]; then
+            echo "Running mvn clean install with -U flag"
             mvn clean install -U -DskipTests=true -Dci.version=${{ github.event.inputs.snapshot || '5.0.0-alpha-SNAPSHOT' }}
           else
+            echo "Running mvn install without -U flag"
             mvn install -DskipTests=true -Dci.version=${{ github.event.inputs.snapshot || '5.0.0-alpha-SNAPSHOT' }}
           fi
-          restore-keys: |
-            ${{ runner.os }}-maven-
-
-      - name: Maven Clean Install
-        run: mvn clean install -U -DskipTests=true -Dci.version=${{ github.event.inputs.snapshot || '5.0.0-alpha-SNAPSHOT' }}
             
       - name: Run Unit Tests
         run: mvn test -Dci.version=${{ github.event.inputs.snapshot || '5.0.0-alpha-SNAPSHOT' }}
