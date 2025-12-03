@@ -1,7 +1,6 @@
 name: Run Unit Tests
 
 on:
-#   push:
   pull_request:
     branches: [ default-app ]
   workflow_dispatch:
@@ -45,10 +44,10 @@ jobs:
             echo "clean install: ${CLEAN_INSTALL}"
             echo "snapshot: ${SNAPSHOT}"
             echo "Running mvn clean install with -U flag"
-            mvn clean install -U -DskipTests=true -Dci.version="${SNAPSHOT}"
+            mvn clean install -U -DskipTests=true -Dci.version="${SNAPSHOT}" | grep -v "^Progress (1):"
           else
             echo "Running mvn install without -U flag"
-            mvn install -DskipTests=true -Dci.version="${SNAPSHOT}"
+            mvn install -DskipTests=true -Dci.version="${SNAPSHOT}" | grep -v "^Progress (1):"
           fi
             
       - name: Run Unit Tests

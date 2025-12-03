@@ -48,6 +48,147 @@ mvn test
 mvn test -Dtest=HelloReactorTest#testHelloUserReactor_CustomName
 ```
 
+## Testing Workflow
+
+### Development Cycle
+
+Testing should be an integral part of your reactor development process:
+
+1. **Design Phase** - Plan your reactor's functionality and identify test scenarios
+2. **Implementation** - Write your reactor code in `java/src/reactors/`
+3. **Test Creation** - Create corresponding test class in `test/reactors/`
+4. **Validation** - Run tests to verify behavior
+5. **Iteration** - Fix issues and re-run tests until all pass
+6. **Integration** - Add test to suite and commit
+
+### Recommended Testing Workflow
+
+#### Option 1: Test-Driven Development (TDD)
+Write tests before implementing the reactor:
+
+```bash
+# 1. Create test class first
+# test/reactors/example/YourReactorTest.java
+
+# 2. Run tests (they will fail)
+mvn test -Dtest=YourReactorTest
+
+# 3. Implement reactor to make tests pass
+# java/src/reactors/examples/YourReactor.java
+
+# 4. Run tests again
+mvn test -Dtest=YourReactorTest
+
+# 5. Refactor and repeat until all tests pass
+```
+
+#### Option 2: Traditional Development
+Write reactor first, then add tests:
+
+```bash
+# 1. Implement reactor
+# java/src/reactors/examples/YourReactor.java
+
+# 2. Create comprehensive tests
+# test/reactors/example/YourReactorTest.java
+
+# 3. Run tests to verify
+mvn test -Dtest=YourReactorTest
+
+# 4. Fix any issues discovered
+```
+
+### Pre-Commit Testing
+
+Always run tests before committing changes:
+
+```bash
+# Run all tests
+mvn test
+
+# Or run just the tests for modified reactors
+mvn test -Dtest=YourModifiedReactorTest
+
+# Stage and commit only after tests pass
+git add .
+git commit -m "feat: Add YourReactor with comprehensive tests"
+```
+
+### Continuous Testing During Development
+
+For rapid feedback during active development:
+
+```bash
+# Terminal 1: Keep this running
+mvn test -Dtest=YourReactorTest
+
+# Terminal 2: Edit your code
+# Make changes to reactor or test
+
+# Return to Terminal 1 and re-run after each change
+```
+
+### Integration with SEMOSS Development
+
+When working with the SEMOSS UI:
+
+1. **Before "Recompile reactors"** in SEMOSS UI:
+   ```bash
+   mvn test  # Ensure tests pass
+   ```
+
+2. **After compiling** in SEMOSS UI:
+   - Test reactor in the application
+   - If issues found, update tests to cover the bug
+   - Fix reactor code
+   - Re-run tests
+
+3. **Before "Publish files"**:
+   ```bash
+   mvn test  # Final verification
+   ```
+
+### Multi-Reactor Development
+
+When working on multiple reactors:
+
+```bash
+# Run tests for specific package
+mvn test -Dtest=reactors.example.*Test
+
+# Or run the full suite
+mvn test -Dtest=ReactorTestSuite
+```
+
+### Debugging Failed Tests
+
+1. **Read the error message** - JUnit provides detailed failure information
+2. **Check mock setup** - Verify mocks are configured correctly
+3. **Add debug logging** - Use `System.out.println()` in tests temporarily
+4. **Run in debug mode** - Use your IDE's debugger to step through
+5. **Isolate the issue** - Run single test method to focus
+
+```bash
+# Run single test method with verbose output
+mvn test -Dtest=YourReactorTest#testSpecificScenario -X
+```
+
+### Workflow Best Practices
+
+✅ **Do:**
+- Run tests frequently during development
+- Write tests for bug fixes before fixing the bug
+- Keep tests fast and focused
+- Run full test suite before pushing to remote
+- Update test documentation when adding new tests
+
+❌ **Don't:**
+- Skip writing tests for "simple" reactors
+- Commit code with failing tests
+- Ignore test failures in CI/CD
+- Write overly complex tests that are hard to maintain
+- Test implementation details instead of behavior
+
 ## Test Coverage
 
 ### HelloUserReactor Tests
