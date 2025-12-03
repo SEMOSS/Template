@@ -125,6 +125,7 @@ This repository includes several tools to help maintain code quality:
 
 - See `client/README.md` for front-end development instructions.
 - See `java/README.md` for back-end/reactor development.
+- See `test/README.md` for comprehensive testing guide and workflow.
 
 ---
 
