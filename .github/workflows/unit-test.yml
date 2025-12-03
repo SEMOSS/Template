@@ -34,12 +34,12 @@ jobs:
       - name: Cache Maven packages
         uses: actions/cache@v4
         with:
-          path: ~/.m2/repository
+          path: /root/.m2/repository
           key: ${{ runner.os }}-maven-${{ hashFiles('**/pom.xml') }}
           restore-keys: |
             ${{ runner.os }}-maven-
 
-      - name: Maven Clean Install
+      - name: Maven Install
         run: |
           if [ "${CLEAN_INSTALL}" = "true" ] || [ -z "${CLEAN_INSTALL}" ]; then
             echo "clean install: ${CLEAN_INSTALL}"
@@ -53,7 +53,7 @@ jobs:
             
       - name: Run Unit Tests
         run: |
-          mvn test -Dci.version="${SNAPSHOT}"
+          mvn test -Dci.version="${SNAPSHOT}" | grep -v "^Progress (1):"
       
     #   - name: Install git
     #     if: always()
