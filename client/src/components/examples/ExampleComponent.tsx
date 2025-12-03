@@ -1,3 +1,4 @@
+import { useInsight } from "@semoss/sdk/react";
 import { useState } from "react";
 import { Input } from "@/components/ui/input";
 import { useLoadingPixel } from "@/hooks";
@@ -16,6 +17,7 @@ export const ExampleComponent = () => {
 	/**
 	 * Library hooks
 	 */
+	const { tool } = useInsight();
 	const [helloUserResponse, isLoadingHelloUser] =
 		useLoadingPixel<string>("HelloUser()");
 	const [callPythonResponse, isLoadingCallPython] = useLoadingPixel<string>(
@@ -66,6 +68,16 @@ export const ExampleComponent = () => {
 							</p>
 						</li>
 					</ul>
+				</li>
+			</ul>
+			<h2 className="text-xl font-semibold">
+				Tool call sent from Playground:
+			</h2>
+			<ul className="space-y-4 list-disc pl-6">
+				<li>
+					<p className="italic">
+						{tool ? JSON.stringify(tool) : "No tool call sent"}
+					</p>
 				</li>
 			</ul>
 		</div>
