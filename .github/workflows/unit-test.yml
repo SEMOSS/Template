@@ -12,8 +12,13 @@ on:
         type: choice
         options:
           - '5.0.0-alpha-SNAPSHOT'
+      use_cache:
+        description: 'Use cached Maven dependencies if available'
+        required: true
+        default: true
+        type: boolean
       clean_install:
-        description: 'Run clean install with -U flag if true, else false'
+        description: 'Run `mvn clean install -U` if not using cache'
         required: true
         default: false
         type: boolean
@@ -25,6 +30,7 @@ jobs:
     container: maven:3.9.9-amazoncorretto-21-debian
     env:
       SNAPSHOT: ${{ inputs.snapshot || '5.0.0-alpha-SNAPSHOT' }}
+      USE_CACHE: ${{ inputs.use_cache || 'true' }}
       CLEAN_INSTALL: ${{ inputs.clean_install || 'false' }}
     
     steps:
@@ -33,6 +39,7 @@ jobs:
         
       - name: Cache Maven packages
         id: cache-maven
+        if: env.USE_CACHE == 'true'
         uses: actions/cache@v4
         with:
           path: /root/.m2/repository
@@ -41,9 +48,9 @@ jobs:
             ${{ runner.os }}-maven-
 
       - name: Maven Install
-        if: steps.cache-maven.outputs.cache-hit != 'true'
+        if: env.USE_CACHE == 'false' || steps.cache-maven.outputs.cache-hit != 'true'
         run: |
-          if [ "${CLEAN_INSTALL}" = "true" ] || [ -z "${CLEAN_INSTALL}" ]; then
+          if [ "${CLEAN_INSTALL}" = "true" ]; then
             echo "clean install: ${CLEAN_INSTALL}"
             echo "snapshot: ${SNAPSHOT}"
             echo "Running mvn clean install with -U flag"
