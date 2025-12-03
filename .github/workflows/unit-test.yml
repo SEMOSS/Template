@@ -1,0 +1,56 @@
+name: Run Unit Tests
+
+on:
+  pull_request:
+    branches: [ default-app ]
+  workflow_dispatch:
+    inputs:
+      snapshot:
+        description: 'CI version snapshot'
+        required: true
+        default: '5.0.0-alpha-SNAPSHOT'
+        type: choice
+        options:
+          - '5.0.0-alpha-SNAPSHOT'
+      clean_install:
+        description: 'Run clean install with -U flag if true, else false'
+        required: true
+        default: "false"
+
+jobs:
+  test:
+    name: Run Test Suite
+    runs-on: ubuntu-latest
+    container: maven:3.9.9-amazoncorretto-21-debian
+    env:
+      SNAPSHOT: ${{ inputs.snapshot || '5.0.0-alpha-SNAPSHOT' }}
+      CLEAN_INSTALL: ${{ inputs.clean_install || 'false' }}
+    
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+        
+      - name: Cache Maven packages
+        uses: actions/cache@v4
+        with:
+          path: /root/.m2/repository
+          key: ${{ runner.os }}-maven-${{ hashFiles('**/pom.xml') }}
+          restore-keys: |
+            ${{ runner.os }}-maven-
+
+      - name: Maven Install
+        run: |
+          if [ "${CLEAN_INSTALL}" = "true" ] || [ -z "${CLEAN_INSTALL}" ]; then
+            echo "clean install: ${CLEAN_INSTALL}"
+            echo "snapshot: ${SNAPSHOT}"
+            echo "Running mvn clean install with -U flag"
+            mvn clean install -U -DskipTests=true -Dci.version="${SNAPSHOT}" | grep -v "^Progress (1):"
+          else
+            echo "Running mvn install without -U flag"
+            mvn install -DskipTests=true -Dci.version="${SNAPSHOT}" | grep -v "^Progress (1):"
+          fi
+            
+      - name: Run Unit Tests
+        run: |
+          mvn test -Dci.version="${SNAPSHOT}" | grep -v "^Progress (1):"
+          
