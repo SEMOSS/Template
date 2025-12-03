@@ -20,11 +20,10 @@ export interface AppContextType {
 			pixelString: string[],
 			successMessage?: string,
 		) => Promise<T>);
-	runMCPTool: (
+	sendMCPResponseToPlayground: (
 		toolName: string,
-		toolInput?: Record<string, unknown>,
-		successMessage?: string,
-	) => Promise<string>;
+		toolResponse: string,
+	) => void;
 	login: (username: string, password: string) => Promise<boolean>;
 	logout: () => Promise<boolean>;
 	userLoginName: string;
@@ -59,7 +58,7 @@ export const useAppContext = (): AppContextType => {
  */
 export const AppContextProvider = ({ children }: PropsWithChildren) => {
 	// Get the current state of the current insight
-	const { actions, isReady, system, insightId } = useInsight();
+	const { actions, isReady, system, insightId, tool } = useInsight();
 
 	/**
 	 * State
@@ -125,23 +124,24 @@ export const AppContextProvider = ({ children }: PropsWithChildren) => {
 	);
 
 	/**
-	 * Run a MCP tool
+	 * If running in MCP mode, send the response to Playground
 	 * @param name - name of the tool
-	 * @param parameters - parameters to pass to the tool
+	 * @param response - response from the tool to send to Playground
 	 */
-	const runMCPTool = useCallback(
-		async (name: string, parameters?: Record<string, unknown>) => {
+	const sendMCPResponseToPlayground = useCallback(
+		(toolName: string, toolResponse: string) => {
 			try {
-				const response = await actions.runMCPTool(name, parameters);
-				if (!response.output)
-					throw new Error("No output from MCP tool");
-				return response.output;
+				if (tool && tool.name === toolName) {
+					actions.sendMCPResponseToPlayground(toolResponse);
+				}
 			} catch (error) {
-				toast.error(`${error.message ?? "Error during operation"}`);
+				toast.error(
+					`${error.message ?? "Error sending response to Playground"}`,
+				);
 				throw error;
 			}
 		},
-		[actions],
+		[actions, tool],
 	);
 
 	// Allow users to log in, and grab their name when they do
@@ -253,7 +253,7 @@ export const AppContextProvider = ({ children }: PropsWithChildren) => {
 		<AppContext.Provider
 			value={{
 				runPixel,
-				runMCPTool,
+				sendMCPResponseToPlayground,
 				exampleStateData,
 				isAppDataLoading,
 				login,
