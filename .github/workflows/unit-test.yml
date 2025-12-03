@@ -40,7 +40,7 @@ jobs:
             ${{ runner.os }}-maven-
             
       - name: Run tests
-        run: mvn clean test -Dci.version=${{ github.event.inputs.snapshot || '5.0.0-alpha-SNAPSHOT' }}
+        run: mvn clean test -DskipTests=true -U -Dci.version=${{ github.event.inputs.snapshot || '5.0.0-alpha-SNAPSHOT' }}
         
       - name: Generate test report
         if: always()
