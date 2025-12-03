@@ -32,6 +32,7 @@ jobs:
         uses: actions/checkout@v4
         
       - name: Cache Maven packages
+        id: cache-maven
         uses: actions/cache@v4
         with:
           path: /root/.m2/repository
@@ -40,18 +41,19 @@ jobs:
             ${{ runner.os }}-maven-
 
       - name: Maven Install
+        if: steps.cache-maven.outputs.cache-hit != 'true'
         run: |
           if [ "${CLEAN_INSTALL}" = "true" ] || [ -z "${CLEAN_INSTALL}" ]; then
             echo "clean install: ${CLEAN_INSTALL}"
             echo "snapshot: ${SNAPSHOT}"
             echo "Running mvn clean install with -U flag"
-            mvn clean install -U -DskipTests=true -Dci.version="${SNAPSHOT}" | grep -v "^Progress (1):"
+            mvn clean install -U -DskipTests=true -Dci.version="${SNAPSHOT}" | grep -v "^Progress ([0-9]\+):"
           else
             echo "Running mvn install without -U flag"
-            mvn install -DskipTests=true -Dci.version="${SNAPSHOT}" | grep -v "^Progress (1):"
+            mvn install -DskipTests=true -Dci.version="${SNAPSHOT}" | grep -v "^Progress ([0-9]\+):"
           fi
             
       - name: Run Unit Tests
         run: |
-          mvn test -Dci.version="${SNAPSHOT}" | grep -v "^Progress (1):"
+          mvn test -Dci.version="${SNAPSHOT}" | grep -v "^Progress ([0-9]\+):"
           
