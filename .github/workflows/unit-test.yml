@@ -20,6 +20,11 @@ on:
         type: choice
         options:
           - '5.0.0-alpha-SNAPSHOT'
+      clean_install:
+        description: 'Run clean install with -U flag'
+        required: false
+        default: false
+        type: boolean
 
 jobs:
   test:
@@ -34,13 +39,18 @@ jobs:
       - name: Cache Maven packages
         uses: actions/cache@v4
         with:
-          path: ~/.m2/repository
-          key: ${{ runner.os }}-maven-${{ hashFiles('**/pom.xml') }}
+      - name: Maven Clean Install
+        run: |
+          if [ "${{ github.event.inputs.clean_install }}" = "true" ] || [ -z "${{ github.event.inputs.clean_install }}" ]; then
+            mvn clean install -U -DskipTests=true -Dci.version=${{ github.event.inputs.snapshot || '5.0.0-alpha-SNAPSHOT' }}
+          else
+            mvn install -DskipTests=true -Dci.version=${{ github.event.inputs.snapshot || '5.0.0-alpha-SNAPSHOT' }}
+          fi
           restore-keys: |
             ${{ runner.os }}-maven-
 
       - name: Maven Clean Install
-        run: mvn clean install -DskipTests=true -U -Dci.version=${{ github.event.inputs.snapshot || '5.0.0-alpha-SNAPSHOT' }}
+        run: mvn clean install -U -DskipTests=true -Dci.version=${{ github.event.inputs.snapshot || '5.0.0-alpha-SNAPSHOT' }}
             
       - name: Run Unit Tests
         run: mvn test -Dci.version=${{ github.event.inputs.snapshot || '5.0.0-alpha-SNAPSHOT' }}
@@ -49,7 +59,7 @@ jobs:
         if: always()
         run: |
           apt-get update && apt-get install -y git
-          git config --global --add safe.directory /__w/Template/Template
+          git config --global --add safe.directory '*'
         
       - name: Generate test report
         if: always()
