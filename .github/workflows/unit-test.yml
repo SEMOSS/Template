@@ -65,7 +65,7 @@ jobs:
         uses: dorny/test-reporter@v1
         with:
           name: Maven Test Results
-          path: target/surefire-reports/*.xml
+          path: /__w/Template/Template/target/surefire-reports/*.xml
           reporter: java-junit
           fail-on-error: true
           
@@ -75,8 +75,8 @@ jobs:
         with:
           name: test-results
           path: |
-            target/surefire-reports/
-            target/site/
+            /__w/Template/Template/target/surefire-reports/
+            /__w/Template/Template/target/site/
           retention-days: 30
           
       - name: Publish test summary
