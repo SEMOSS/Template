@@ -2,7 +2,7 @@ import { useInsight } from "@semoss/sdk/react";
 import { useNavigate } from "react-router-dom";
 import { SemossBlueLogo } from "@/assets";
 import { Button } from "@/components/ui/button";
-import { ROUTE_PATH_ANIMAL_PAGE } from "@/routes.constants";
+import { ROUTE_PATH_ANIMAL_PAGE } from "@/pages";
 import { UserProfileMenu } from "./UserProfileMenu";
 
 // The list of the buttons that should be displayed
