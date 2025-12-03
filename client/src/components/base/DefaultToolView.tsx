@@ -31,27 +31,49 @@ const getProcessedToolName = (toolName: string) => {
 interface DefaultToolViewProps {
 	name: string;
 }
+
+/**
+ * Renders a default view for MCP tools based on their input schema. If a custom page is defined in PAGE_TYPES, it renders that instead
+ *
+ * @component
+ */
 export const DefaultToolView: React.FC<DefaultToolViewProps> = ({ name }) => {
+	/**
+	 * Library hooks
+	 */
 	const { actions, tool } = useInsight();
 	const { tools, isAppDataLoading } = useAppContext();
+
+	/**
+	 * State
+	 */
 	const [selectedTool, setSelectedTool] = useState<MCPTool>(null);
 	const [formData, setFormData] = useState<Record<string, unknown>>(
 		tool?.parameters || {},
 	);
 	const [isSubmitting, setIsSubmitting] = useState(false);
 
+	/**
+	 * Constants
+	 */
 	const properties = selectedTool?.inputSchema?.properties || {};
 	const required = selectedTool?.inputSchema?.required || [];
 	const toolName = tool?.name ? getProcessedToolName(tool?.name || "") : name;
+	const lowerName = toolName.toLocaleLowerCase();
 
+	/**
+	 * Effects
+	 */
 	useEffect(() => {
 		// if (tools?.status === "SUCCESS") {
 		setSelectedTool(tools.find((a) => a.name === toolName));
 		// }
 	}, [tools, toolName]);
 
-	// biome-ignore lint/suspicious/noExplicitAny: Form data can be any type
-	const handleChange = (field: string, value: any) => {
+	/**
+	 * Functions
+	 */
+	const handleChange = (field: string, value: unknown) => {
 		setFormData({ ...formData, [field]: value });
 	};
 
@@ -76,8 +98,17 @@ export const DefaultToolView: React.FC<DefaultToolViewProps> = ({ name }) => {
 			.join(" ");
 	};
 
-	// biome-ignore lint/suspicious/noExplicitAny: JSON Schema can be any structure
-	const renderField = (fieldName: string, fieldSchema: any) => {
+	const renderField = (
+		fieldName: string,
+		fieldSchema: {
+			type: string;
+			description?: string;
+			enum?: string[];
+			maxLength?: number;
+			minimum?: number;
+			maximum?: number;
+		},
+	) => {
 		const isRequired = required.includes(fieldName);
 		const value = formData[fieldName] ?? "";
 		const displayName = capitalizeWords(fieldName); // Capitalize fieldName
@@ -110,7 +141,7 @@ export const DefaultToolView: React.FC<DefaultToolViewProps> = ({ name }) => {
 									/>
 								</SelectTrigger>
 								<SelectContent>
-									{fieldSchema.enum.map((option: string) => (
+									{fieldSchema.enum.map((option) => (
 										<SelectItem key={option} value={option}>
 											{capitalizeWords(option)}
 										</SelectItem>
@@ -315,11 +346,10 @@ export const DefaultToolView: React.FC<DefaultToolViewProps> = ({ name }) => {
 		}
 	};
 
+	// Show loading screen if app data is loading or tool is not yet selected
 	if (isAppDataLoading || !selectedTool) {
 		return <LoadingScreen />;
 	}
-
-	const lowerName = toolName.toLocaleLowerCase();
 
 	// Render custom route if defined in route.constants.tsx else show default view
 	return Object.hasOwn(PAGE_TYPES, lowerName) ? (
