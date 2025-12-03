@@ -1,5 +1,6 @@
-import { GetStockHistory } from "../components/mcp/GetStockHistory";
-import { GetStockPrice } from "../components/mcp/GetStockPrice";
+import { GetStockHistory } from "./components/mcp/GetStockHistory";
+import { GetStockPrice } from "./components/mcp/GetStockPrice";
+
 export const ROUTE_PATH_LOGIN_PAGE = "login";
 
 /**

@@ -6,12 +6,12 @@ import {
 } from "react-router-dom";
 import { DefaultToolView, LoadingScreen, PageWrapper } from "@/components";
 import { useAppContext } from "@/contexts";
+import { ROUTE_PATH_LOGIN_PAGE } from "@/routes.constants";
 import { ErrorPage } from "./ErrorPage";
 import { HomePage } from "./HomePage";
 import { LoginPage } from "./LoginPage";
 import { AuthorizedLayout, InitializedLayout } from "./layouts";
 import { MCPLayout } from "./layouts/MCPLayout";
-import { ROUTE_PATH_LOGIN_PAGE } from "./routes.constants";
 
 const router = createHashRouter([
 	{

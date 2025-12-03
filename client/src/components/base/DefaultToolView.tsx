@@ -16,7 +16,7 @@ import {
 } from "@/components/ui/select";
 import { Textarea } from "@/components/ui/textarea";
 import { useAppContext } from "@/contexts";
-import { PAGE_TYPES } from "@/pages";
+import { PAGE_TYPES } from "@/routes.constants";
 import type { MCPTool } from "@/types";
 import { LoadingScreen } from "./LoadingScreen";
 
@@ -32,8 +32,8 @@ interface DefaultToolViewProps {
 	name: string;
 }
 export const DefaultToolView: React.FC<DefaultToolViewProps> = ({ name }) => {
-	const { actions } = useInsight();
-	const { tool, tools, isAppDataLoading } = useAppContext();
+	const { actions, tool } = useInsight();
+	const { tools, isAppDataLoading } = useAppContext();
 	const [selectedTool, setSelectedTool] = useState<MCPTool>(null);
 	const [formData, setFormData] = useState<Record<string, unknown>>(
 		tool?.parameters || {},
