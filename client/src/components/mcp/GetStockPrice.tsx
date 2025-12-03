@@ -5,31 +5,43 @@ import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
-import { useAppContext } from "@/contexts";
+import { useLoadingState } from "@/hooks";
 
-interface GetStockPriceProps {
-	defaultSymbol?: string;
-}
-
-export const GetStockPrice: React.FC<GetStockPriceProps> = () => {
-	const { actions } = useInsight();
-	const { tool } = useAppContext();
+/**
+ * Allows the user to get stock price information by submitting a form
+ *
+ * @component
+ */
+export const GetStockPrice = () => {
+	/**
+	 * Library hooks
+	 */
+	const { actions, tool } = useInsight();
 	const { pageName } = useParams();
-	// Component state
+
+	/**
+	 * State
+	 */
 	const [stockSymbol, setStockSymbol] = useState(
 		tool?.parameters?.symbol || "",
 	);
 	const [period, setPeriod] = useState(tool?.parameters?.period || "");
-	const [loading, setLoading] = useState(false);
+	const [loading, setLoading] = useLoadingState(false);
 	const [results, setResults] = useState<string>("");
 	const [error, setError] = useState<string | null>(null);
 
+	/**
+	 * Constants
+	 */
 	// Get tool name from playground or use route
 	const toolName = tool?.name || pageName;
 
+	/**
+	 * Functions
+	 */
 	const handleSubmit = async (e: React.FormEvent) => {
 		e.preventDefault();
-		setLoading(true);
+		const loadingKey = setLoading(true);
 		setError(null);
 		setResults("");
 
@@ -48,7 +60,7 @@ export const GetStockPrice: React.FC<GetStockPriceProps> = () => {
 		} catch (err) {
 			setError(err.message || String(err));
 		}
-		setLoading(false);
+		setLoading(false, loadingKey);
 	};
 
 	return (
@@ -104,7 +116,7 @@ export const GetStockPrice: React.FC<GetStockPriceProps> = () => {
 							</div>
 						)}
 
-						{results && import.meta.env.DEV && (
+						{results && (
 							<div className="p-4 border border-green-200 bg-green-50 rounded-lg">
 								<pre className="whitespace-pre-wrap text-sm">
 									{results}

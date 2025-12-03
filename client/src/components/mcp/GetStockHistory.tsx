@@ -4,26 +4,36 @@ import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
-import { useAppContext } from "@/contexts";
+import { useLoadingState } from "@/hooks";
 
-interface GetStockHistoryProps {
-	defaultSymbol?: string;
-}
+/**
+ * Allows the user to get stock history information by submitting a form
+ *
+ * @component
+ */
+export const GetStockHistory = () => {
+	/**
+	 * Library hooks
+	 */
+	const { actions, tool } = useInsight();
 
-export const GetStockHistory: React.FC<GetStockHistoryProps> = () => {
-	const { actions } = useInsight();
-	const { tool } = useAppContext();
+	/**
+	 * State
+	 */
 	// Use symbol from route params if available, otherwise use default
 	const [stockSymbol, setStockSymbol] = useState<string>(
 		tool?.parameters?.symbol as string,
 	);
-	const [loading, setLoading] = useState(false);
+	const [loading, setLoading] = useLoadingState(false);
 	const [results, setResults] = useState<string>("");
 	const [error, setError] = useState<string | null>(null);
 
+	/**
+	 * Functions
+	 */
 	const handleSubmit = async (e: React.FormEvent) => {
 		e.preventDefault();
-		setLoading(true);
+		const loadingKey = setLoading(true);
 		setError(null);
 		setResults("");
 
@@ -42,7 +52,7 @@ export const GetStockHistory: React.FC<GetStockHistoryProps> = () => {
 			setError(err.message || String(err));
 		}
 
-		setLoading(false);
+		setLoading(false, loadingKey);
 	};
 
 	return (
