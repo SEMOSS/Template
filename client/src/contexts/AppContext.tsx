@@ -213,19 +213,17 @@ export const AppContextProvider = ({ children }: PropsWithChildren) => {
 					// Example pixel to load some data
 					{
 						loader: async () => {
-							let pixel = `1 + 2; `;
-							pixel += Env.APP
-								? `GetMCPTools(project=["${Env.APP}"]); `
-								: `1 + 1; `;
-							const response = await runPixelSemossSdk<
-								[number, ToolStructure]
-							>(pixel, insightId);
-							if (response.errors.length > 0) {
-								throw new Error();
-							}
-							return response.pixelReturn.map(
-								(r) => r.output,
-							) as [number, ToolStructure];
+							const pixelArr = [`1 + 2`];
+							pixelArr.push(
+								Env.APP
+									? `GetMCPTools(project=["${Env.APP}"])`
+									: `1 + 1`,
+							);
+							const response =
+								await runPixel<[number, ToolStructure]>(
+									pixelArr,
+								);
+							return response;
 						},
 						setter: ([exampleStateData, toolStructure]) => {
 							setTools(toolStructure.tools);
@@ -263,7 +261,7 @@ export const AppContextProvider = ({ children }: PropsWithChildren) => {
 			// If the insight is ready, then load the app data
 			loadAppData();
 		}
-	}, [isReady, setIsAppDataLoading, insightId]);
+	}, [isReady, setIsAppDataLoading, runPixel]);
 
 	// On start up, grab the name of the user from the config call if they are already logged in
 	useEffect(() => {
