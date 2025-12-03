@@ -1,13 +1,13 @@
 import { createHashRouter, Navigate, RouterProvider } from "react-router-dom";
+import {
+	ROUTE_PATH_ANIMAL_PAGE,
+	ROUTE_PATH_LOGIN_PAGE,
+} from "@/routes.constants";
 import { AnimalPage } from "./AnimalPage";
 import { ErrorPage } from "./ErrorPage";
 import { HomePage } from "./HomePage";
 import { LoginPage } from "./LoginPage";
 import { AuthorizedLayout, InitializedLayout } from "./layouts";
-import {
-	ROUTE_PATH_ANIMAL_PAGE,
-	ROUTE_PATH_LOGIN_PAGE,
-} from "./routes.constants";
 
 const router = createHashRouter([
 	{
