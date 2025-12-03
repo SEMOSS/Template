@@ -261,7 +261,7 @@ export const AppContextProvider = ({ children }: PropsWithChildren) => {
 			// If the insight is ready, then load the app data
 			loadAppData();
 		}
-	}, [isReady, setIsAppDataLoading, runPixel]);
+	}, [isReady, runPixel, setIsAppDataLoading]);
 
 	// On start up, grab the name of the user from the config call if they are already logged in
 	useEffect(() => {
