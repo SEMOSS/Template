@@ -15,7 +15,8 @@ on:
       clean_install:
         description: 'Run clean install with -U flag if true, else false'
         required: true
-        default: "false"
+        default: false
+        type: boolean
 
 jobs:
   test:
