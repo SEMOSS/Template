@@ -12,10 +12,14 @@ import { toast } from "sonner";
 import { useLoadingState } from "@/hooks";
 
 export interface AppContextType {
-	runPixel: <T = unknown>(
+	runPixel: (<T = unknown>(
 		pixelString: string,
 		successMessage?: string,
-	) => Promise<T>;
+	) => Promise<T>) &
+		(<T extends unknown[] = unknown[]>(
+			pixelString: string[],
+			successMessage?: string,
+		) => Promise<T>);
 	runMCPTool: (
 		toolName: string,
 		toolInput?: Record<string, unknown>,
@@ -76,12 +80,15 @@ export const AppContextProvider = ({ children }: PropsWithChildren) => {
 	 * @param successMessage - optional parameter to show a success message
 	 */
 	const runPixel = useCallback(
-		async <T,>(pixelString: string, successMessage?: string) => {
+		async <T = unknown>(
+			pixelString: string | string[],
+			successMessage?: string,
+		) => {
+			const multiple = Array.isArray(pixelString);
 			try {
-				const response = await runPixelSemossSdk<T[]>(
-					pixelString,
-					insightId,
-				);
+				const response = await runPixelSemossSdk<
+					T extends unknown[] ? T : T[]
+				>(multiple ? pixelString.join("; ") : pixelString, insightId);
 				if (response.errors.length > 0)
 					throw new Error(
 						response.errors
@@ -104,7 +111,11 @@ export const AppContextProvider = ({ children }: PropsWithChildren) => {
 				if (successMessage) {
 					toast.success(successMessage);
 				}
-				return response.pixelReturn[0].output;
+				return (
+					multiple
+						? response.pixelReturn.map((item) => item.output)
+						: response.pixelReturn[0].output
+				) as T;
 			} catch (error) {
 				toast.error(`${error.message ?? "Error during operation"}`);
 				throw error;
