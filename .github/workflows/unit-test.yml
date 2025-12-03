@@ -16,8 +16,7 @@ on:
       clean_install:
         description: 'Run clean install with -U flag'
         required: true
-        default: false
-        type: boolean
+        default: "false"
 
 jobs:
   test:
@@ -43,6 +42,8 @@ jobs:
       - name: Maven Clean Install
         run: |
           if [ "${CLEAN_INSTALL}" = "true" ] || [ -z "${CLEAN_INSTALL}" ]; then
+            echo "clean install: ${CLEAN_INSTALL}"
+            echo "snapshot: ${SNAPSHOT}"
             echo "Running mvn clean install with -U flag"
             mvn clean install -U -DskipTests=true -Dci.version="${SNAPSHOT}"
           else
