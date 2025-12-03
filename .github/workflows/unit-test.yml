@@ -54,52 +54,52 @@ jobs:
         run: |
           mvn test -Dci.version="${SNAPSHOT}" | grep -v "^Progress (1):"
       
-    #   - name: Install git
-    #     if: always()
-    #     run: |
-    #       apt-get update && apt-get install -y git
-    #       git config --global --add safe.directory '*'
+      - name: Install git
+        if: always()
+        run: |
+          apt-get update && apt-get install -y git
+          git config --global --add safe.directory '*'
         
-    #   - name: Generate test report
-    #     if: always()
-    #     uses: dorny/test-reporter@v1
-    #     with:
-    #       name: Maven Test Results
-    #       path: target/surefire-reports/*.xml
-    #       reporter: java-junit
-    #       fail-on-error: true
+      - name: Generate test report
+        if: always()
+        uses: dorny/test-reporter@v1
+        with:
+          name: Maven Test Results
+          path: target/surefire-reports/*.xml
+          reporter: java-junit
+          fail-on-error: true
           
-    #   - name: Upload test results
-    #     if: always()
-    #     uses: actions/upload-artifact@v4
-    #     with:
-    #       name: test-results
-    #       path: |
-    #         target/surefire-reports/
-    #         target/site/
-    #       retention-days: 30
+      - name: Upload test results
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: test-results
+          path: |
+            target/surefire-reports/
+            target/site/
+          retention-days: 30
           
-    #   - name: Publish test summary
-    #     if: always()
-    #     run: |
-    #       echo "## Test Results :test_tube:" >> $GITHUB_STEP_SUMMARY
-    #       echo "" >> $GITHUB_STEP_SUMMARY
-    #       if [ -f target/surefire-reports/TEST-*.xml ]; then
-    #         TESTS=$(grep -oP 'tests="\K[^"]+' target/surefire-reports/TEST-*.xml | head -1)
-    #         FAILURES=$(grep -oP 'failures="\K[^"]+' target/surefire-reports/TEST-*.xml | head -1)
-    #         ERRORS=$(grep -oP 'errors="\K[^"]+' target/surefire-reports/TEST-*.xml | head -1)
-    #         SKIPPED=$(grep -oP 'skipped="\K[^"]+' target/surefire-reports/TEST-*.xml | head -1)
+      - name: Publish test summary
+        if: always()
+        run: |
+          echo "## Test Results :test_tube:" >> $GITHUB_STEP_SUMMARY
+          echo "" >> $GITHUB_STEP_SUMMARY
+          if [ -f target/surefire-reports/TEST-*.xml ]; then
+            TESTS=$(grep -oP 'tests="\K[^"]+' target/surefire-reports/TEST-*.xml | head -1)
+            FAILURES=$(grep -oP 'failures="\K[^"]+' target/surefire-reports/TEST-*.xml | head -1)
+            ERRORS=$(grep -oP 'errors="\K[^"]+' target/surefire-reports/TEST-*.xml | head -1)
+            SKIPPED=$(grep -oP 'skipped="\K[^"]+' target/surefire-reports/TEST-*.xml | head -1)
             
-    #         echo "- **Total Tests:** $TESTS" >> $GITHUB_STEP_SUMMARY
-    #         echo "- **Failures:** $FAILURES" >> $GITHUB_STEP_SUMMARY
-    #         echo "- **Errors:** $ERRORS" >> $GITHUB_STEP_SUMMARY
-    #         echo "- **Skipped:** $SKIPPED" >> $GITHUB_STEP_SUMMARY
+            echo "- **Total Tests:** $TESTS" >> $GITHUB_STEP_SUMMARY
+            echo "- **Failures:** $FAILURES" >> $GITHUB_STEP_SUMMARY
+            echo "- **Errors:** $ERRORS" >> $GITHUB_STEP_SUMMARY
+            echo "- **Skipped:** $SKIPPED" >> $GITHUB_STEP_SUMMARY
             
-    #         if [ "$FAILURES" = "0" ] && [ "$ERRORS" = "0" ]; then
-    #           echo "" >> $GITHUB_STEP_SUMMARY
-    #           echo "### ✅ All tests passed!" >> $GITHUB_STEP_SUMMARY
-    #         else
-    #           echo "" >> $GITHUB_STEP_SUMMARY
-    #           echo "### ❌ Some tests failed!" >> $GITHUB_STEP_SUMMARY
-    #         fi
-    #       fi
+            if [ "$FAILURES" = "0" ] && [ "$ERRORS" = "0" ]; then
+              echo "" >> $GITHUB_STEP_SUMMARY
+              echo "### ✅ All tests passed!" >> $GITHUB_STEP_SUMMARY
+            else
+              echo "" >> $GITHUB_STEP_SUMMARY
+              echo "### ❌ Some tests failed!" >> $GITHUB_STEP_SUMMARY
+            fi
+          fi
