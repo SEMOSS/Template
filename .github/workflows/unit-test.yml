@@ -14,7 +14,7 @@ on:
         options:
           - '5.0.0-alpha-SNAPSHOT'
       clean_install:
-        description: 'Run clean install with -U flag'
+        description: 'Run clean install with -U flag if true, else false'
         required: true
         default: "false"
 
@@ -24,8 +24,8 @@ jobs:
     runs-on: ubuntu-latest
     container: maven:3.9.9-amazoncorretto-21-debian
     env:
-      SNAPSHOT: ${{ inputs.snapshot }}
-      CLEAN_INSTALL: ${{ inputs.clean_install }}
+      SNAPSHOT: ${{ inputs.snapshot || '5.0.0-alpha-SNAPSHOT' }}
+      CLEAN_INSTALL: ${{ inputs.clean_install || 'false' }}
     
     steps:
       - name: Checkout code
