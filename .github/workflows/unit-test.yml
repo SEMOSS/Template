@@ -1,0 +1,67 @@
+name: Run Unit Tests
+
+on:
+  pull_request:
+    branches: [ default-app ]
+  workflow_dispatch:
+    inputs:
+      snapshot:
+        description: 'CI version snapshot'
+        required: true
+        default: '5.0.0-alpha-SNAPSHOT'
+        type: choice
+        options:
+          - '5.0.0-alpha-SNAPSHOT'
+          # Add other snapshot versions as needed here!
+      use_cache:
+        description: 'Use cached Maven dependencies if available'
+        required: true
+        default: true
+        type: boolean
+      clean_install:
+        description: 'Run `mvn clean install -U` if not using cache'
+        required: true
+        default: false
+        type: boolean
+
+jobs:
+  test:
+    name: Run Test Suite
+    runs-on: ubuntu-latest
+    container: maven:3.9.9-amazoncorretto-21-debian
+    env:
+      SNAPSHOT: ${{ inputs.snapshot || '5.0.0-alpha-SNAPSHOT' }}
+      USE_CACHE: ${{ inputs.use_cache || 'true' }}
+      CLEAN_INSTALL: ${{ inputs.clean_install || 'false' }}
+    
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+        
+      - name: Cache Maven packages
+        id: cache-maven
+        if: env.USE_CACHE == 'true'
+        uses: actions/cache@v4
+        with:
+          path: /root/.m2/repository
+          key: ${{ runner.os }}-maven-${{ hashFiles('**/pom.xml') }}
+          restore-keys: |
+            ${{ runner.os }}-maven-
+
+      - name: Maven Install
+        if: env.USE_CACHE == 'false' || steps.cache-maven.outputs.cache-hit != 'true'
+        run: |
+          echo "Clean install: ${CLEAN_INSTALL}"
+          echo "Version snapshot: ${SNAPSHOT}"
+          if [ "${CLEAN_INSTALL}" = "true" ]; then
+            echo "Running mvn clean install with -U flag"
+            mvn clean install -U -DskipTests=true -Dci.version="${SNAPSHOT}" | grep -v "^Progress ([0-9]\+):"
+          else
+            echo "Running mvn install without -U flag"
+            mvn install -DskipTests=true -Dci.version="${SNAPSHOT}" | grep -v "^Progress ([0-9]\+):"
+          fi
+            
+      - name: Run Unit Tests
+        run: |
+          mvn test -Dci.version="${SNAPSHOT}" | grep -v "^Progress ([0-9]\+):"
+          
