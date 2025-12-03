@@ -64,6 +64,17 @@
       </snapshots>
     </repository>
     <repository>
+      <id>public</id>
+      <name>Sonatype's Maven repository</name>
+      <url>https://oss.sonatype.org/content/groups/public</url>
+      <releases>
+        <enabled>true</enabled>
+      </releases>
+      <snapshots>
+        <enabled>false</enabled>
+      </snapshots>
+    </repository>
+    <repository>
       <id>3rdPartyJARs</id>
       <name>Maven repository</name>
       <url>https://maven.semoss.org/repository/3rdPartyJARs</url>
