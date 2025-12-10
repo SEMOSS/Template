@@ -58,7 +58,8 @@ export const useAppContext = (): AppContextType => {
  */
 export const AppContextProvider = ({ children }: PropsWithChildren) => {
 	// Get the current state of the current insight
-	const { actions, isReady, system, insightId, tool } = useInsight();
+	const { actions, isReady, system, insightId, tool, error } = useInsight();
+	console.log({ actions, isReady, system, insightId, tool, error });
 
 	/**
 	 * State
