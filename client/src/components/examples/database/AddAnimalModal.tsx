@@ -72,7 +72,7 @@ export const AddAnimalModal = ({ open, onClose }: AddAnimalModalProps) => {
 
 	return (
 		<Dialog open={open} onOpenChange={() => handleClose(false)}>
-			<DialogContent className="sm:max-w-[425px]">
+			<DialogContent className="sm:max-w-106">
 				<DialogHeader>
 					<DialogTitle>Add Animal</DialogTitle>
 					<DialogDescription>

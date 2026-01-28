@@ -5,6 +5,8 @@ import domain.base.ProjectException;
 import java.io.FileInputStream;
 import java.io.IOException;
 import java.util.Properties;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 import prerna.util.AssetUtility;
 import prerna.util.Utility;
 
@@ -41,6 +43,9 @@ import prerna.util.Utility;
  * @see {@link Properties#load(java.io.InputStream)} for supported file parsing rules.
  */
 public class ProjectProperties {
+
+  /** Logger instance for this class, used for logging reactor execution and errors. */
+  private static final Logger LOGGER = LogManager.getLogger(ProjectProperties.class);
 
   /**
    * The singleton instance of ProjectProperties. This instance is initialized lazily when {@link
@@ -136,8 +141,7 @@ public class ProjectProperties {
       INSTANCE = newInstance;
     } catch (IOException e) {
       INSTANCE = null;
-      throw new ProjectException(
-          ErrorCode.INTERNAL_SERVER_ERROR, "Unable to load project configuration", e);
+      LOGGER.warn("java/project.properties not defined");
     }
   }
 
