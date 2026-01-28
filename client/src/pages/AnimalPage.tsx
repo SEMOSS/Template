@@ -38,7 +38,7 @@ export const AnimalPage = () => {
 	const fetchAnimalList = useCallback(async () => {
 		const loadingKey = setIsAnimalListLoading(true);
 		try {
-			const animals = await runPixel<Animal[]>("GetAnimalList()");
+			const animals = await runPixel<Animal[]>("GetAnimals()");
 			setIsAnimalListLoading(false, loadingKey, () => {
 				setAnimalList(animals);
 			});
