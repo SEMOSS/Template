@@ -11,6 +11,7 @@
 	},
 	"[java]": {
 		"editor.defaultFormatter": null,
+		"editor.formatOnSave": false,
 		"editor.codeActionsOnSave": {}
 	},
 	"editor.defaultFormatter": "biomejs.biome"
