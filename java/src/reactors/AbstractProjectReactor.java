@@ -95,7 +95,7 @@ public abstract class AbstractProjectReactor extends AbstractReactor {
       projectId = this.insight.getProjectId();
     }
 
-    // projectProperties = ProjectProperties.getInstance(projectId);
+    projectProperties = ProjectProperties.getInstance(projectId);
 
     // TODO: Initialize additional resources (engines, external services, etc.)
 
