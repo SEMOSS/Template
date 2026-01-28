@@ -1,7 +1,8 @@
 import { useInsight } from "@semoss/sdk/react";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { Input } from "@/components/ui/input";
-import { useLoadingPixel } from "@/hooks";
+import { useAppContext } from "@/contexts";
+import { useLoadingState } from "@/hooks";
 
 /**
  * Renders an example component demonstrating pixel calls.
@@ -13,18 +14,57 @@ export const ExampleComponent = () => {
 	 * State
 	 */
 	const [textValue, setTextValue] = useState<string>("");
+	const [helloUserResponse, setHelloUserResponse] = useState<string>("");
+	const [isLoadingHelloUser, setIsLoadingHelloUser] = useLoadingState(false);
+	const [callPythonResponse, setCallPythonResponse] = useState<string>("");
+	const [isLoadingCallPython, setIsLoadingCallPython] =
+		useLoadingState(false);
 
 	/**
 	 * Library hooks
 	 */
 	const { tool } = useInsight();
-	const [helloUserResponse, isLoadingHelloUser] =
-		useLoadingPixel<string>("HelloUser()");
-	const [callPythonResponse, isLoadingCallPython] = useLoadingPixel<string>(
-		`CallPython(${Number(textValue)})`,
-		"",
-		!Number(textValue) && textValue !== "0",
-	);
+	const { runPixel } = useAppContext();
+
+	/**
+	 * Effects
+	 */
+	useEffect(() => {
+		const fetchHelloUser = async () => {
+			const loadingKey = setIsLoadingHelloUser(true);
+			try {
+				const response = await runPixel<string>("HelloUser()");
+				setIsLoadingHelloUser(false, loadingKey, () =>
+					setHelloUserResponse(response),
+				);
+			} catch {
+				// handled by runPixel
+			}
+		};
+		fetchHelloUser();
+	}, [runPixel, setIsLoadingHelloUser]);
+
+	useEffect(() => {
+		if (!Number(textValue)) {
+			setCallPythonResponse("");
+			return;
+		}
+
+		const fetchCallPython = async () => {
+			const loadingKey = setIsLoadingCallPython(true);
+			try {
+				const response = await runPixel<string>(
+					`CallPython(${Number(textValue)})`,
+				);
+				setIsLoadingCallPython(false, loadingKey, () =>
+					setCallPythonResponse(response),
+				);
+			} catch {
+				// handled by runPixel
+			}
+		};
+		fetchCallPython();
+	}, [textValue, runPixel, setIsLoadingCallPython]);
 
 	return (
 		<div className="space-y-4">
