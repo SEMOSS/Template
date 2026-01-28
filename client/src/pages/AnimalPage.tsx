@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useCallback, useEffect, useState } from "react";
 import {
 	AddAnimalModal,
 	type Animal,
@@ -6,7 +6,8 @@ import {
 	DeleteAnimalModal,
 } from "@/components";
 import { Button } from "@/components/ui/button";
-import { useLoadingPixel } from "@/hooks";
+import { useAppContext } from "@/contexts/AppContext";
+import { useLoadingState } from "@/hooks";
 
 /**
  * Renders a page for the animal example.
@@ -15,11 +16,16 @@ import { useLoadingPixel } from "@/hooks";
  */
 export const AnimalPage = () => {
 	/**
+	 * Library hooks
+	 */
+	const { runPixel } = useAppContext();
+
+	/**
 	 * State
 	 */
-	const [animalList, isAnimalListLoading, fetchAnimalList] = useLoadingPixel<
-		Animal[]
-	>("GetAnimals( )", []);
+	const [animalList, setAnimalList] = useState<Animal[]>([]);
+	const [isAnimalListLoading, setIsAnimalListLoading] =
+		useLoadingState(false);
 	const [isAddAnimalModalOpen, setIsAddAnimalModalOpen] =
 		useState<boolean>(false);
 	const [isDeleteAnimalModalOpen, setIsDeleteAnimalModalOpen] =
@@ -29,6 +35,21 @@ export const AnimalPage = () => {
 	/**
 	 * Functions
 	 */
+	const fetchAnimalList = useCallback(async () => {
+		const loadingKey = setIsAnimalListLoading(true);
+		try {
+			const animals = await runPixel<Animal[]>("GetAnimalList()");
+			setIsAnimalListLoading(false, loadingKey, () => {
+				setAnimalList(animals);
+			});
+		} catch {
+			// Error handled in runPixel
+			setIsAnimalListLoading(false, loadingKey, () => {
+				setAnimalList([]);
+			});
+		}
+	}, [runPixel, setIsAnimalListLoading]);
+
 	const handleModalClose = (changedAnimals: boolean) => {
 		setIsAddAnimalModalOpen(false);
 		setIsDeleteAnimalModalOpen(false);
@@ -36,6 +57,13 @@ export const AnimalPage = () => {
 			fetchAnimalList();
 		}
 	};
+
+	/**
+	 * Effects
+	 */
+	useEffect(() => {
+		fetchAnimalList();
+	}, [fetchAnimalList]);
 
 	return (
 		<div className="space-y-4">
