@@ -110,4 +110,9 @@ public class FruitSmoothieReactor extends AbstractProjectReactor {
 
     return new NounMetadata(smoothie, PixelDataType.CONST_STRING);
   }
+
+  @Override
+  public String getReactorDescription() {
+    return "This tool generates a fruit smoothie recipe based on selected fruits.";
+  }
 }
