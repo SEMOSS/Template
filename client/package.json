@@ -35,7 +35,7 @@
 		"@semoss/sdk": "../../../../../../../apache-tomcat-9.0.102/webapps/SemossWeb/libs/sdk",
 		"@tailwindcss/postcss": "^4.1.18",
 		"@tailwindcss/vite": "^4.1.18",
-		"autoprefixer": "^10.4.23",
+		"autoprefixer": "^10.4.24",
 		"class-variance-authority": "^0.7.1",
 		"clsx": "^2.1.1",
 		"date-fns": "^4.1.0",
@@ -52,10 +52,10 @@
 		"tailwindcss-animate": "^1.0.7"
 	},
 	"devDependencies": {
-		"@types/node": "^25.1.0",
+		"@types/node": "^25.2.0",
 		"@types/react": "^18.3.27",
 		"@types/react-dom": "^18.3.7",
-		"@vitejs/plugin-react": "^5.1.2",
+		"@vitejs/plugin-react": "^5.1.3",
 		"typescript": "^5.9.3",
 		"vite": "^7.3.1"
 	}
