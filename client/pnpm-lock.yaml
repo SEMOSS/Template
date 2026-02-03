@@ -87,8 +87,8 @@ importers:
         specifier: ^1.2.8
         version: 1.2.8(@types/react-dom@18.3.7(@types/react@18.3.27))(@types/react@18.3.27)(react-dom@18.3.1(react@18.3.1))(react@18.3.1)
       '@semoss/sdk':
-        specifier: 1.0.0-beta.36
-        version: 1.0.0-beta.36(react@18.3.1)
+        specifier: ../../../../../../../apache-tomcat-9.0.102/webapps/SemossWeb/libs/sdk
+        version: link:../../../../../../../apache-tomcat-9.0.102/webapps/SemossWeb/libs/sdk
       '@tailwindcss/postcss':
         specifier: ^4.1.18
         version: 4.1.18
@@ -1225,14 +1225,6 @@ packages:
     resolution: {integrity: sha512-Zv7v6q6aV+VslnpwzqKAmrk5JdVkLUzok2208ZXGipjb+msxBr/fJPZyeEXiFgH7k62Ak0SLIfxQRZQvTuf7rQ==}
     cpu: [x64]
     os: [win32]
-
-  '@semoss/sdk@1.0.0-beta.36':
-    resolution: {integrity: sha512-rPzdVGx2fHyDGRVkh62U5h2K5HxrDxcZ3QfbwOsr/wS5Q0uLtp9x/L78gxDacCiPWB78CRxv5j6u+urTSJvKGg==}
-    peerDependencies:
-      react: 18.3.1
-    peerDependenciesMeta:
-      react:
-        optional: true
 
   '@tailwindcss/node@4.1.18':
     resolution: {integrity: sha512-DoR7U1P7iYhw16qJ49fgXUlry1t4CpXeErJHnQ44JgTSKMaZUdf17cfn5mHchfJ4KRBZRFA/Coo+MUF5+gOaCQ==}
@@ -2816,10 +2808,6 @@ snapshots:
 
   '@rollup/rollup-win32-x64-msvc@4.57.0':
     optional: true
-
-  '@semoss/sdk@1.0.0-beta.36(react@18.3.1)':
-    optionalDependencies:
-      react: 18.3.1
 
   '@tailwindcss/node@4.1.18':
     dependencies:

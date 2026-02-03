@@ -1,4 +1,4 @@
-import { ExampleComponent } from "@/components";
+import { ExampleToolComponent } from "@/components";
 
 /**
  * Renders the home page, currently displaying an example component.
@@ -6,5 +6,5 @@ import { ExampleComponent } from "@/components";
  * @component
  */
 export const HomePage = () => {
-	return <ExampleComponent />;
+	return <ExampleToolComponent />;
 };

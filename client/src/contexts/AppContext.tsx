@@ -129,10 +129,19 @@ export const AppContextProvider = ({ children }: PropsWithChildren) => {
 	 * @param response - response from the tool to send to Playground
 	 */
 	const sendMCPResponseToPlayground = useCallback(
-		(toolName: string, toolResponse: string) => {
+		(
+			toolName: string,
+			toolResponse: string,
+			toolStatus: "success" | "error" | "cancelled" = "success",
+			executedParameters?: Record<string, unknown>,
+		) => {
 			try {
 				if (tool && tool.name === toolName) {
-					actions.sendMCPResponseToPlayground(toolResponse);
+					actions.sendMCPResponseToPlayground(
+						toolResponse,
+						toolStatus,
+						executedParameters,
+					);
 				}
 			} catch (error) {
 				toast.error(
