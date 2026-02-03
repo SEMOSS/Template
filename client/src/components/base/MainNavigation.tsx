@@ -2,6 +2,7 @@ import { useInsight } from "@semoss/sdk/react";
 import { useNavigate } from "react-router-dom";
 import { SemossBlueLogo } from "@/assets";
 import { Button } from "@/components/ui/button";
+import { useAppContext } from "@/contexts";
 import { UserProfileMenu } from "./UserProfileMenu";
 
 // The list of the buttons that should be displayed
@@ -21,8 +22,17 @@ const navigationButtons: {
  * @component
  */
 export const MainNavigation = () => {
-	const { isAuthorized } = useInsight(); // Read whether the user is authorized, so that buttons only work if they are
+	const { isAuthorized, tool } = useInsight(); // Read whether the user is authorized, so that buttons only work if they are
+	const { sendMCPResponseToPlayground } = useAppContext();
 	const navigate = useNavigate();
+
+	const cancelToolCall = () => {
+		sendMCPResponseToPlayground(
+			tool?.original_name,
+			"Tool call cancelled by user",
+			"cancelled",
+		);
+	};
 
 	return (
 		<div className="bg-card border-b border-border h-16 px-4">
@@ -41,7 +51,7 @@ export const MainNavigation = () => {
 								className="h-12"
 							/>
 							<h1 className="text-xl font-bold whitespace-nowrap">
-								SEMOSS Template
+								Fruit Smoothie Recipe Generator
 							</h1>
 						</button>
 					) : (
@@ -52,7 +62,7 @@ export const MainNavigation = () => {
 								className="h-12"
 							/>
 							<h1 className="text-xl font-bold whitespace-nowrap">
-								SEMOSS Template
+								Fruit Smoothie Recipe Generator
 							</h1>
 						</div>
 					)}
@@ -71,7 +81,20 @@ export const MainNavigation = () => {
 				</div>
 
 				{/* If the user is logged in, allow them to see their info */}
-				{isAuthorized && <UserProfileMenu />}
+				{isAuthorized &&
+					(tool ? (
+						!tool.tool_response && (
+							<Button
+								variant="outline"
+								className="hover:text-destructive"
+								onClick={cancelToolCall}
+							>
+								Cancel tool call
+							</Button>
+						)
+					) : (
+						<UserProfileMenu />
+					))}
 			</div>
 		</div>
 	);

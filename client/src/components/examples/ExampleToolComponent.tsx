@@ -84,14 +84,6 @@ export const ExampleToolComponent = () => {
 	};
 
 	/**
-	 * Resets the form to its initial state
-	 */
-	const handleReset = () => {
-		setLikedFruits(new Set());
-		setRecipe("");
-	};
-
-	/**
 	 * Effects
 	 */
 	// Load data from tool call - populates form when component is initialized via MCP tool
@@ -121,9 +113,6 @@ export const ExampleToolComponent = () => {
 
 	return (
 		<div className="max-w-md space-y-2">
-			<h2 className="text-2xl font-bold">
-				Fruit Smoothie Recipe Generator
-			</h2>
 			{!recipe && (
 				<>
 					{/* Fruit selection checkboxes */}
@@ -172,14 +161,6 @@ export const ExampleToolComponent = () => {
 					<pre className="whitespace-pre-wrap">{recipe}</pre>
 				</div>
 			)}
-			<Button
-				onClick={handleReset}
-				variant="outline"
-				className="w-full"
-				disabled={isSubmitting}
-			>
-				Reset
-			</Button>
 		</div>
 	);
 };
