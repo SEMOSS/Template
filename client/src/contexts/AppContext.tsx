@@ -23,6 +23,8 @@ export interface AppContextType {
 	sendMCPResponseToPlayground: (
 		toolName: string,
 		toolResponse: string,
+		toolStatus?: "success" | "error" | "cancelled",
+		executedParameters?: Record<string, unknown>,
 	) => void;
 	login: (username: string, password: string) => Promise<boolean>;
 	logout: () => Promise<boolean>;
@@ -136,7 +138,7 @@ export const AppContextProvider = ({ children }: PropsWithChildren) => {
 			executedParameters?: Record<string, unknown>,
 		) => {
 			try {
-				if (tool && tool.name === toolName) {
+				if (tool && tool.original_name === toolName) {
 					actions.sendMCPResponseToPlayground(
 						toolResponse,
 						toolStatus,
