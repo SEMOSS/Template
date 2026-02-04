@@ -18,6 +18,8 @@ export default defineConfig(({ mode }) => {
 		resolve: {
 			alias: {
 				"@": resolve(__dirname, "./src"),
+				react: resolve(__dirname, "./node_modules/react"),
+				"react-dom": resolve(__dirname, "./node_modules/react-dom"),
 			},
 		},
 		define: {
