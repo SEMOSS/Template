@@ -1,80 +1,73 @@
 # SEMOSS Template App Development
 
-This file provides context for agents to use, build, and deploy the SEMOSS template app. It is a starter template for SEMOSS React apps with Java reactors, build tooling, and example UI/components. Primary users are SEMOSS app developers building pro-code apps (React + Java) and MCPs using the template app. Non-goals include drag-and-drop SEMOSS apps or standalone web apps outside SEMOSS.
+Quick reference for building SEMOSS React apps with Java reactors and MCP tooling. Intended for SEMOSS pro-code apps and MCPs; not for drag-and-drop apps or standalone web deployments.
 
 ## Architecture
-- Key modules/packages and their purpose: `client` for React/Vite app, `java` for custom reactors, `classes` for compiled outputs, `portals` for published UI, `mcp` for generated MCP manifests, `py` for Python MCP tools.
-- Data flow: React UI in `client` builds to `portals` and is published via the SEMOSS UI; the UI calls reactors or MCP tools and returns data to the client; Java reactors compile into `classes` via SEMOSS.
-- Frontend notes: shadcn/ui + Radix UI primitives + Tailwind CSS; React context in `client/src/contexts`; `react-router-dom` routes in `client/src/pages`; keep interactive components keyboard accessible.
-- Backend notes: SEMOSS reactors under `java/src/reactors` compiled at runtime; Authn/Authz handled by SEMOSS; database and migrations are managed by SEMOSS; no background jobs in this template.
-- External services or integrations: SEMOSS SDK (`@semoss/sdk`) and SEMOSS runtime.
+- Key modules: `client` (React/Vite UI), `java` (custom reactors), `classes` (compiled reactors), `portals` (published UI), `mcp` (generated manifests), `py` (Python MCP tools).
+- Flow: UI in `client` builds to `portals` and publishes via SEMOSS UI. UI calls reactors or MCP tools and returns data to the client. Reactors compile into `classes` at runtime.
+- Frontend: shadcn/ui + Radix + Tailwind, contexts in `client/src/contexts`, routes in `client/src/pages`, keep components keyboard accessible.
+- Backend: reactors under `java/src/reactors`; Authn/Authz, DB, and migrations managed by SEMOSS; no background jobs in this template.
+- Integrations: SEMOSS SDK (`@semoss/sdk`) and SEMOSS runtime.
 
 ## Development workflow
-- Required tools or versions: Java 21 (Maven compiler target), Node + pnpm, Python (used in linting pipeline).
-- Package manager(s): pnpm (front-end), Maven (Java).
-- Common commands: `pnpm i` (root and `client`), `pnpm dev` (root), `pnpm build` (root), `pnpm fix` (root), `pnpm javadoc` (root); check package.json for any additional commands added
- - When changes are made to the client folder, the user may need to rebuild and republish the app, otherwise changes made may not show up.
-- Environment setup steps: create `client/.env.local` with `CLIENT_APP="your-app-id"`; create blank `java/project.properties` in the `client` folder if you plan on adding backend env vars.
-- Adding project to eclipse: ensure you change the group and project id in the `pom.xml` to whatever necessary identifiers; select Import, Existing Maven Project, select the base directory of the repo, and add that.
-- When changes are made to the codebase, ensure we publish and compile the code on the Semoss platform itself.
-- If `portals/` is missing or incomplete, run `pnpm i` and `pnpm build` at the repo root to regenerate the front-end bundle.
-- If MCP tools exist for build/compile/publish actions, use those tools instead of manual instance troubleshooting steps.
+- Required tools: Java 21, Node + pnpm, Python (linting pipeline).
+- Package managers: pnpm (frontend), Maven (Java).
+- Common commands (root unless noted): `pnpm i` (root and `client`), `pnpm dev`, `pnpm build`, `pnpm fix`, `pnpm javadoc`.
+- Env setup: create `client/.env.local` with `CLIENT_APP="your-app-id"`; add `java/project.properties` (in `client`) if backend env vars are needed.
+- Eclipse import: update group/project id in `pom.xml`, then Import -> Existing Maven Project.
+- Publish/compile: after changes, build and publish via SEMOSS UI; if `portals/` is missing, run `pnpm i` and `pnpm build` at client folder root.
+- If MCP build/compile/publish tools exist, prefer them over manual troubleshooting.
 
 ## Code conventions
-- Style rules or linters: Biome for formatting and linting; lint-staged + husky pre-commit.
-- Naming conventions: follow React/TypeScript and Java conventions as in existing examples.
-- Testing approach: Java tests under `test/` with JUnit; see `test/README.md`.
-- Logging and error handling: follow existing Java reactor patterns; use SEMOSS error types where applicable.
-
-## References (if needed)
-- Semoss Repo: https://github.com/SEMOSS/Semoss (most important)
-  - SEMOSS docs folder for setup guidance: https://github.com/SEMOSS/Semoss/tree/main/docs
-- Monolith Repo: https://github.com/SEMOSS/Monolith
-- Semoss UI Repo: https://github.com/SEMOSS/semoss-ui
+- Lint/format: Biome; lint-staged + husky pre-commit.
+- Conventions: follow existing React/TypeScript and Java patterns.
+- Tests: JUnit under `test/` (see `test/README.md`).
+- Errors/logging: follow reactor patterns; use SEMOSS error types.
 
 ## MCP development
-- MCP manifests: `mcp/pixel_mcp.json` (Java reactors) and `mcp/py_mcp.json` (Python tools). These are generated by reactor calls - don't edit/create these manually.
+- Manifests: `mcp/pixel_mcp.json` (Java) and `mcp/py_mcp.json` (Python) are generated by reactors. Do not edit manually.
 
 ### Java MCP servers
-- Create an abstract project reactor under `java/src/reactors`, define `keysToGet`/`keyRequired`, and implement `doExecute()`, `getReactorDescription()`, `getKeyTypeForMCP()`, `getDescriptionForKey()` as those are necessary metadata for the server definition.
-- Generate the MCP manifest by running the SEMOSS reactor that builds `mcp/pixel_mcp.json` from the selected reactors (see `MakePixelMCPReactor` in SEMOSS core).
+- Create an abstract project reactor under `java/src/reactors` and implement: `keysToGet`, `keyRequired`, `doExecute()`, `getReactorDescription()`, `getKeyTypeForMCP()`, `getDescriptionForKey()`.
+- Generate `mcp/pixel_mcp.json` via the SEMOSS reactor (see `MakePixelMCPReactor`).
 
 ### Python MCP servers
-- Add tool functions to `py/mcp_driver.py` (preferred name; legacy `py/smss_driver.py` is supported but should be avoided).
-- The functions added should only be the end tools you want to expose. Any function in the driver file is treated as a tool, so move helper logic into a separate helper module/file and import it instead.
-- Add Python docstrings to each tool function. These docstrings are used to derive tool descriptions and provide context to agents and UI surfaces. Keep them concise but specific: describe what the tool does, expected inputs, and what it returns.
-- CRITICAL: Any tool exposed from the driver should include the `@mcp_metadata` decorator from `smssutil.py` if we need to specify extra metadata. Do not expose a tool without it.
-- Use the decorator `@mcp_metadata` from `smssutil.py` to set tool metadata. Usage:
-  - Decorator factory to add metadata to MCP functions.
-  - Usage: `@mcp_metadata({'loadingMessage': 'Loading...', 'resourceURI': null, 'execution':'auto'|'ask'|'disabled', 'displayLocation': 'inline'|'sidebar'|'hidden'})`
-  - If a ui is created for this tool, you can link it with resourceURI, otherwise if you don't use that/leave it null it will use a default mcp ui
-- The `ROOT` variable is injected into the `mcp_driver.py` file and is the path to the current insight folder. For an MCP, it is effectively the room folder path. You will have to manually propagate this to any dependencies.
-- Use the SEMOSS reactor that converts the python driver file into an MCP tool to update `mcp/py_mcp.json` (see `MakePythonMCPReactor` in SEMOSS core).
+- Add tools to `py/mcp_driver.py` (preferred; avoid `py/smss_driver.py`). Only expose end tools; move helpers to separate modules.
+- Add concise docstrings that describe behavior, inputs, and outputs.
+- CRITICAL: every tool must use `@mcp_metadata` from `smssutil.py`.
+- `@mcp_metadata` usage: `@mcp_metadata({'loadingMessage': 'Loading...', 'resourceURI': null, 'execution': 'auto'|'ask'|'disabled', 'displayLocation': 'inline'|'sidebar'|'hidden'})`.
+- `ROOT` is injected into `mcp_driver.py`; propagate it to dependencies.
+- Generate `mcp/py_mcp.json` via the SEMOSS reactor (see `MakePythonMCPReactor`).
 
-### MCP UI + tool execution notes
-- The custom MCP UI should be tied to a specific tool name (from `py/mcp_driver.py` or a reactor), so the UI knows which tool to execute and which response to send back.
-- Execute the tool from the UI with `actions.runMCPTool(name, params)` to ensure the MCP workflow and metadata are respected.
-- After receiving the tool response, forward it to Playground with `sendMCPResponseToPlayground` so the tool call completes in the chat.
-- `GetInsightAssets` throws if a file does not exist. Use `BrowseInsightAssets` first and only read files that are present (or handle missing files gracefully).
-- Tool outputs can be single-encoded JSON strings or double-encoded JSON. Client-side parsing should handle both forms.
+### MCP UI + execution
+- UI must target a specific tool name (reactor or `mcp_driver.py`).
+- Execute with `actions.runMCPTool(name, params)` and forward results with `sendMCPResponseToPlayground`.
+- `GetInsightAssets` throws on missing files; call `BrowseInsightAssets` first or handle missing files.
+- Tool output may be single- or double-encoded JSON; handle both.
 
-### Instantiation (How this works)
-- The MCP server is created through `InitMCPReactor`, which calls `MCPFactory.build(engine)` and returns `mcp.initMCP(protocolVersion)`.
-- Java tools are instantiated by reading `mcp/pixel_mcp.json` and binding reactor names to tools via `AbstractReactor.asMcpTool()`.
-- Python tools execute by importing `mcp_driver` and calling the function with resolved parameters (see `MCPUtility.runPythonTool`).
+### MCP instantiation
+- Init: `InitMCPReactor` -> `MCPFactory.build(engine)` -> `mcp.initMCP(protocolVersion)`.
+- Java tools bind from `mcp/pixel_mcp.json` via `AbstractReactor.asMcpTool()`.
+- Python tools run by importing `mcp_driver` (see `MCPUtility.runPythonTool`).
 
-## File/dir pointers
-- Important entry points: `portals/index.html` (published entry), `client/src/index.tsx` (app entry), `client/src/App.tsx`.
-- Configuration files: `client/vite.config.ts`, `client/tailwind.config.js`, `biome.json`, `pom.xml`.
-- Generated or vendor directories to avoid: `portals/` (build output), `classes/`, `target/`.
+## File pointers
+- Entry points: `portals/index.html`, `client/src/index.tsx`, `client/src/App.tsx`.
+- Config: `client/vite.config.ts`, `client/tailwind.config.js`, `biome.json`, `pom.xml`.
+- Generated: avoid direct edits to `portals/`, `classes/`, `target/`.
 
-## Do and don't
-- Preferred patterns: keep UI code in `client`, custom logic in Java reactors, publish via SEMOSS UI after build.
-- Avoided patterns: editing built files directly in `portals/`.
-- Performance or security gotchas: remember to pnpm build then publish files in SEMOSS UI; avoid committing secrets to `.env.local`; remember to add backend environment variables to `java/project.properties` and integrate into the codebase.
+## Do and do not
+- Do: keep UI in `client`, custom logic in Java reactors, build then publish via SEMOSS UI.
+- Do not: edit built assets in `portals/`.
+- Reminders: avoid committing secrets in `.env.local`; add backend env vars to `java/project.properties` and wire them in code.
 
 ## Release and deployment
-- Environments: local SEMOSS instance for development; for deployment, zip from `assets/` and include `portals/`, `java/`, `classes/` (if compiled), `mcp/`, plus config files you rely on (for example `pom.xml`, `package.json`, `pnpm-lock.yaml`, `biome.json`).
-- Exclude `node_modules/`, `target/`, and local caches from the deployment zip.
-- CI/CD details: before committing, ensure that husky is installed (run `pnpm i` in the root directory), and that the defined hooks are running.
-- Manual steps: run `pnpm build`, then use SEMOSS UI Publish Files.
+- Dev: local SEMOSS instance.
+- Deploy zip from `assets/`: include `portals/`, `java/`, `classes/` (if compiled), `mcp/`, plus needed config files (for example `pom.xml`, `package.json`, `pnpm-lock.yaml`, `biome.json`).
+- Exclude `node_modules/`, `target/`, and local caches.
+- CI/CD: ensure husky is installed (`pnpm i` at repo root) and hooks are active.
+- Manual step: `pnpm build`, then SEMOSS UI Publish Files.
+
+## References
+- https://github.com/SEMOSS/Semoss (docs: https://github.com/SEMOSS/Semoss/tree/main/docs)
+- https://github.com/SEMOSS/Monolith
+- https://github.com/SEMOSS/semoss-ui
