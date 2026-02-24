@@ -42,6 +42,7 @@ This file provides context for agents to use, build, and deploy the SEMOSS templ
 ### Python MCP servers
 - Add tool functions to `py/mcp_driver.py` (preferred name; legacy `py/smss_driver.py` is supported but should be avoided).
 - The functions added should only be the end tools you want to expose. Any function in the driver file is treated as a tool, so move helper logic into a separate helper module/file and import it instead.
+- Add Python docstrings to each tool function. These docstrings are used to derive tool descriptions and provide context to agents and UI surfaces. Keep them concise but specific: describe what the tool does, expected inputs, and what it returns.
 - If extra metadata needs to be passed, use the decorator `@mcp_metadata` from `smssutil.py`. Usage:
   - Decorator factory to add metadata to MCP functions.
   - Usage: `@mcp_metadata({'loadingMessage': 'Loading...', 'resourceURI': null, 'execution':'auto'|'ask'|'disabled', 'displayLocation': 'inline'|'sidebar'|'hidden'})`
