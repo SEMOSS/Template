@@ -43,9 +43,11 @@ This file provides context for agents to use, build, and deploy the SEMOSS templ
 - Add tool functions to `py/mcp_driver.py` (preferred name; legacy `py/smss_driver.py` is supported but should be avoided).
 - The functions added should only be the end tools you want to expose. Any function in the driver file is treated as a tool, so move helper logic into a separate helper module/file and import it instead.
 - Add Python docstrings to each tool function. These docstrings are used to derive tool descriptions and provide context to agents and UI surfaces. Keep them concise but specific: describe what the tool does, expected inputs, and what it returns.
-- If extra metadata needs to be passed, use the decorator `@mcp_metadata` from `smssutil.py`. Usage:
+- CRITICAL: Any tool exposed from the driver should include the `@mcp_metadata` decorator from `smssutil.py` if we need to specify extra metadata. Do not expose a tool without it.
+- Use the decorator `@mcp_metadata` from `smssutil.py` to set tool metadata. Usage:
   - Decorator factory to add metadata to MCP functions.
   - Usage: `@mcp_metadata({'loadingMessage': 'Loading...', 'resourceURI': null, 'execution':'auto'|'ask'|'disabled', 'displayLocation': 'inline'|'sidebar'|'hidden'})`
+  - If a ui is created for this tool, you can link it with resourceURI, otherwise if you don't use that/leave it null it will use a default mcp ui
 - The `ROOT` variable is injected into the `mcp_driver.py` file and is the path to the current insight folder. For an MCP, it is effectively the room folder path. You will have to manually propagate this to any dependencies.
 - Use the SEMOSS reactor that converts the python driver file into an MCP tool to update `mcp/py_mcp.json` (see `MakePythonMCPReactor` in SEMOSS core).
 
