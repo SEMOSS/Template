@@ -41,7 +41,7 @@ Quick reference for building SEMOSS React apps with Java reactors and MCP toolin
 
 ### MCP UI + execution
 - UI must target a specific tool name (reactor or `mcp_driver.py`).
-- Execute with `actions.runMCPTool(name, params)` and forward results with `sendMCPResponseToPlayground`.
+- CRITICAL: Execute tools with `actions.runMCPTool(name, params)`, the tool must forward results with `actions.sendMCPResponseToPlayground` in order to "finish" execution.
 - `GetInsightAssets` throws on missing files; call `BrowseInsightAssets` first or handle missing files.
 - Tool output may be single- or double-encoded JSON; handle both.
 
