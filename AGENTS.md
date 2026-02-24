@@ -49,6 +49,13 @@ This file provides context for agents to use, build, and deploy the SEMOSS templ
 - The `ROOT` variable is injected into the `mcp_driver.py` file and is the path to the current insight folder. For an MCP, it is effectively the room folder path. You will have to manually propagate this to any dependencies.
 - Use the SEMOSS reactor that converts the python driver file into an MCP tool to update `mcp/py_mcp.json` (see `MakePythonMCPReactor` in SEMOSS core).
 
+### MCP UI + tool execution notes
+- The custom MCP UI should be tied to a specific tool name (from `py/mcp_driver.py` or a reactor), so the UI knows which tool to execute and which response to send back.
+- Execute the tool from the UI with `actions.runMCPTool(name, params)` to ensure the MCP workflow and metadata are respected.
+- After receiving the tool response, forward it to Playground with `sendMCPResponseToPlayground` so the tool call completes in the chat.
+- `GetInsightAssets` throws if a file does not exist. Use `BrowseInsightAssets` first and only read files that are present (or handle missing files gracefully).
+- Tool outputs can be single-encoded JSON strings or double-encoded JSON. Client-side parsing should handle both forms.
+
 ### Instantiation (How this works)
 - The MCP server is created through `InitMCPReactor`, which calls `MCPFactory.build(engine)` and returns `mcp.initMCP(protocolVersion)`.
 - Java tools are instantiated by reading `mcp/pixel_mcp.json` and binding reactor names to tools via `AbstractReactor.asMcpTool()`.
