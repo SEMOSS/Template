@@ -18,11 +18,11 @@ export const HomePage = () => {
 	};
 
 	return (
-		<div className="flex flex-col items-center justify-center relative h-full w-full overflow-hidden">
-			<Card className="w-full h-full">
+		<div className="relative flex h-full w-full flex-col items-center justify-center overflow-hidden">
+			<Card className="h-full w-full">
 				<CardContent className="p-6">
 					<div className="flex flex-col gap-4">
-						{tools.map((tool) => {
+						{tools?.map((tool) => {
 							const name = tool?.name || "";
 							return (
 								<Button
