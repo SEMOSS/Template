@@ -701,7 +701,7 @@ const handleGenerate = async () => {
 ✅ **Right**: `YourTool(param=["value"])` - SEMOSS strips "Reactor" suffix automatically
 
 ### 11. Playground Return Flow
-❌ **Wrong**: Not calling `sendMCPResponseToPlayground()` after tool completes  
+❌ **Wrong**: Not creating a `sendMCPResponseToPlayground()` after tool completes  
 ✅ **Right**: Always call `actions.sendMCPResponseToPlayground(JSON.stringify(result))` to return results to playground
 
 ### 12. Wrapping SDK Methods
