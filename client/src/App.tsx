@@ -6,8 +6,8 @@ import { Router } from "./pages";
 
 Env.update({
 	MODULE: import.meta.env.MODULE || "",
-	ACCESS_KEY: import.meta.env.CLIENT_ACCESS_KEY || "", // undefined in production
-	SECRET_KEY: import.meta.env.CLIENT_SECRET_KEY || "", // undefined in production
+	ACCESS_KEY: import.meta.env.VITE_ACCESS_KEY || "", // undefined in production
+	SECRET_KEY: import.meta.env.VITE_SECRET_KEY || "", // undefined in production
 	APP: import.meta.env.APP || "",
 });
 
