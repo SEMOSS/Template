@@ -16,6 +16,37 @@ After setting up your `.env.local file`, you’ll need to add a `project.propert
 1. In the `java` folder (in the `client` directory), create a new file named `project.properties`.
 2. Leave this blank ofr now, no configuration is currently needed, however the file must exist to ensure the backend can initialize.
 
+## Create an MCP tool UI
+1. Create a new component in the [pages](src/pages) or [mcp](src/components/mcp/) folder using the [mcp template](src/components/mcp/_templates/ToolPageTemplate.tsx)
+2. Update [routes.constants.tsx](src/pages/routes.constants.tsx) to include a mapping of tool name to the new component
+3. If no mapping is defined for a tool, a default UI will be displayed
+4. For setting up an MCP tool on the backend, see [Create an MCP tool](../README.md#create-an-mcp-tool) in the main README 
+
+
+
+### Quick Start: Adding a New Tool Page
+
+1. **Copy the template:**
+   ```bash
+   cp client/src/pages/_templates/ToolPageTemplate.tsx client/src/pages/MyToolName.tsx
+   ```
+
+2. **Customize your page:**
+   - Update the component name from `ToolPageTemplate` to `MyToolName`
+   - Replace the form fields with your tool's specific parameters
+   - Update the title and any other text
+
+3. **Register the route:**
+   Add your page to [client/src/pages/routes.constants.tsx](client/src/pages/routes.constant.tsx):
+   ```tsx
+   export const PAGE_TYPES = {
+     get_stock_price: <GetStockPrice />,
+     get_stock_history: <GetStockHistory />,
+     my_tool_name: <MyToolName />, // Add this line
+   } as const;
+
+  
+
 ## Essential commands
 
 1. **pnpm i** - Install Dependencies

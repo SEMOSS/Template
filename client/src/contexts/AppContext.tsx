@@ -1,4 +1,8 @@
-import { getSystemConfig, runPixel as runPixelSemossSdk } from "@semoss/sdk";
+import {
+	Env,
+	getSystemConfig,
+	runPixel as runPixelSemossSdk,
+} from "@semoss/sdk";
 import { useInsight } from "@semoss/sdk/react";
 import {
 	createContext,
@@ -10,6 +14,7 @@ import {
 } from "react";
 import { toast } from "sonner";
 import { useLoadingState } from "@/hooks";
+import type { Tool, ToolStructure } from "@/types";
 
 export interface AppContextType {
 	runPixel: (<T = unknown>(
@@ -30,6 +35,7 @@ export interface AppContextType {
 	isAppDataLoading: boolean;
 	isUserLoginLoading: boolean;
 	exampleStateData?: number;
+	tools: Tool[];
 }
 
 const AppContext = createContext<AppContextType | undefined>(undefined);
@@ -66,6 +72,7 @@ export const AppContextProvider = ({ children }: PropsWithChildren) => {
 	const [isUserLoginLoading, setIsUserLoginLoading] = useLoadingState(false);
 	const [isAppDataLoading, setIsAppDataLoading] = useLoadingState(true);
 	const [userLoginName, setUserLoginName] = useState<string | null>(null);
+	const [tools, setTools] = useState<Tool[]>([]);
 	// Example state variable to store the result of a pixel operation
 	const [exampleStateData, setExampleStateData] = useState<number>();
 
@@ -206,10 +213,25 @@ export const AppContextProvider = ({ children }: PropsWithChildren) => {
 					// Example pixel to load some data
 					{
 						loader: async () => {
-							return await runPixel<number>(`1 + 2`);
+							const pixelArr = [`1 + 2`];
+							pixelArr.push(
+								Env.APP
+									? `GetMCPTools(project=["${Env.APP}"])`
+									: `1 + 1`,
+							);
+							const response =
+								await runPixel<[number, ToolStructure]>(
+									pixelArr,
+								);
+							return response;
 						},
-						setter: (response) => setExampleStateData(response),
-					} satisfies LoadSetPair<number>,
+						setter: ([exampleStateData, toolStructure]) => {
+							setTools(toolStructure.tools);
+							if (Env.APP) {
+								setExampleStateData(exampleStateData);
+							}
+						},
+					} satisfies LoadSetPair<[number, ToolStructure]>,
 				];
 
 				// Execute all loaders in parallel and wait for them all to complete
@@ -260,6 +282,7 @@ export const AppContextProvider = ({ children }: PropsWithChildren) => {
 				logout,
 				userLoginName,
 				isUserLoginLoading,
+				tools,
 			}}
 		>
 			{children}

@@ -4,6 +4,7 @@ interface ImportMetaEnv {
 	readonly APP: string;
 	readonly CLIENT_ACCESS_KEY: string;
 	readonly CLIENT_SECRET_KEY: string;
+	readonly HOME_PAGE_ENABLED: string;
 	// more env variables...
 }
 
