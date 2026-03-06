@@ -14,7 +14,6 @@ export default defineConfig(({ mode }) => {
 		root: "src",
 		base: "./",
 		envDir: "../",
-		envPrefix: "CLIENT_",
 		resolve: {
 			alias: {
 				"@": resolve(__dirname, "./src"),
