@@ -15,7 +15,9 @@ This repository provides a starting point for SEMOSS React applications. It incl
 Before using this repository, ensure you have the following:
 
 - **SEMOSS installed locally:**  
-  [SEMOSS Installation Guide](https://amedeloitte.sharepoint.com/:p:/r/sites/SEMOSS/_layouts/15/Doc.aspx?sourcedoc=%7B4234D7E0-E161-4168-B889-29B4BBE07C67%7D&file=SEMOSS%20DEV%20Install_2024-07-24%20Working%20Version.pptx&action=edit&mobileredirect=true)  
+  [SEMOSS Windows Installation Guide](https://workshop.cfg.deloitte.com/docs/windows-developer-install)  
+  [SEMOSS Mac Installation Guide](https://workshop.cfg.deloitte.com/docs/Advanced%20Installation/Mac%20Developer%20Install) 
+
   To verify installation, go to [http://localhost:9090/SemossWeb/packages/client/dist/#/](http://localhost:9090/SemossWeb/packages/client/dist/#/). The SEMOSS UI should load.
 
 - **Basic Git knowledge:**  
