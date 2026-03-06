@@ -47,10 +47,7 @@ function Calendar({
 					"relative flex flex-col gap-4 md:flex-row",
 					defaultClassNames.months,
 				),
-				month: cn(
-					"flex w-full flex-col gap-4",
-					defaultClassNames.month,
-				),
+				month: cn("flex w-full flex-col gap-4", defaultClassNames.month),
 				nav: cn(
 					"absolute inset-x-0 top-0 flex w-full items-center justify-between gap-1",
 					defaultClassNames.nav,
@@ -111,14 +108,8 @@ function Calendar({
 					"bg-accent rounded-l-md",
 					defaultClassNames.range_start,
 				),
-				range_middle: cn(
-					"rounded-none",
-					defaultClassNames.range_middle,
-				),
-				range_end: cn(
-					"bg-accent rounded-r-md",
-					defaultClassNames.range_end,
-				),
+				range_middle: cn("rounded-none", defaultClassNames.range_middle),
+				range_end: cn("bg-accent rounded-r-md", defaultClassNames.range_end),
 				today: cn(
 					"bg-accent text-accent-foreground rounded-md data-[selected=true]:rounded-none",
 					defaultClassNames.today,
@@ -148,10 +139,7 @@ function Calendar({
 				Chevron: ({ className, orientation, ...props }) => {
 					if (orientation === "left") {
 						return (
-							<ChevronLeftIcon
-								className={cn("size-4", className)}
-								{...props}
-							/>
+							<ChevronLeftIcon className={cn("size-4", className)} {...props} />
 						);
 					}
 
@@ -165,10 +153,7 @@ function Calendar({
 					}
 
 					return (
-						<ChevronDownIcon
-							className={cn("size-4", className)}
-							{...props}
-						/>
+						<ChevronDownIcon className={cn("size-4", className)} {...props} />
 					);
 				},
 				DayButton: CalendarDayButton,

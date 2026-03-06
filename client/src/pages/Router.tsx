@@ -1,9 +1,7 @@
 import { createHashRouter, Navigate, RouterProvider } from "react-router-dom";
-import { ROUTE_PATH_LOGIN_PAGE } from "@/routes.constants";
 import { ErrorPage } from "./ErrorPage";
 import { HomePage } from "./HomePage";
-import { LoginPage } from "./LoginPage";
-import { AuthorizedLayout, InitializedLayout } from "./layouts";
+import { InitializedLayout } from "./layouts";
 
 const router = createHashRouter([
 	{
@@ -13,28 +11,15 @@ const router = createHashRouter([
 		ErrorBoundary: ErrorPage,
 		children: [
 			{
-				// Wrap pages that should only be available to logged in users
-				Component: AuthorizedLayout,
-				// Also catch errors in any of the authorized pages, allowing the navigation to continue working
-				ErrorBoundary: ErrorPage,
-				children: [
-					{
-						// If the path is empty, use the home page
-						index: true,
-						Component: HomePage,
-					},
-					// {
-					//     // Example of a new page
-					//     path: '/new-page',
-					//     Component: NewPage,
-					// }
-				],
+				// If the path is empty, use the home page
+				index: true,
+				Component: HomePage,
 			},
-			{
-				// The login page should be available to non-logged in users (duh)
-				path: ROUTE_PATH_LOGIN_PAGE,
-				Component: LoginPage,
-			},
+			// {
+			//     // Example of how to add a new page
+			//     path: '/new-page',
+			//     Component: NewPage,
+			// },
 			{
 				// Any other urls should be sent to the home page
 				path: "*",
