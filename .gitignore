@@ -17,6 +17,7 @@ java/project.properties
 **/.env.*
 !client/.env
 .history/
+.vscode/
 
 # cache
 py/__pycache__/
