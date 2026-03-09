@@ -1,56 +1,30 @@
 package reactors;
 
 import prerna.sablecc2.om.PixelDataType;
-import prerna.sablecc2.om.ReactorKeysEnum;
 import prerna.sablecc2.om.nounmeta.NounMetadata;
 
-/**
- * Example reactor that demonstrates basic functionality by greeting a user. This reactor accepts an
- * optional name parameter and returns a personalized greeting message. If no name is provided, it
- * uses the current user's name from the authentication context.
- *
- * <p>This class serves as a simple example of how to extend {@link AbstractProjectReactor} and
- * implement basic parameter handling and user context access.
- *
- * @see {@link AbstractProjectReactor} for base reactor functionality
- */
+// Example reactor that greets a user.
+// Accepts an optional name parameter; defaults to the authenticated user's name.
 public class HelloUserReactor extends AbstractProjectReactor {
 
   // Note: Has access to protected variables defined in AbstractProjectReactor
 
-  /**
-   * Constructs a HelloUserReactor and configures its expected input parameters. This constructor
-   * sets up the reactor to accept an optional "name" parameter.
-   */
+  private static final String NAME_KEY = "name";
+
   public HelloUserReactor() {
 
     // list of keys the reactor is expecting
-    this.keysToGet = new String[] {ReactorKeysEnum.NAME.getKey()};
+    this.keysToGet = new String[] {NAME_KEY};
 
     // 1 for required keys, 0 for optional
     this.keyRequired = new int[] {0};
   }
 
-  /**
-   * Executes the main logic of the HelloUserReactor to generate a personalized greeting. This
-   * method retrieves the optional name parameter and creates a welcome message. If no name
-   * parameter is provided, it defaults to using the current authenticated user's name.
-   *
-   * <p>The method demonstrates how to:
-   *
-   * <ul>
-   *   <li>Access optional parameters using {@link ReactorKeysEnum}
-   *   <li>Use the protected {@code user} variable from {@link AbstractProjectReactor}
-   *   <li>Return string results wrapped in {@link NounMetadata}
-   * </ul>
-   *
-   * @return A {@link NounMetadata} containing the greeting message as a constant string
-   */
   @Override
   protected NounMetadata doExecute() {
 
     // returns null if the argument is not found
-    String name = this.keyValue.get(ReactorKeysEnum.NAME.getKey());
+    String name = this.keyValue.get(NAME_KEY);
 
     // if name is not provided, use the user's name
     name = (name == null) ? user.getPrimaryLoginToken().getName() : name;
