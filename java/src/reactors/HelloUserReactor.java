@@ -1,9 +1,8 @@
-package reactors.examples;
+package reactors;
 
 import prerna.sablecc2.om.PixelDataType;
 import prerna.sablecc2.om.ReactorKeysEnum;
 import prerna.sablecc2.om.nounmeta.NounMetadata;
-import reactors.AbstractProjectReactor;
 
 /**
  * Example reactor that demonstrates basic functionality by greeting a user. This reactor accepts an

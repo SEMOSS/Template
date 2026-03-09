@@ -1,7 +1,5 @@
 package util;
 
-import domain.base.ErrorCode;
-import domain.base.ProjectException;
 import java.io.FileInputStream;
 import java.io.IOException;
 import java.util.Properties;
@@ -76,8 +74,7 @@ public class ProjectProperties {
    */
   public static ProjectProperties getInstance() {
     if (INSTANCE == null) {
-      throw new ProjectException(
-          ErrorCode.INTERNAL_SERVER_ERROR, "Unable to load project configuration");
+      throw new RuntimeException("Unable to load project configuration");
     }
     return INSTANCE;
   }

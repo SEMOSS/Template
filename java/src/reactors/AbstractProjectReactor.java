@@ -1,7 +1,5 @@
 package reactors;
 
-import domain.base.ErrorCode;
-import domain.base.ProjectException;
 import java.util.List;
 import java.util.Map;
 import org.apache.logging.log4j.LogManager;
@@ -67,15 +65,8 @@ public abstract class AbstractProjectReactor extends AbstractReactor {
       preExecute();
       return doExecute();
     } catch (Exception e) {
-      ProjectException ex = null;
-      if (e instanceof ProjectException) {
-        ex = (ProjectException) e;
-      } else {
-        ex = new ProjectException(ErrorCode.INTERNAL_SERVER_ERROR, e);
-      }
-
       LOGGER.error(String.format("Reactor %s threw an error", this.getClass().getSimpleName()), e);
-      return new NounMetadata(ex.getAsMap(), PixelDataType.MAP, PixelOperationType.ERROR);
+      return new NounMetadata(e.getMessage(), PixelDataType.CONST_STRING, PixelOperationType.ERROR);
     }
   }
 
