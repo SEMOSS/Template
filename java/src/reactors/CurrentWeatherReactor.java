@@ -5,15 +5,18 @@ import prerna.sablecc2.om.nounmeta.NounMetadata;
 
 public class CurrentWeatherReactor extends AbstractProjectReactor {
 
+    private static final String CITY_KEY = "city";
+    private static final String STATE_KEY = "state";
+
     public CurrentWeatherReactor() {
-        this.keysToGet = new String[] { ReactorKeysEnum.CITY.getKey(), ReactorKeysEnum.STATE.getKey() };
+        this.keysToGet = new String[] { CITY_KEY, STATE_KEY };
         this.keyRequired = new int[] { 1, 1 };
     }
     
      @Override
     protected NounMetadata doExecute() {
-        String city = this.keyValue.get(ReactorKeysEnum.CITY.getKey());
-        String state = this.keyValue.get(ReactorKeysEnum.STATE.getKey());
+        String city = this.keyValue.get(CITY_KEY);
+        String state = this.keyValue.get(STATE_KEY);
 
         if (city == null || city.trim().isEmpty()) {
             throw new IllegalArgumentException("City is required to determine temperature.");
@@ -72,9 +75,9 @@ public class CurrentWeatherReactor extends AbstractProjectReactor {
 
     @Override
     protected String getDescriptionForKey(String key) {
-        if (key.equals(ReactorKeysEnum.CITY.getKey())) {
+        if (key.equals(CITY_KEY)) {
             return "The city for which to retrieve the weather information";
-        } else if (key.equals(ReactorKeysEnum.STATE.getKey())) {
+        } else if (key.equals(STATE_KEY)) {
             return "The state for which to retrieve the weather information";
         }
         return super.getDescriptionForKey(key);
