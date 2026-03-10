@@ -1,8 +1,13 @@
 package util;
 
-// Project-wide constants and configuration values.
+// Shared constants used across reactors and utilities.
+// Add static final fields here for values referenced in multiple places.
+//
+// Example:
+//   public static final String DEFAULT_MODEL = "gpt-4";
+//   public static final int MAX_RETRIES = 3;
 public class Constants {
 
-  // TODO add any constants to be referenced in the project
+  // TODO: Add your project constants here
 
 }

@@ -1,3 +1,20 @@
+// ExampleComponent.tsx - Demonstrates the full MCP tool UI pattern.
+//
+// This component shows how to:
+//   1. Call a Java reactor from the frontend using actions.run()
+//   2. Read MCP parameters sent from Playground (via `tool.parameters`)
+//   3. Send results back to Playground with actions.sendMCPResponseToPlayground()
+//   4. Handle loading, error, and "already sent" states
+//   5. Restore past execution results (via `tool.tool_response`)
+//
+// The reactor called here is HelloUser (defined in java/src/reactors/HelloUserReactor.java).
+// When called from Playground as an MCP tool, `tool.parameters` is pre-filled by the LLM.
+//
+// Replace this component with your own UI. Keep the patterns:
+//   - Use `tool.parameters` to read inputs from Playground
+//   - Use `actions.run()` or `actions.runMCPTool()` to call backend tools
+//   - Use `actions.sendMCPResponseToPlayground()` to return results to the chat
+
 import { useInsight } from "@semoss/sdk/react";
 import { useCallback, useEffect, useState } from "react";
 import { toast } from "sonner";
@@ -6,29 +23,20 @@ import { Input } from "./ui/input";
 import { Label } from "./ui/label";
 import { Textarea } from "./ui/textarea";
 
-/**
- * Renders a weather forecast tool that fetches a forecast for a given city
- * and returns the result to the playground chat.
- *
- * @component
- */
 export const ExampleComponent = () => {
-	/**
-	 * State
-	 */
 	const [city, setCity] = useState("");
 	const [forecast, setForecast] = useState("");
 	const [isRunning, setIsRunning] = useState(false);
 	const [hasSentToChat, setHasSentToChat] = useState(false);
 
-	/**
-	 * Library hooks
-	 */
+	// useInsight() is the primary SEMOSS SDK hook.
+	// `actions` provides methods for running Pixel commands and MCP operations.
+	// `tool` contains MCP invocation context when this UI is launched from Playground.
 	const { actions, tool } = useInsight();
 
-	/**
-	 * Handlers
-	 */
+	// Call the HelloUser reactor via a Pixel command.
+	// Pixel is the SEMOSS query language. Reactor names drop the "Reactor" suffix:
+	//   HelloUserReactor -> HelloUser(name=["value"])
 	const handleGetForecast = useCallback(async (city: string) => {
 		setIsRunning(true);
 		try {
@@ -48,25 +56,26 @@ export const ExampleComponent = () => {
 		}
 	}, [actions]);
 
+	// Send the result back to the Playground chat.
+	// The SDK handles matching this response to the correct MCP tool invocation.
 	const handleSendToChat = () => {
 		actions.sendMCPResponseToPlayground(forecast, "success", { city });
 		setHasSentToChat(true);
 	};
 
-	/**
-	 * Effects
-	 */
+	// When launched as an MCP tool from Playground, `tool` is populated.
+	// tool.parameters  -> inputs the LLM decided to pass (e.g. { city: "Boston" })
+	// tool.tool_response -> if viewing a past execution, this has the previous result
+	// tool.executedParameters -> the actual params that were used (source of truth)
 	useEffect(() => {
-		// When running as an MCP, load the parameters sent from Playground
 		if (tool) {
 			if (tool.tool_response) {
-				// If we have access to the tool response, then we are viewing a past execution
+				// Viewing a past execution — restore the previous result
 				setForecast(tool.tool_response);
-
-				// Set city based on the executed parameters, not the suggested parameters, since the executed parameters are the source of truth for what was actually run
 				setCity((tool.executedParameters?.city || tool.parameters?.city) as string || "");
 				setHasSentToChat(true);
 			} else {
+				// Fresh MCP invocation — auto-fill inputs and optionally auto-run
 				const cityFromParams = tool.parameters?.city as string || "";
 				setCity(cityFromParams);
 				if (cityFromParams) {

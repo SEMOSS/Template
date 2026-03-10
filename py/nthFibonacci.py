@@ -1,5 +1,13 @@
-# sample python function that finds the nth fibonacci number
+# Example Python utility function.
+#
+# Python files in py/ can be used as standalone utilities or as MCP tools.
+# To expose a function as an MCP tool, add it to py/mcp_driver.py with the
+# @mcp_metadata decorator. See AGENTS.md for the full pattern.
+#
+# This file is a simple helper — not an MCP tool itself.
+
 def nthFibonacci(n: int) -> int:
+    """Returns the nth Fibonacci number using dynamic programming."""
     if n <= 1:
         return n
 

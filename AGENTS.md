@@ -22,22 +22,22 @@ Comprehensive guide for building SEMOSS MCP tools with custom UIs.
   - Heavy computations
 
 **Choose Frontend Execution Method:**
-- **Use `runPixel()` directly** (Recommended for Java):
-  - Java reactors
-  - Need raw control over execution
-  - SDK has shown errors before
-  - Debugging reactor responses
+- **Use `actions.run()`** (Recommended for all tools):
+  - Java reactors via Pixel commands (e.g., `actions.run('Your(param=...)')`)
+  - Python MCP tools via the `RunMCPTool` reactor (e.g., `actions.run('RunMCPTool(tool=..., ...)')`)
+  - Direct control over execution
+  - Better for debugging (see raw Pixel response)
   
-- **Use `actions.runMCPTool()`**:
-  - Python MCP tools (well-tested)
-  - Standard MCP workflow
-  - Need SDK features (streaming, etc.)
+- **Avoid `actions.runMCPTool()`** (Deprecated):
+  - This is the old SDK method — it calls Python tools but also immediately sends the response to Playground, which is usually unintended
+  - Use `actions.run('RunMCPTool(...)')` instead to call Python tools without auto-sending to Playground
+  - Note: `actions.runMCPTool()` (SDK method, deprecated) and `RunMCPTool()` (Pixel reactor) have confusingly similar names but are different things
 
 ### Architecture
-- **Key modules**: `client` (React/Vite UI), `portals` (published UI), `mcp` (generated manifests), `py` (Python MCP tools), `java` (Java reactor MCP tools)
+- **Key modules**: `client` (React/Vite UI), `portals` (published UI), `mcp` (generated manifests), `py` (Python tools), `java` (Java reactor MCP tools)
 - **Flow**: UI in `client` builds to `portals` and publishes via SEMOSS UI. UI calls MCP tools via SDK and returns data to the client
-- **Frontend**: shadcn/ui + Radix + Tailwind, contexts in `client/src/contexts`, routes in `client/src/pages`, keep components keyboard accessible
-- **Integrations**: SEMOSS SDK (`@semoss/sdk`) and SEMOSS runtime
+- **Frontend**: shadcn/ui + Radix + Tailwind v4, routes in `client/src/pages`, components in `client/src/components`, keep components keyboard accessible
+- **SDK**: `@semoss/sdk` and `@semoss/sdk/react` — `useInsight()` is the primary hook for running Pixel commands, calling MCP tools, and sending results to Playground
 - **Backend Choice**: Use Python MCP tools (`py/mcp_driver.py`) for simple operations; use Java reactors (`java/src/reactors/`) for complex operations requiring Java ecosystem access
 
 ### Development Workflow
@@ -46,7 +46,7 @@ Comprehensive guide for building SEMOSS MCP tools with custom UIs.
    - `pnpm i` (root and `client`)
    - `pnpm dev` (development server)
    - `pnpm build` (production build)
-3. **Environment**: Replace the app id in `client/.env` with:
+3. **Environment**: Set your app ID in `client/.env.local`:
    ```
    APP="your-app-id"
    ```
@@ -58,22 +58,15 @@ Comprehensive guide for building SEMOSS MCP tools with custom UIs.
 ```java
 @Override
 protected NounMetadata doExecute() {
-    organizeKeys();
+    // organizeKeys() already called by preExecute() — this.keyValue is ready
     String param = this.keyValue.get(PARAM_KEY);
     
-    // Use reflection to get model response
-    Object responseObj = modelEngine.ask(prompt, modelId, this.insight, parameters);
-    String content = "";
-    if (responseObj != null) {
-        java.lang.reflect.Method getResponseMethod = responseObj.getClass().getMethod("getResponse");
-        content = (String) getResponseMethod.invoke(responseObj);
-    }
-    
-    // Build response - return as MAP
+    // Your business logic here
     Map<String, Object> response = new HashMap<>();
     response.put("success", true);
     response.put("data", yourData);
     
+    // Return as MAP — SEMOSS handles serialization
     return new NounMetadata(response, PixelDataType.MAP);
 }
 ```
@@ -81,33 +74,33 @@ protected NounMetadata doExecute() {
 **React Frontend:**
 ```typescript
 import { useInsight } from "@semoss/sdk/react";
-import { useAppContext } from "./contexts/AppContext";
 
 const { actions } = useInsight();
-const { runPixel } = useAppContext();
 
 const handleExecute = async () => {
     try {
-        // Escape user input for Pixel command
+        // Call the reactor via Pixel command
         // NOTE: If your class is YourReactor, call it as Your() without "Reactor"
-        const pixelCommand = `YourTool(param=["${userInput.replace(/"/g, '\\"').replace(/\n/g, '\\n')}"]);`;
-        
-        // Execute directly via Pixel
-        const output = await runPixel<string>(pixelCommand);
-        const result = JSON.parse(output);
-        
-        // Update UI
+        const { pixelReturn } = await actions.run<[string]>(
+            `Your(param=${JSON.stringify(userInput)})`,
+        );
+
+        if (pixelReturn[0].operationType.includes("ERROR")) {
+            throw new Error(pixelReturn[0].output);
+        }
+
+        const result = pixelReturn[0].output;
         setData(result);
         
-        // Send to playground - SDK handles tool name matching
-        actions.sendMCPResponseToPlayground(JSON.stringify(result));
+        // Send to Playground — SDK handles tool name matching
+        actions.sendMCPResponseToPlayground(JSON.stringify(result), "success", { param: userInput });
     } catch (error) {
         setError(error.message);
     }
 };
 ```
 
-This pattern avoids SDK errors and ensures playground integration works correctly.
+This pattern uses `actions.run()` from `useInsight()` to execute Pixel commands directly.
 
 ### MCP Development Basics
 - **Manifests**: `mcp/py_mcp.json` (Python) and `mcp/pixel_mcp.json` (Java) are auto-generated by SEMOSS. Do not edit manually
@@ -160,27 +153,28 @@ MakePixelMCP(
 
 ### Troubleshooting SDK Errors
 
-**Symptom**: "Error running MCP tool" in UI, but network tab shows successful backend response
+**Symptom**: "Error running MCP tool" in UI, or response auto-sent to Playground when you didn't intend it
 
-**Root Cause**: SDK's `runMCPTool()` expects specific response structure and may throw errors even when backend succeeds
+**Root Cause**: The deprecated `actions.runMCPTool()` SDK method both executes the tool AND sends the response to Playground. It also expects a specific response structure and may throw errors even when the backend succeeds.
 
 **Solution**:
-1. **Check network tab first** - Look for the actual response in Developer Tools → Network tab
-2. **Switch to `runPixel()`** - Execute reactor directly instead of using SDK wrapper:
+1. **Don't use `actions.runMCPTool()`** — it's deprecated
+2. **Use `actions.run()` with the `RunMCPTool` reactor** to call Python tools:
    ```typescript
-   // Instead of:
-   // const { output } = await actions.runMCPTool("YourTool", { param: value });
+   // DON'T use the deprecated SDK method:
+   // const { output } = await actions.runMCPTool("your_tool", { param: value });
    
-   // Use (note: drop "Reactor" suffix when calling):
-   const pixelCommand = `YourTool(param=["${value.replace(/"/g, '\\"')}"]);`;
-   const output = await runPixel<string>(pixelCommand);
+   // DO use the RunMCPTool reactor via actions.run():
+   const { pixelReturn } = await actions.run<[string]>(
+       `RunMCPTool(tool=["your_tool"], paramName=${JSON.stringify(value)})`,
+   );
+   const output = pixelReturn[0].output;
    ```
-3. **Add playground integration** - Call `sendMCPResponseToPlayground()` after success
+3. **Send to playground explicitly** when ready — call `sendMCPResponseToPlayground()` yourself
 
-**Prevention**:
-- For Java reactors, prefer `runPixel()` over `runMCPTool()` from the start
-- Reactors can return `PixelDataType.MAP` - stringify only when sending to playground
-- Always test with browser developer tools open to check network responses
+**Key distinction**:
+- `actions.runMCPTool()` = deprecated SDK method, auto-sends to Playground
+- `RunMCPTool(...)` = normal Pixel reactor for calling Python tools, no auto-send
 
 ---
 
@@ -424,7 +418,7 @@ const result = JSON.parse(output);
 setData(result);
 
 // Send to playground via SDK
-actions.sendMCPResponseToPlayground(JSON.stringify(result));
+actions.sendMCPResponseToPlayground(JSON.stringify(result), "success", executedParams);
 ```
 
 ### File Operations in Reactors
@@ -449,7 +443,7 @@ return file.getAbsolutePath(); // Return path for UI to display
 ### Common Java Reactor Gotchas
 
 1. **Model Response Objects**: Never use `toString()` on model responses - use reflection to call `getResponse()`
-2. **organizeKeys()**: Must call this before accessing `this.keyValue`
+2. **organizeKeys()**: Called automatically by `preExecute()` in `AbstractProjectReactor` — do not call again in `doExecute()`
 3. **Required vs Optional**: Set `keyRequired` array: `1` = required, `0` = optional
 4. **Error Handling**: Use `NounMetadata.getErrorNounMessage()` for errors, not exceptions
 5. **Manifest Sync**: Reactor name in Java must match `SMSS_FUNCTION_NAME` in manifest
@@ -459,15 +453,16 @@ return file.getAbsolutePath(); // Return path for UI to display
 ## React UI Development
 
 ### SDK Hooks
-- **`useInsight()`**: Provides `actions`, `isReady`, `tool`, etc.
-- **`useAppContext()`**: Custom context with `runPixel`
+- **`useInsight()`**: Provides `actions`, `isInitialized`, `tool`, etc.
 
 ```typescript
 import { useInsight } from "@semoss/sdk/react";
-import { useAppContext } from "./contexts/AppContext";
 
-const { actions, isReady, tool } = useInsight();  // For MCP tools and playground integration
-const { runPixel } = useAppContext();             // For Pixel commands
+const { actions, isInitialized, tool } = useInsight();
+// actions.run() — Execute Pixel commands (Java reactors, Python tools via RunMCPTool reactor, etc.)
+// actions.sendMCPResponseToPlayground() — Return results to Playground chat
+// isInitialized — true when SEMOSS SDK is ready
+// tool — Contains MCP invocation context (parameters, tool_response, etc.)
 ```
 
 ### Accessing Prepopulated Parameters
@@ -497,9 +492,26 @@ interface MCPToolRequest {
     message: string;
     id: string;
     name: string;
-    parameters: Record<string, unknown>;  // Prepopulated params here
+    parameters: Record<string, unknown>;     // Prepopulated params from Playground
     roomId: string;
+    tool_response?: string;                  // Previous execution result (for viewing past runs)
+    executedParameters?: Record<string, unknown>; // Params used in previous execution
+    original_name?: string;                  // Tool name without app ID prefix
 }
+```
+
+### Handling Past Executions
+When a user clicks a previously-executed tool result in Playground, the tool reopens with `tool.tool_response` and `tool.executedParameters` populated:
+
+```typescript
+useEffect(() => {
+    if (tool?.tool_response) {
+        // This is a past execution — display the stored result
+        setResult(tool.tool_response);
+        setExecutedParams(tool.executedParameters);
+        setIsViewingPastExecution(true);
+    }
+}, [tool]);
 ```
 
 ### Model Selection Pattern
@@ -511,49 +523,49 @@ interface Engine {
     app_name: string;
 }
 
-// Text generation models
-const models = await runPixel<Engine[]>(
+// Text generation models — use actions.run() from useInsight()
+const { pixelReturn } = await actions.run<[Engine[]]>(
     `MyEngines( metaKeys = [], metaFilters = [{ "tag" : "text-generation" }], engineTypes = [ 'MODEL' ])`
 );
+const models = pixelReturn[0].output;
 ```
 
-### Calling MCP Tools: runPixel vs runMCPTool
+### Calling MCP Tools
 
-**Option 1: Direct Pixel Execution (Recommended for Java Reactors)**
+**Calling Java Reactors:**
 ```typescript
-const { runPixel } = useAppContext();
+import { useInsight } from "@semoss/sdk/react";
+
+const { actions } = useInsight();
 
 // Execute reactor directly with Pixel command
 // NOTE: If your class is YourReactor, call it as Your()
-const pixelCommand = `Your(param1=["${value1.replace(/"/g, '\\"').replace(/\n/g, '\\n')}"], param2=["${value2}"]);`;
-const output = await runPixel<string>(pixelCommand);
+const { pixelReturn } = await actions.run<[string]>(
+    `Your(param1=${JSON.stringify(value1)}, param2=${JSON.stringify(value2)})`,
+);
+const output = pixelReturn[0].output;
 ```
 
-**Advantages**:
-- Bypasses SDK error handling that can throw false positives
-- More direct control over execution
-- Better for debugging (see raw Pixel response)
+**Calling Python MCP Tools:**
+```typescript
+// Use the RunMCPTool reactor (NOT the deprecated actions.runMCPTool SDK method)
+const { pixelReturn } = await actions.run<[string]>(
+    `RunMCPTool(tool=["your_python_tool"], paramName=${JSON.stringify(value)})`,
+);
+const output = pixelReturn[0].output;
+```
 
 **CRITICAL**: Do NOT include the word "Reactor" when calling a reactor in Pixel commands. If your Java class is named `YourReactor`, call it as `Your()` not `YourReactor()`. SEMOSS automatically strips the "Reactor" suffix when registering reactors.
 
-**Important**: Escape special characters in string parameters:
-- Quotes: `.replace(/"/g, '\\"')`
-- Newlines: `.replace(/\n/g, '\\n')`
-- Backslashes: `.replace(/\\/g, '\\\\')`
-
-**Option 2: SDK MCP Tool Method**
+**Deprecated — do NOT use `actions.runMCPTool()`:**
 ```typescript
-const { output } = await actions.runMCPTool("tool_name", {
-    param1: value1,
-    model_id: selectedModelId,
-});
+// ❌ DEPRECATED — auto-sends response to Playground, often unintended
+// const { output } = await actions.runMCPTool("tool_name", { param: value });
+
+// ✅ Use actions.run() with the RunMCPTool reactor instead
 ```
 
-**Use when**:
-- Tool is Python-based and well-tested with SDK
-- Need standard MCP workflow integration
-
-**Note**: If you encounter "Error running MCP tool" but network tab shows success, switch to Option 1.
+`actions.runMCPTool()` (the SDK method) and `RunMCPTool()` (the Pixel reactor) have confusingly similar names. The SDK method is deprecated because it automatically sends results to Playground. The reactor is the correct way to call Python tools.
 
 ### Response Parsing
 MCP tool responses can be encoded multiple ways. Always handle all cases:
@@ -618,7 +630,7 @@ if (result.success) {
     setData(result);
     
     // Return to playground with results - SDK handles tool name matching
-    actions.sendMCPResponseToPlayground(JSON.stringify(result));
+    actions.sendMCPResponseToPlayground(JSON.stringify(result), "success", { param: userInput });
 }
 ```
 
@@ -640,15 +652,15 @@ const { actions } = useInsight();
 
 const handleGenerate = async () => {
     try {
-        const output = await runPixel<string>(pixelCommand);
-        const result = JSON.parse(output);
+        const { pixelReturn } = await actions.run<[string]>(pixelCommand);
+        const result = pixelReturn[0].output;
         
         // Update UI
         setData(result);
         setActiveTab("results");
         
         // Send to playground - SDK handles everything
-        actions.sendMCPResponseToPlayground(JSON.stringify(result));
+        actions.sendMCPResponseToPlayground(JSON.stringify(result), "success", executedParams);
     } catch (error) {
         setError(error.message);
     }
@@ -672,8 +684,9 @@ const handleGenerate = async () => {
 ✅ **Right**: Pass the parameter name and type - they will be interpretted as required parameters
 
 ### 4. MCP Execution
-- UI must target a specific tool name (from `mcp_driver.py`)
-- Execute tools with `actions.runMCPTool(name, params)`
+- Use `actions.run()` for all tool execution — both Java reactors and Python MCP tools
+- Call Python tools via the `RunMCPTool` reactor: `actions.run('RunMCPTool(tool=["tool_name"], ...)')`
+- Do NOT use the deprecated `actions.runMCPTool()` SDK method (it auto-sends to Playground)
 - Forward results with `actions.sendMCPResponseToPlayground` when needed
 
 ### 5. Java Model Responses
@@ -690,11 +703,11 @@ const handleGenerate = async () => {
 
 ### 8. SDK Errors vs Backend Success
 ❌ **Wrong**: Assuming SDK error means backend failed  
-✅ **Right**: Check network tab - backend may succeed while SDK throws error. Use `runPixel()` directly if SDK consistently errors
+✅ **Right**: Check network tab - backend may succeed while SDK throws error. Use `actions.run('RunMCPTool(...)')` instead of the deprecated `actions.runMCPTool()`
 
 ### 9. Pixel Command String Escaping
 ❌ **Wrong**: `YourTool(text=["${userInput}"])`  
-✅ **Right**: `YourTool(text=["${userInput.replace(/"/g, '\\"').replace(/\n/g, '\\n')}"])`
+✅ **Right**: `YourTool(text=${JSON.stringify(userInput)})` - use JSON.stringify for safe escaping
 
 ### 10. Reactor Naming in Pixel Commands
 ❌ **Wrong**: `YourToolReactor(param=["value"])`  
@@ -702,7 +715,7 @@ const handleGenerate = async () => {
 
 ### 11. Playground Return Flow
 ❌ **Wrong**: Not creating a `sendMCPResponseToPlayground()` after tool completes  
-✅ **Right**: Always call `actions.sendMCPResponseToPlayground(JSON.stringify(result))` to return results to playground
+✅ **Right**: Always call `actions.sendMCPResponseToPlayground(JSON.stringify(result), "success", executedParams)` to return results to playground
 
 ### 12. Wrapping SDK Methods
 ❌ **Wrong**: Creating custom wrappers around SDK's `actions.sendMCPResponseToPlayground()` with tool name matching logic  
@@ -726,10 +739,9 @@ const handleGenerate = async () => {
 - Validate user inputs before calling MCP tools
 - Provide loading states during MCP execution
 - Show meaningful error messages to users
-- Use `runPixel()` directly for Java reactors when SDK throws errors
+- Use `actions.run()` for all tool execution — both Java reactors and Python MCP tools via `RunMCPTool` reactor
 - Always call `actions.sendMCPResponseToPlayground()` directly from SDK after successful operations
 - Don't wrap SDK methods with custom logic - SDK handles tool name matching and other complexities
-- Escape special characters when building Pixel commands with user input
 
 ### Security
 - Never expose API keys in frontend code
@@ -757,15 +769,14 @@ const handleGenerate = async () => {
 - `client/src/App.tsx` - Main app component
 
 ### MCP Tools
-- `py/mcp_driver.py` - Python MCP tool definitions
+- `py/mcp_driver.py` - Python MCP tool definitions (create this file when adding Python tools)
 - `java/src/reactors/` - Java reactor MCP tools
 - `mcp/py_mcp.json` - Auto-generated Python manifest (do not edit)
 - `mcp/pixel_mcp.json` - Auto-generated Java manifest (do not edit)
 
 ### Configuration
 - `client/vite.config.ts` - Vite build config
-- `client/tailwind.config.js` - Tailwind CSS config
-- `biome.json` - Linting/formatting config
+- `client/tailwind.config.js` - Tailwind CSS config (kept for shadcn/ui CLI; actual Tailwind v4 config is in `client/src/index.css`)
 
 ### Generated
 - Avoid direct edits to: `portals/`, `classes/`, `target/`
@@ -785,9 +796,8 @@ const handleGenerate = async () => {
 - Implement `getDescriptionForKey()` and `getReactorDescription()` in Java reactors
 - Check for expected data fields as success indicators in UI
 - Return `PixelDataType.MAP` from Java reactors (SEMOSS handles serialization)
-- Use `runPixel()` directly when `runMCPTool()` throws false positive errors
+- Use `actions.run()` for all tool execution (Java reactors and Python MCP tools)
 - Call `actions.sendMCPResponseToPlayground()` directly from SDK to return results to playground
-- Escape quotes and newlines when building Pixel commands with user input
 
 ### Do Not
 - Edit built assets in `portals/`
@@ -800,8 +810,6 @@ const handleGenerate = async () => {
 - Use `toString()` on IModelEngine responses in Java
 - Access `tool.inputs` in React (use `tool.parameters` instead)
 - Wrap SDK methods like `sendMCPResponseToPlayground()` with custom logic
-- Use `toString()` on IModelEngine responses in Java
-- Access `tool.inputs` in React (use `tool.parameters` instead)
 
 ---
 
@@ -824,8 +832,7 @@ When debugging:
 4. Verify MCP manifests auto-generated correctly (check that `getDescriptionForKey()` is implemented for Java)
 5. Test Python functions or Java reactors independently
 6. Add console.log statements in React to see raw output
-7. If SDK errors but network shows success, switch from `runMCPTool()` to `runPixel()`
+7. If using the deprecated `actions.runMCPTool()`, switch to `actions.run('RunMCPTool(...)')` instead
 8. Verify IModelEngine.ask() response is extracted with getResponse() via reflection
 9. Call `actions.sendMCPResponseToPlayground()` directly from SDK - don't wrap it with custom matching logic
-10. Test Pixel command escaping by logging the command before execution
 10. Test Pixel command escaping by logging the command before execution

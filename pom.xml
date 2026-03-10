@@ -1,4 +1,13 @@
 <?xml version="1.0" encoding="UTF-8"?>
+<!--
+  Maven build config for Java reactors.
+
+  - Source: java/src/        (reactor and utility classes)
+  - Output: classes/         (compiled .class files, loaded by SEMOSS at runtime)
+  - SEMOSS JAR is "provided"  (it's on the server classpath, not bundled)
+
+  Build with: mvn clean compile (or use the SEMOSS UI build button)
+-->
 <project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
   <modelVersion>4.0.0</modelVersion>
   <groupId>SemossTemplate</groupId>
