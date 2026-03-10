@@ -49,7 +49,7 @@ export const ExampleComponent = () => {
 	}, [actions]);
 
 	const handleSendToChat = () => {
-		actions.sendMCPResponseToPlayground(forecast);
+		actions.sendMCPResponseToPlayground(forecast, "success", { city });
 		setHasSentToChat(true);
 	};
 
@@ -59,10 +59,19 @@ export const ExampleComponent = () => {
 	useEffect(() => {
 		// When running as an MCP, load the parameters sent from Playground
 		if (tool) {
-			const params = tool.parameters as { city?: string };
-			if (params.city) {
-				setCity(params.city);
-				handleGetForecast(params.city);
+			if (tool.tool_response) {
+				// If we have access to the tool response, then we are viewing a past execution
+				setForecast(tool.tool_response);
+
+				// Set city based on the executed parameters, not the suggested parameters, since the executed parameters are the source of truth for what was actually run
+				setCity((tool.executedParameters?.city || tool.parameters?.city) as string || "");
+				setHasSentToChat(true);
+			} else {
+				const cityFromParams = tool.parameters?.city as string || "";
+				setCity(cityFromParams);
+				if (cityFromParams) {
+					handleGetForecast(cityFromParams);
+				}
 			}
 		}
 	}, [tool]);
@@ -71,7 +80,7 @@ export const ExampleComponent = () => {
 
 	return (
 		<div className="p-6 space-y-4">
-			<h1 className="text-2xl font-semibold">Weather Forecast</h1>
+			<h1 className="text-2xl font-semibold">Weather Forecasta</h1>
 
 			<div>
 				<Label htmlFor="city">City</Label>
