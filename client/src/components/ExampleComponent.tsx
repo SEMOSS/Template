@@ -1,9 +1,14 @@
 import { useInsight } from "@semoss/sdk/react";
-import { useEffect, useState } from "react";
+import { useState } from "react";
 import { toast } from "sonner";
+import { Button } from "./ui/button";
+import { Input } from "./ui/input";
+import { Label } from "./ui/label";
+import { Textarea } from "./ui/textarea";
 
 /**
- * Renders an example component demonstrating pixel calls.
+ * Renders a weather forecast tool that fetches a forecast for a given city
+ * and returns the result to the playground chat.
  *
  * @component
  */
@@ -11,65 +16,73 @@ export const ExampleComponent = () => {
 	/**
 	 * State
 	 */
-	const [helloUserResponse, setHelloUserResponse] = useState<string>("");
-	const [isLoadingHelloUser, setIsLoadingHelloUser] = useState(false);
+	const [city, setCity] = useState("");
+	const [forecast, setForecast] = useState("");
+	const [isRunning, setIsRunning] = useState(false);
+
 	/**
 	 * Library hooks
 	 */
-	const { tool, actions } = useInsight();
+	const { actions } = useInsight();
 
 	/**
-	 * Effects
+	 * Handlers
 	 */
-	useEffect(() => {
-		const fetchHelloUser = async () => {
-			setIsLoadingHelloUser(true);
-			try {
-				const { pixelReturn } = await actions.run<[string]>("HelloUser()");
+	const handleGetForecast = async () => {
+		setIsRunning(true);
+		try {
+			const { pixelReturn } = await actions.run<[string]>(
+				`HelloUser(name=${JSON.stringify(city)})`,
+			);
 
-				if (pixelReturn[0].operationType.includes("ERROR")) {
-					throw new Error(pixelReturn[0].output);
-				}
-
-				setIsLoadingHelloUser(false);
-				setHelloUserResponse(pixelReturn[0].output);
-			} catch (e) {
-				toast.error(`Failed to run HelloUser pixel: ${e.message}`);
-			} finally {
-				setIsLoadingHelloUser(false);
+			if (pixelReturn[0].operationType.includes("ERROR")) {
+				throw new Error(pixelReturn[0].output);
 			}
-		};
-		fetchHelloUser();
-	}, [actions, setIsLoadingHelloUser]);
+
+			setForecast(pixelReturn[0].output);
+		} catch (e) {
+			toast.error(`Failed to get forecast: ${e.message}`);
+		} finally {
+			setIsRunning(false);
+		}
+	};
+
+	const handleSendToChat = () => {
+		actions.sendMCPResponseToPlayground(forecast);
+	};
 
 	return (
-		<div className="space-y-4">
-			<h1 className="text-4xl font-bold">Home page</h1>
-			<p>
-				Welcome to the SEMOSS Template application! This repository is meant to
-				be a starting point for your own SEMOSS application.
-			</p>
-			<h2 className="text-xl font-semibold">Example pixel calls:</h2>
-			<ul className="space-y-4 list-disc pl-6">
-				<li>
-					<p className="font-bold">HelloUser()</p>
-					<ul className="list-disc pl-6">
-						<li>
-							<p className="italic">
-								{isLoadingHelloUser ? "Loading..." : helloUserResponse}
-							</p>
-						</li>
-					</ul>
-				</li>
-			</ul>
-			<h2 className="text-xl font-semibold">Tool call sent from Playground:</h2>
-			<ul className="space-y-4 list-disc pl-6">
-				<li>
-					<p className="italic">
-						{tool ? JSON.stringify(tool) : "No tool call sent"}
-					</p>
-				</li>
-			</ul>
+		<div className="p-6 space-y-4">
+			<h1 className="text-2xl font-semibold">Weather Forecast</h1>
+
+			<div>
+				<Label htmlFor="city">City</Label>
+				<Input
+					id="city"
+					value={city}
+					onChange={(e) => setCity(e.target.value)}
+					placeholder="Enter a city name..."
+				/>
+			</div>
+
+			<Button onClick={handleGetForecast} disabled={isRunning || !city.trim()}>
+				{isRunning ? "Fetching forecast..." : "Get Forecast"}
+			</Button>
+
+			<div>
+				<Label htmlFor="forecast">Forecast</Label>
+				<Textarea
+					id="forecast"
+					value={forecast}
+					readOnly
+					placeholder="Forecast will appear here..."
+					rows={6}
+				/>
+			</div>
+
+			<Button variant="outline" onClick={handleSendToChat} disabled={!forecast}>
+				Send to Chat
+			</Button>
 		</div>
 	);
 };

@@ -17,7 +17,7 @@ Env.update({
  */
 export const App = () => {
 	return (
-		// The InsightProvider starts a new Insight and sets the context to the current project. This components are imported from SEMOSS SDK
+		// The InsightProvider starts a new Insight and sets the context to the current project. This component is imported from SEMOSS SDK
 		<InsightProvider>
 			{/* The Router decides which page to render based on the url.
 				This component is custom to this project, and can be edited in Router.tsx */}
