@@ -7,7 +7,7 @@
 //   4. Handle loading, error, and "already sent" states
 //   5. Restore past execution results (via `tool.tool_response`)
 //
-// The reactor called here is HelloUser (defined in java/src/reactors/HelloUserReactor.java).
+// The reactor called here is GetWeather (defined in java/src/reactors/GetWeatherReactor.java).
 // When called from Playground as an MCP tool, `tool.parameters` is pre-filled by the LLM.
 //
 // Replace this component with your own UI. Keep the patterns:
@@ -34,14 +34,14 @@ export const ExampleComponent = () => {
 	// `tool` contains MCP invocation context when this UI is launched from Playground.
 	const { actions, tool } = useInsight();
 
-	// Call the HelloUser reactor via a Pixel command.
+	// Call the GetWeather reactor via a Pixel command.
 	// Pixel is the SEMOSS query language. Reactor names drop the "Reactor" suffix:
-	//   HelloUserReactor -> HelloUser(name=["value"])
+	//   GetWeatherReactor -> GetWeather(city=["value"])
 	const handleGetForecast = useCallback(async (city: string) => {
 		setIsRunning(true);
 		try {
 			const { pixelReturn } = await actions.run<[string]>(
-				`HelloUser(name=${JSON.stringify(city)})`,
+				`GetWeather(city=${JSON.stringify(city)})`,
 			);
 
 			if (pixelReturn[0].operationType.includes("ERROR")) {
@@ -89,7 +89,7 @@ export const ExampleComponent = () => {
 
 	return (
 		<div className="p-6 space-y-4">
-			<h1 className="text-2xl font-semibold">Weather Forecast</h1>
+			<h1 className="text-2xl font-semibold">GetWeather Forecast</h1>
 
 			<div>
 				<Label htmlFor="city">City</Label>

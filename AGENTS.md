@@ -1,6 +1,6 @@
 # SEMOSS MCP Tool Development
 
-Concise reference for building SEMOSS MCP tools with custom UIs. For working code examples, see the inline comments throughout the codebase — especially `client/src/components/ExampleComponent.tsx` (React patterns), `java/src/reactors/HelloUserReactor.java` (Java reactor patterns), and `java/src/reactors/AbstractProjectReactor.java` (base class).
+Concise reference for building SEMOSS MCP tools with custom UIs. For working code examples, see the inline comments throughout the codebase — especially `client/src/components/ExampleComponent.tsx` (React patterns), `java/src/reactors/GetWeatherReactor.java` (Java reactor patterns), and `java/src/reactors/AbstractProjectReactor.java` (base class).
 
 ---
 
@@ -55,7 +55,7 @@ Manifests are auto-generated. Never edit `mcp/*.json` directly.
 
 ## Java Reactor Rules
 
-- Extend `AbstractProjectReactor`. See `HelloUserReactor.java` for a working example
+- Extend `AbstractProjectReactor`. See `GetWeatherReactor.java` for a working example
 - `organizeKeys()` is called automatically by `preExecute()` — don't call it again in `doExecute()`
 - Define params via `keysToGet` and `keyRequired` arrays (`1` = required, `0` = optional)
 - Return `new NounMetadata(responseMap, PixelDataType.MAP)` — SEMOSS handles serialization
@@ -94,7 +94,7 @@ Manifests are auto-generated. Never edit `mcp/*.json` directly.
 | shadcn/ui config | `client/components.json`, `client/tailwind.config.js` (kept for CLI) |
 | Java reactors | `java/src/reactors/` |
 | Base reactor class | `java/src/reactors/AbstractProjectReactor.java` |
-| Example reactor | `java/src/reactors/HelloUserReactor.java` |
+| Example reactor | `java/src/reactors/GetWeatherReactor.java` |
 | Java utilities | `java/src/util/` |
 | Python tools | `py/` (create `mcp_driver.py` for MCP tools) |
 | Manifests | `mcp/py_mcp.json`, `mcp/pixel_mcp.json` (auto-generated) |

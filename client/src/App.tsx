@@ -18,19 +18,6 @@ Env.update({
 	ACCESS_KEY: import.meta.env.VITE_ACCESS_KEY || "", // only used in local dev
 	SECRET_KEY: import.meta.env.VITE_SECRET_KEY || "", // only used in local dev
 	APP: import.meta.env.APP || "",
-
-	// Uncomment to simulate an MCP tool call during local development:
-	// TOOL: {
-	// 	type: "MCP",
-	// 	id: "weather-forecast-tool",
-	// 	name: "Weather Forecast Tool",
-	// 	parameters: {
-	// 		city: "BOSTON",
-	// 	},
-	// 	message: "Get the weather forecast for a city",
-	// 	original_name: "weather-forecast-tool",
-	// 	roomId: "weather-forecast-tool-room",
-	// } satisfies MCPToolRequest,
 });
 
 export const App = () => {

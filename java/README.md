@@ -9,7 +9,7 @@ java/
 ├── src/
 │   ├── reactors/
 │   │   ├── AbstractProjectReactor.java   Base class for all reactors
-│   │   └── HelloUserReactor.java         Example reactor
+│   │   └── GetWeatherReactor.java           Example reactor
 │   └── util/
 │       ├── Constants.java                Shared constants
 │       ├── HelperMethods.java            Utility functions
@@ -26,7 +26,7 @@ java/
 5. Return results via `new NounMetadata(responseMap, PixelDataType.MAP)`
 6. Return errors via `NounMetadata.getErrorNounMessage("description")`
 
-See `HelloUserReactor.java` for a working example.
+See `GetWeatherReactor.java` for a working example.
 
 ## Compiling
 
@@ -40,12 +40,12 @@ To register a reactor as an MCP tool, run this Pixel command in the SEMOSS Playg
 MakePixelMCP(reactor=["ReactorName"], mcpMetadata=[...])
 ```
 
-Drop the "Reactor" suffix from class names (e.g., `HelloUserReactor` → `HelloUser`).
+Drop the "Reactor" suffix from class names (e.g., `GetWeatherReactor` → `GetWeather`).
 
 ## Calling from Frontend
 
 ```js
-actions.run('HelloUser(name="World")')
+actions.run('GetWeather(city="Boston")')
 ```
 
 Drop the "Reactor" suffix. Parameters are passed inline in the Pixel command.

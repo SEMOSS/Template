@@ -27,7 +27,7 @@ import util.ProjectProperties;
 //   4. Access parameters via this.keyValue.get("paramName") after organizeKeys() runs
 //   5. Return results as NounMetadata (strings, maps, etc.)
 //
-// See HelloUserReactor.java for a working example.
+// See GetWeatherReactor.java for a working example.
 public abstract class AbstractProjectReactor extends AbstractReactor {
 
   private static final Logger LOGGER = LogManager.getLogger(AbstractProjectReactor.class);
