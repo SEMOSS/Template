@@ -8,21 +8,27 @@ import org.apache.logging.log4j.Logger;
 import prerna.util.AssetUtility;
 import prerna.util.Utility;
 
-// Singleton that loads and exposes project configuration from:
-//   [projectId]/app_root/version/assets/java/project.properties
+// Loads configuration from java/project.properties and exposes values to reactors.
 //
-// Usage: call getInstance(projectId) once to initialize, then getInstance() thereafter.
+// This is a singleton: AbstractProjectReactor calls getInstance(projectId) during
+// preExecute() to initialize it. After that, getInstance() returns the cached instance.
+//
+// To add a new property:
+//   1. Add the key=value to java/project.properties
+//   2. Add a private field and getter in this class
+//   3. Read the value in loadProp() using projectProperties.getProperty("yourKey")
 public class ProjectProperties {
 
   private static final Logger LOGGER = LogManager.getLogger(ProjectProperties.class);
 
   private static ProjectProperties INSTANCE = null;
 
-  // TODO: Add var for each property
+  // TODO: Add a field for each property you want to expose, e.g.:
+  //   private String engineId;
 
   private ProjectProperties() {}
 
-  // Returns the singleton instance. Throws if not yet initialized via getInstance(projectId).
+  // Returns the cached singleton. Throws if getInstance(projectId) hasn't been called yet.
   public static ProjectProperties getInstance() {
     if (INSTANCE == null) {
       throw new RuntimeException("Unable to load project configuration");
@@ -30,7 +36,7 @@ public class ProjectProperties {
     return INSTANCE;
   }
 
-  // Lazily initializes the singleton by loading properties for the given projectId.
+  // First call: loads properties from disk. Subsequent calls: returns cached instance.
   public static ProjectProperties getInstance(String projectId) {
     if (INSTANCE == null) {
       loadProp(projectId);
@@ -38,8 +44,8 @@ public class ProjectProperties {
     return INSTANCE;
   }
 
-  // Loads project.properties from the assets folder for the given projectId.
-  // On failure, INSTANCE is set to null and a warning is logged.
+  // Reads java/project.properties and populates this instance's fields.
+  // If the file is missing or unreadable, INSTANCE stays null and a warning is logged.
   private static void loadProp(String projectId) {
     ProjectProperties newInstance = new ProjectProperties();
 
@@ -50,8 +56,8 @@ public class ProjectProperties {
       Properties projectProperties = new Properties();
       projectProperties.load(fileIn);
 
-      // TODO Add any properties to be read by the properties file and add the
-      // corresponding getter.
+      // TODO: Read properties and assign to fields, e.g.:
+      //   newInstance.engineId = projectProperties.getProperty("engineId");
 
       INSTANCE = newInstance;
     } catch (IOException e) {
@@ -60,7 +66,7 @@ public class ProjectProperties {
     }
   }
 
-  // TODO: Add getters for properties with appropriate JavaDoc linking to
-  // individual property keys.
+  // TODO: Add getters for each property, e.g.:
+  //   public String getEngineId() { return engineId; }
 
 }

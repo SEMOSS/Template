@@ -1,3 +1,13 @@
+// Router.tsx - Defines all routes for the app.
+//
+// Uses a hash router (URLs look like /#/path) which is required for SEMOSS apps.
+// All routes are wrapped in InitializedLayout, which blocks rendering until SEMOSS is ready.
+//
+// To add a new page:
+//   1. Create a component in src/pages/
+//   2. Add a route entry in the children array below
+//   3. If the page is an MCP tool UI, set its path to match the resourceURI in pixel_mcp.json
+
 import { createHashRouter, Navigate, RouterProvider } from "react-router-dom";
 import { ErrorPage } from "./ErrorPage";
 import { HomePage } from "./HomePage";
@@ -5,23 +15,21 @@ import { InitializedLayout } from "./layouts";
 
 const router = createHashRouter([
 	{
-		// Wrap every route in InitializedLayout to ensure SEMOSS is ready to handle requests
+		// InitializedLayout waits for SEMOSS to be ready before rendering child routes
 		Component: InitializedLayout,
-		// Catch errors in any of the initialized pages, to prevent the whole app from crashing
 		ErrorBoundary: ErrorPage,
 		children: [
 			{
-				// If the path is empty, use the home page
 				index: true,
 				Component: HomePage,
 			},
+			// To add a new page:
 			// {
-			//     // Example of how to add a new page
-			//     path: '/new-page',
-			//     Component: NewPage,
+			//     path: '/your-route',
+			//     Component: YourPage,
 			// },
 			{
-				// Any other urls should be sent to the home page
+				// Catch-all: redirect unknown routes to home
 				path: "*",
 				Component: () => <Navigate to="/" />,
 			},
@@ -29,11 +37,6 @@ const router = createHashRouter([
 	},
 ]);
 
-/**
- * Renders pages based on url.
- *
- * @component
- */
 export const Router = () => {
 	return <RouterProvider router={router} />;
 };

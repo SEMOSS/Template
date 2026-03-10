@@ -12,18 +12,30 @@ import prerna.sablecc2.om.PixelOperationType;
 import prerna.sablecc2.om.nounmeta.NounMetadata;
 import util.ProjectProperties;
 
-// Abstract base class for all project-specific reactors.
-// Provides common functionality, standardized error handling, user context management,
-// and project property access.
+// Base class for all reactors in this project.
 //
-// Concrete reactor implementations should extend this class and implement doExecute().
+// Every reactor you create should extend this class instead of AbstractReactor directly.
+// It handles:
+//   - SEMOSS initialization (project ID, user context, project properties)
+//   - Standardized error handling (exceptions become error responses, not crashes)
+//   - Common helper methods (e.g. getMap for map-type parameters)
+//
+// To create a new reactor:
+//   1. Create a new class in this folder extending AbstractProjectReactor
+//   2. Define keysToGet (parameter names) and keyRequired (1=required, 0=optional) in the constructor
+//   3. Implement doExecute() with your business logic
+//   4. Access parameters via this.keyValue.get("paramName") after organizeKeys() runs
+//   5. Return results as NounMetadata (strings, maps, etc.)
+//
+// See HelloUserReactor.java for a working example.
 public abstract class AbstractProjectReactor extends AbstractReactor {
 
   private static final Logger LOGGER = LogManager.getLogger(AbstractProjectReactor.class);
 
-  protected User user;
-  protected String projectId;
-  protected ProjectProperties projectProperties;
+  // These protected variables are available in all subclass reactors
+  protected User user;                          // The authenticated user running this reactor
+  protected String projectId;                   // The SEMOSS project/app ID
+  protected ProjectProperties projectProperties; // Values from java/project.properties
 
   // TODO: Initialize additional protected variables (engines, external services,
   // etc.)
@@ -31,7 +43,8 @@ public abstract class AbstractProjectReactor extends AbstractReactor {
   protected NounMetadata result = null;
 
   // Runs preExecute() for setup, then doExecute() for business logic.
-  // Exceptions are caught and returned as standardized error responses.
+  // If anything throws, the error is logged and returned as an error response
+  // instead of crashing the reactor.
   @Override
   public NounMetadata execute() {
     try {
@@ -43,23 +56,28 @@ public abstract class AbstractProjectReactor extends AbstractReactor {
     }
   }
 
-  // Initializes protected variables (projectId, projectProperties, user) before doExecute().
-  // Subclasses can override but should call super.preExecute().
+  // Sets up project context before your reactor logic runs.
+  // Override this to add your own initialization (e.g. loading engines),
+  // but always call super.preExecute() first.
   protected void preExecute() {
+    // Resolve the project ID from the insight context
     projectId = this.insight.getContextProjectId();
     if (projectId == null) {
       projectId = this.insight.getProjectId();
     }
 
+    // Load properties from java/project.properties (e.g. engine IDs, config values)
     projectProperties = ProjectProperties.getInstance(projectId);
 
     // TODO: Initialize additional resources (engines, external services, etc.)
 
+    // Get the authenticated user and parse input parameters
     user = this.insight.getUser();
-    organizeKeys();
+    organizeKeys(); // Populates this.keyValue from the Pixel command arguments
   }
 
-  // Retrieves a map parameter by name. Checks the store first, then falls back to curRow.
+  // Helper to extract a Map parameter from the Pixel command.
+  // Useful when the frontend passes JSON objects as parameters.
   // Returns null if no map parameter is found.
   @SuppressWarnings("unchecked")
   protected Map<String, Object> getMap(String paramName) {
@@ -79,7 +97,8 @@ public abstract class AbstractProjectReactor extends AbstractReactor {
     return null;
   }
 
-  // Implement this method in subclasses to define the reactor's business logic.
-  // Called after preExecute() completes initialization.
+  // Implement this in your reactor subclass.
+  // This is where your business logic goes. Access parameters via this.keyValue.
+  // Return your result wrapped in NounMetadata.
   protected abstract NounMetadata doExecute();
 }

@@ -1,75 +1,126 @@
+// ExampleComponent.tsx - Demonstrates the full MCP tool UI pattern.
+//
+// This component shows how to:
+//   1. Call a Java reactor from the frontend using actions.run()
+//   2. Read MCP parameters sent from Playground (via `tool.parameters`)
+//   3. Send results back to Playground with actions.sendMCPResponseToPlayground()
+//   4. Handle loading, error, and "already sent" states
+//   5. Restore past execution results (via `tool.tool_response`)
+//
+// The reactor called here is HelloUser (defined in java/src/reactors/HelloUserReactor.java).
+// When called from Playground as an MCP tool, `tool.parameters` is pre-filled by the LLM.
+//
+// Replace this component with your own UI. Keep the patterns:
+//   - Use `tool.parameters` to read inputs from Playground
+//   - Use `actions.run()` or `actions.runMCPTool()` to call backend tools
+//   - Use `actions.sendMCPResponseToPlayground()` to return results to the chat
+
 import { useInsight } from "@semoss/sdk/react";
-import { useEffect, useState } from "react";
+import { useCallback, useEffect, useState } from "react";
 import { toast } from "sonner";
+import { Button } from "./ui/button";
+import { Input } from "./ui/input";
+import { Label } from "./ui/label";
+import { Textarea } from "./ui/textarea";
 
-/**
- * Renders an example component demonstrating pixel calls.
- *
- * @component
- */
 export const ExampleComponent = () => {
-	/**
-	 * State
-	 */
-	const [helloUserResponse, setHelloUserResponse] = useState<string>("");
-	const [isLoadingHelloUser, setIsLoadingHelloUser] = useState(false);
-	/**
-	 * Library hooks
-	 */
-	const { tool, actions } = useInsight();
+	const [city, setCity] = useState("");
+	const [forecast, setForecast] = useState("");
+	const [isRunning, setIsRunning] = useState(false);
+	const [hasSentToChat, setHasSentToChat] = useState(false);
 
-	/**
-	 * Effects
-	 */
-	useEffect(() => {
-		const fetchHelloUser = async () => {
-			setIsLoadingHelloUser(true);
-			try {
-				const { pixelReturn } = await actions.run<[string]>("HelloUser()");
+	// useInsight() is the primary SEMOSS SDK hook.
+	// `actions` provides methods for running Pixel commands and MCP operations.
+	// `tool` contains MCP invocation context when this UI is launched from Playground.
+	const { actions, tool } = useInsight();
 
-				if (pixelReturn[0].operationType.includes("ERROR")) {
-					throw new Error(pixelReturn[0].output);
-				}
+	// Call the HelloUser reactor via a Pixel command.
+	// Pixel is the SEMOSS query language. Reactor names drop the "Reactor" suffix:
+	//   HelloUserReactor -> HelloUser(name=["value"])
+	const handleGetForecast = useCallback(async (city: string) => {
+		setIsRunning(true);
+		try {
+			const { pixelReturn } = await actions.run<[string]>(
+				`HelloUser(name=${JSON.stringify(city)})`,
+			);
 
-				setIsLoadingHelloUser(false);
-				setHelloUserResponse(pixelReturn[0].output);
-			} catch (e) {
-				toast.error(`Failed to run HelloUser pixel: ${e.message}`);
-			} finally {
-				setIsLoadingHelloUser(false);
+			if (pixelReturn[0].operationType.includes("ERROR")) {
+				throw new Error(pixelReturn[0].output);
 			}
-		};
-		fetchHelloUser();
-	}, [actions, setIsLoadingHelloUser]);
+
+			setForecast(pixelReturn[0].output);
+		} catch (e) {
+			toast.error(`Failed to get forecast: ${e.message}`);
+		} finally {
+			setIsRunning(false);
+		}
+	}, [actions]);
+
+	// Send the result back to the Playground chat.
+	// The SDK handles matching this response to the correct MCP tool invocation.
+	const handleSendToChat = () => {
+		actions.sendMCPResponseToPlayground(forecast, "success", { city });
+		setHasSentToChat(true);
+	};
+
+	// When launched as an MCP tool from Playground, `tool` is populated.
+	// tool.parameters  -> inputs the LLM decided to pass (e.g. { city: "Boston" })
+	// tool.tool_response -> if viewing a past execution, this has the previous result
+	// tool.executedParameters -> the actual params that were used (source of truth)
+	useEffect(() => {
+		if (tool) {
+			if (tool.tool_response) {
+				// Viewing a past execution — restore the previous result
+				setForecast(tool.tool_response);
+				setCity((tool.executedParameters?.city || tool.parameters?.city) as string || "");
+				setHasSentToChat(true);
+			} else {
+				// Fresh MCP invocation — auto-fill inputs and optionally auto-run
+				const cityFromParams = tool.parameters?.city as string || "";
+				setCity(cityFromParams);
+				if (cityFromParams) {
+					handleGetForecast(cityFromParams);
+				}
+			}
+		}
+	}, [tool]);
+
+	const disabled = isRunning || hasSentToChat;
 
 	return (
-		<div className="space-y-4">
-			<h1 className="text-4xl font-bold">Home page</h1>
-			<p>
-				Welcome to the SEMOSS Template application! This repository is meant to
-				be a starting point for your own SEMOSS application.
-			</p>
-			<h2 className="text-xl font-semibold">Example pixel calls:</h2>
-			<ul className="space-y-4 list-disc pl-6">
-				<li>
-					<p className="font-bold">HelloUser()</p>
-					<ul className="list-disc pl-6">
-						<li>
-							<p className="italic">
-								{isLoadingHelloUser ? "Loading..." : helloUserResponse}
-							</p>
-						</li>
-					</ul>
-				</li>
-			</ul>
-			<h2 className="text-xl font-semibold">Tool call sent from Playground:</h2>
-			<ul className="space-y-4 list-disc pl-6">
-				<li>
-					<p className="italic">
-						{tool ? JSON.stringify(tool) : "No tool call sent"}
-					</p>
-				</li>
-			</ul>
+		<div className="p-6 space-y-4">
+			<h1 className="text-2xl font-semibold">Weather Forecast</h1>
+
+			<div>
+				<Label htmlFor="city">City</Label>
+				<Input
+					id="city"
+					value={city}
+					onChange={(e) => setCity(e.target.value)}
+					placeholder="Enter a city name..."
+					disabled={disabled}
+				/>
+			</div>
+
+			<Button onClick={() => handleGetForecast(city)} disabled={disabled || !city.trim()}>
+				{isRunning ? "Fetching forecast..." : "Get Forecast"}
+			</Button>
+
+			<div>
+				<Label htmlFor="forecast">Forecast</Label>
+				<Textarea
+					id="forecast"
+					value={forecast}
+					readOnly
+					placeholder="Forecast will appear here..."
+					rows={6}
+					disabled={disabled}
+				/>
+			</div>
+
+			<Button variant="outline" onClick={handleSendToChat} disabled={!forecast || disabled}>
+				Send to Playground
+			</Button>
 		</div>
 	);
 };
