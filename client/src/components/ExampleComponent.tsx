@@ -1,5 +1,5 @@
 import { useInsight } from "@semoss/sdk/react";
-import { useState } from "react";
+import { useCallback, useEffect, useState } from "react";
 import { toast } from "sonner";
 import { Button } from "./ui/button";
 import { Input } from "./ui/input";
@@ -19,16 +19,17 @@ export const ExampleComponent = () => {
 	const [city, setCity] = useState("");
 	const [forecast, setForecast] = useState("");
 	const [isRunning, setIsRunning] = useState(false);
+	const [hasSentToChat, setHasSentToChat] = useState(false);
 
 	/**
 	 * Library hooks
 	 */
-	const { actions } = useInsight();
+	const { actions, tool } = useInsight();
 
 	/**
 	 * Handlers
 	 */
-	const handleGetForecast = async () => {
+	const handleGetForecast = useCallback(async (city: string) => {
 		setIsRunning(true);
 		try {
 			const { pixelReturn } = await actions.run<[string]>(
@@ -45,11 +46,28 @@ export const ExampleComponent = () => {
 		} finally {
 			setIsRunning(false);
 		}
-	};
+	}, [actions]);
 
 	const handleSendToChat = () => {
 		actions.sendMCPResponseToPlayground(forecast);
+		setHasSentToChat(true);
 	};
+
+	/**
+	 * Effects
+	 */
+	useEffect(() => {
+		// When running as an MCP, load the parameters sent from Playground
+		if (tool) {
+			const params = tool.parameters as { city?: string };
+			if (params.city) {
+				setCity(params.city);
+				handleGetForecast(params.city);
+			}
+		}
+	}, [tool]);
+
+	const disabled = isRunning || hasSentToChat;
 
 	return (
 		<div className="p-6 space-y-4">
@@ -62,10 +80,11 @@ export const ExampleComponent = () => {
 					value={city}
 					onChange={(e) => setCity(e.target.value)}
 					placeholder="Enter a city name..."
+					disabled={disabled}
 				/>
 			</div>
 
-			<Button onClick={handleGetForecast} disabled={isRunning || !city.trim()}>
+			<Button onClick={() => handleGetForecast(city)} disabled={disabled || !city.trim()}>
 				{isRunning ? "Fetching forecast..." : "Get Forecast"}
 			</Button>
 
@@ -77,11 +96,12 @@ export const ExampleComponent = () => {
 					readOnly
 					placeholder="Forecast will appear here..."
 					rows={6}
+					disabled={disabled}
 				/>
 			</div>
 
-			<Button variant="outline" onClick={handleSendToChat} disabled={!forecast}>
-				Send to Chat
+			<Button variant="outline" onClick={handleSendToChat} disabled={!forecast || disabled}>
+				Send to Playground
 			</Button>
 		</div>
 	);

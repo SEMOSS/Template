@@ -1,4 +1,4 @@
-import { Env } from "@semoss/sdk";
+import { Env, MCPToolRequest } from "@semoss/sdk";
 import { InsightProvider } from "@semoss/sdk/react";
 import { Toaster } from "sonner";
 import { Router } from "./pages";
@@ -8,6 +8,17 @@ Env.update({
 	ACCESS_KEY: import.meta.env.VITE_ACCESS_KEY || "", // undefined in production
 	SECRET_KEY: import.meta.env.VITE_SECRET_KEY || "", // undefined in production
 	APP: import.meta.env.APP || "",
+	// TOOL: {
+	// 	type: "MCP",
+	// 	id: "weather-forecast-tool",
+	// 	name: "Weather Forecast Tool",
+	// 	parameters: {
+	// 		city: "BOSTON",
+	// 	},
+	// 	message: "Get the weather forecast for a city",
+	// 	original_name: "weather-forecast-tool",
+	// 	roomId: "weather-forecast-tool-room",
+	// } satisfies MCPToolRequest,
 });
 
 /**
