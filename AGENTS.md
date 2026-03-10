@@ -1,6 +1,6 @@
 # SEMOSS MCP Tool Development
 
-Concise reference for building SEMOSS MCP tools with custom UIs. For working code examples, see the inline comments throughout the codebase — especially `client/src/components/ExampleComponent.tsx` (React patterns), `java/src/reactors/GetWeatherReactor.java` (Java reactor patterns), and `java/src/reactors/AbstractProjectReactor.java` (base class).
+Concise reference for building SEMOSS MCP tools. For working code examples, see the inline comments throughout the codebase — especially `py/mcp_driver.py` (Python tools with default UI), `client/src/components/ExampleComponent.tsx` (React custom UI patterns), `java/src/reactors/GetWeatherReactor.java` (Java reactor patterns), and `java/src/reactors/AbstractProjectReactor.java` (base class).
 
 ---
 
@@ -51,7 +51,16 @@ Manifests are auto-generated. Never edit `mcp/*.json` directly.
 
 **Java:** Run `MakePixelMCP(reactor=["ReactorName"], mcpMetadata=[...])` after changing reactors. Drop "Reactor" suffix from reactor names in this call.
 
-**MCP metadata options:** `resourceURI` (React route, e.g. `/#/tool`), `execution` (`"ask"` / `"auto"` / `"disabled"`), `loadingMessage`, `displayLocation` (`"inline"` / `"sidebar"` / `"hidden"`)
+**MCP metadata options:** `resourceURI` (React route for custom UI, e.g. `/#/tool` — omit for default UI), `execution` (`"ask"` / `"auto"` / `"disabled"`), `loadingMessage` (custom message shown during auto-execution), `displayLocation` (`"inline"` / `"sidebar"` / `"none"`)
+
+## Default UI vs Custom UI
+
+Tools can use either the **default UI** or a **custom UI**:
+
+- **Default UI:** When a tool's `resourceURI` is missing or null, Playground auto-generates a simple form with inputs for each parameter and a submit button. Best for simple tools that just take inputs and return outputs (e.g. temperature conversion, text transforms). No React code needed.
+- **Custom UI:** When `resourceURI` points to a React route (e.g. `/#/`), Playground renders your app's frontend. Use this when you need rich interactions, visualizations, multi-step workflows, or custom layouts.
+
+The Python tools in `py/mcp_driver.py` use the default UI. The `GetWeather` Java reactor uses a custom UI defined in `client/src/components/ExampleComponent.tsx`.
 
 ## Java Reactor Rules
 
@@ -66,11 +75,15 @@ Manifests are auto-generated. Never edit `mcp/*.json` directly.
 
 ## Python MCP Tool Rules
 
-- Every tool needs `@mcp_metadata` decorator (from `smssutil`, auto-injected by SEMOSS)
+- Define tools in `py/mcp_driver.py` — this is the entry point SEMOSS looks for
+- Every tool needs `@mcp_metadata` decorator (from `smssutil`, auto-injected by SEMOSS). Pass a dict: `@mcp_metadata({"execution": "auto"})`
 - Use type hints on all parameters — they become required MCP parameters
+- Tool title is parsed from the function name; description is parsed from the docstring
 - Return JSON strings from tools
+- Omit `resourceURI` in `@mcp_metadata` to use the default Playground UI (recommended for simple tools)
 - `ROOT` is injected by SEMOSS for file path access
 - Use `ModelEngine` from `ai_server` for LLM calls; always accept `model_id` as a parameter
+- See `py/mcp_driver.py` for working examples (fahrenheit/celsius converters)
 
 ## React UI Rules
 
@@ -96,7 +109,7 @@ Manifests are auto-generated. Never edit `mcp/*.json` directly.
 | Base reactor class | `java/src/reactors/AbstractProjectReactor.java` |
 | Example reactor | `java/src/reactors/GetWeatherReactor.java` |
 | Java utilities | `java/src/util/` |
-| Python tools | `py/` (create `mcp_driver.py` for MCP tools) |
+| Python MCP tools | `py/mcp_driver.py` (temperature converters — default UI) |
 | Manifests | `mcp/py_mcp.json`, `mcp/pixel_mcp.json` (auto-generated) |
 | Published app | `portals/index.html` |
 

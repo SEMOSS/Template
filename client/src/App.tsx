@@ -8,7 +8,7 @@
 // block below. This lets you test how your UI behaves when launched from Playground
 // with pre-filled parameters.
 
-import { Env, MCPToolRequest } from "@semoss/sdk";
+import { Env } from "@semoss/sdk";
 import { InsightProvider } from "@semoss/sdk/react";
 import { Toaster } from "sonner";
 import { Router } from "./pages";
