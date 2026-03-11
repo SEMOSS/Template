@@ -1,5 +1,7 @@
 # SEMOSS MCP Tool Development
 
+> **This is a template app.** The weather tool (`GetWeatherReactor.java`, `ExampleComponent.tsx`) and the temperature converters (`py/mcp_driver.py`) are placeholder examples that demonstrate patterns. When a user asks you to build new functionality, **replace these example files** with implementations that serve the requested purpose. Do not preserve or work around the weather/temperature examples — treat them as scaffolding to be overwritten.
+
 Concise reference for building SEMOSS MCP tools. For working code examples, see the inline comments throughout the codebase — especially `py/mcp_driver.py` (Python tools with default UI), `client/src/components/ExampleComponent.tsx` (React custom UI patterns), `java/src/reactors/GetWeatherReactor.java` (Java reactor patterns), and `java/src/reactors/AbstractProjectReactor.java` (base class).
 
 ---
@@ -110,15 +112,15 @@ Both Python and Java tools support either UI mode — just include or omit `reso
 | React entry | `client/src/index.tsx`, `client/src/App.tsx` |
 | Routes | `client/src/pages/Router.tsx` |
 | Components | `client/src/components/` |
-| Example MCP UI | `client/src/components/ExampleComponent.tsx` |
+| Example MCP UI | `client/src/components/ExampleComponent.tsx` (**template — replace with your UI**) |
 | Tailwind v4 theme | `client/src/index.css` |
 | Vite config | `client/vite.config.ts` |
 | shadcn/ui config | `client/components.json`, `client/tailwind.config.js` (kept for CLI) |
 | Java reactors | `java/src/reactors/` |
 | Base reactor class | `java/src/reactors/AbstractProjectReactor.java` |
-| Example reactor | `java/src/reactors/GetWeatherReactor.java` |
+| Example reactor | `java/src/reactors/GetWeatherReactor.java` (**template — replace with your reactor**) |
 | Java utilities | `java/src/util/` |
-| Python MCP tools | `py/mcp_driver.py` (temperature converters — default UI) |
+| Python MCP tools | `py/mcp_driver.py` (temperature converters — **template examples, replace with your tools**) |
 | Manifests | `mcp/py_mcp.json`, `mcp/pixel_mcp.json` (auto-generated) |
 | Published app | `portals/index.html` |
 
