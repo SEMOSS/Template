@@ -12,6 +12,7 @@ from smssutil import mcp_metadata
 
 @mcp_metadata({
     "execution": "auto",
+    "displayLocation": "inline",
     "loadingMessage": "Converting temperature..."
 })
 def fahrenheit_to_celsius(temperature_f: float) -> str:
@@ -23,6 +24,7 @@ def fahrenheit_to_celsius(temperature_f: float) -> str:
 @mcp_metadata({
     "execution": "auto",
     "displayLocation": "inline",
+    "loadingMessage": "Converting temperature..."
 })
 def celsius_to_fahrenheit(temperature_c: float) -> str:
     """Convert a temperature from Celsius to Fahrenheit."""

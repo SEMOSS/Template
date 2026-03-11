@@ -89,7 +89,7 @@ export const ExampleComponent = () => {
 
 	return (
 		<div className="p-6 space-y-4">
-			<h1 className="text-2xl font-semibold">GetWeather Forecast</h1>
+			<h1 className="text-2xl font-semibold">Weather Forecast</h1>
 
 			<div>
 				<Label htmlFor="city">City</Label>
