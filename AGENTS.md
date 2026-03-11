@@ -60,7 +60,7 @@ Tools can use either the **default UI** or a **custom UI**:
 - **Default UI:** When a tool's `resourceURI` is missing or null, Playground auto-generates a simple form with inputs for each parameter and a submit button. Best for simple tools that just take inputs and return outputs (e.g. temperature conversion, text transforms). No React code needed.
 - **Custom UI:** When `resourceURI` points to a React route (e.g. `/#/`), Playground renders your app's frontend. Use this when you need rich interactions, visualizations, multi-step workflows, or custom layouts.
 
-The Python tools in `py/mcp_driver.py` use the default UI. The `GetWeather` Java reactor uses a custom UI defined in `client/src/components/ExampleComponent.tsx`.
+Both Python and Java tools support either UI mode — just include or omit `resourceURI` in the MCP metadata. Python tools tend to be simple and typically use the default UI. The examples in `py/mcp_driver.py` use the default UI. The `GetWeather` Java reactor uses a custom UI defined in `client/src/components/ExampleComponent.tsx`.
 
 ## Java Reactor Rules
 
