@@ -1,126 +1,65 @@
-# SEMOSS Template App
+# SEMOSS App Template
 
-## Overview
+Starting point for building apps and MCP tools on the SEMOSS platform. Includes a React frontend, Java reactors, and Python tool support.
 
-This repository provides a starting point for SEMOSS React applications. It includes:
+## Structure
 
-- A structure for connecting a React front-end with a Java back-end.
-- Example custom Java reactors and TypeScript components that interact with them.
-- Development tools: Biome, pre-commit, and lint-staged.
+```
+assets/
+├── client/          React + Vite + Tailwind v4 + shadcn/ui (frontend source)
+├── java/            Java reactors (backend logic, compiled by SEMOSS)
+├── py/              Python tools (simple transforms, API calls)
+├── mcp/             Auto-generated MCP manifests (do not edit)
+├── portals/         Built frontend output (do not edit directly)
+├── classes/         Compiled Java .class files (do not edit)
+├── target/          Maven build artifacts (do not edit)
+├── pom.xml          Maven config for Java reactors
+├── AGENTS.md        LLM agent reference for this codebase
+└── README.md        This file
+```
 
----
+## Getting Started
 
-## Prerequisites
+1. **Create an app** in the SEMOSS UI → App page → "Create New App" → choose pro-code. Note the app ID from the URL.
 
-Before using this repository, ensure you have the following:
+2. **Clone this template** into your app's `assets` folder:
+   ```
+   cd workspace/Semoss/project/[YourApp]_[app-id]/app_root/version/
+   mv assets old-assets
+   git clone <repo-url> assets
+   ```
 
-- **SEMOSS installed locally:**  
-  [SEMOSS Windows Installation Guide](https://workshop.cfg.deloitte.com/docs/windows-developer-install)  
-  [SEMOSS Mac Installation Guide](https://workshop.cfg.deloitte.com/docs/Advanced%20Installation/Mac%20Developer%20Install) 
+3. **Install dependencies:**
+   ```
+   cd assets/client
+   pnpm i
+   ```
 
-  To verify installation, go to [http://localhost:9090/SemossWeb/packages/client/dist/#/](http://localhost:9090/SemossWeb/packages/client/dist/#/). The SEMOSS UI should load.
+4. **Set your app ID** in `client/.env.local`:
+   ```
+   APP="your-app-id"
+   ```
 
-- **Basic Git knowledge:**  
-  [Using SSH keys with GitHub](https://docs.github.com/en/authentication/connecting-to-github-with-ssh) is recommended for authentication.
+5. **Develop:**
+   ```
+   cd client
+   pnpm dev     # Local dev server with hot reload
+   pnpm build   # Production build → portals/
+   ```
 
-- **Install Python as part of the SEMOSS installation**
-  You'll need this for parts of the linting pipeline and just generally is a good thing to have. Refer to [Mac Install](https://workshop.cfg.deloitte.com/docs/Advanced%20Installation/Mac%20Developer%20Install#install-python) or [Windows Install](https://workshop.cfg.deloitte.com/docs/windows-developer-install#install-python)
+6. **Publish:** In the SEMOSS UI, open the editor → click "Publish files" to make changes visible to users.
 
----
+## Key Concepts
 
-## Creating a SEMOSS Pro-Code App
+- **Frontend** (`client/`): React app using `@semoss/sdk` to communicate with SEMOSS. Builds to `portals/`. See `client/README.md`.
+- **Java Reactors** (`java/`): Backend logic compiled by SEMOSS into `classes/`. Click "Recompile reactors" in the SEMOSS UI after changes. See `java/README.md`.
+- **Python Tools** (`py/`): Add MCP tools in `py/mcp_driver.py` with `@mcp_metadata` decorator. Simple tools can use Playground's default UI (no React needed) by omitting `resourceURI`.
+- **MCP Manifests** (`mcp/`): Auto-generated. Run `MakePythonMCP()` or `MakePixelMCP(...)` to regenerate. Never edit manually.
+- **Publishing**: The SEMOSS UI snapshots `portals/` to a public location. Build first, then publish.
 
-1. **Open the SEMOSS UI:**  
-   Go to [http://localhost:9090/SemossWeb/packages/client/dist/#/](http://localhost:9090/SemossWeb/packages/client/dist/#/) (referred to as "the SEMOSS UI").
+## More Info
 
-2. **Create a new app:**
-    - Navigate to the "App" page (usually on the left sidebar).
-    - Click "Create New App".
-    - Choose to develop your app in code (not Drag & Drop).
-    - Enter a name and description (e.g., `YourAppName`).
-    - Submit to create the app. You'll be taken to the editor page.
-    - Note the long string in the URL—this is your app's ID (`your-app-id`), e.g., `1337e31c-2131-4ef4-b942-94bdffa65c3f`.
+- `client/README.md` — Frontend setup, commands, shadcn/ui
+- `java/README.md` — Java reactor development
+- `AGENTS.md` — Conventions and rules for LLM agents working in this codebase
 
----
-
-## Understanding the App File Structure
-
-- In the SEMOSS UI editor, you'll see a file explorer showing a `portals` folder.
-- The explorer is displaying the contents of the `assets` folder; `portals` is inside `assets`.
-- `assets` is the main folder for your app's code.
-
-**On your computer:**
-
-- Go to `workspace/Semoss/project/[YourAppName]_[your-app-id]/app_root/version/`
-- Inside `version`, you'll find the `assets` folder, which contains `portals` and `portals/index.html`.
-- The `assets` folder in your file system and the one in the SEMOSS UI are the same.
-
----
-
-## Publishing Your App
-
-To make changes visible to users:
-
-1. In the SEMOSS UI, open and edit `portals/index.html`.
-2. Click "Save".
-3. Changes are not public until you click "Publish files".
-4. After publishing, refresh the App tab to see updates.
-
-> **Note:**  
-> The published snapshot is stored at  
-> `workspace/apache-tomcat-9.0.102/webapps/Monolith/public_home/your-app-id`.
-
----
-
-## Creating a React App Using This Repository
-
-### Clone the Template
-
-1. In your file explorer, go to  
-   `workspace/Semoss/project/[YourAppName]_[YourAppID]/app_root/version/`
-2. Rename `assets` to `old-assets`.
-3. Open a terminal in your `app_root/version` folder.
-4. Clone this repository:
-   `git clone git@github.com:SEMOSS/Template.git`, if using SSH keys
-   `git clone https://github.com/SEMOSS/Template.git`, if not using SSH keys
-5. Rename the cloned `Template` folder to `assets`.
-6. Open `assets` in your code editor (VS Code recommended).
-
----
-
-## SEMOSS App Structure
-
-- The "Publish files" button in the SEMOSS UI creates a snapshot for users.
-- The `portals` folder contains files available to users, including `portals/index.html` (the app's main entry point).
-- Front-end source code typically lives in the `client` folder and is bundled into `portals` using Webpack (see `client/README.md` for details).
-- Back-end Java reactors are in the `java` folder. When you click "Recompile reactors" in the SEMOSS UI, SEMOSS compiles these and places `.class` files in the `classes` folder (see `java/README.md` for more).
-
----
-
-## Plug-ins
-
-This repository includes several tools to help maintain code quality:
-
-- [Biome](https://biomejs.dev/): Formats and lints your front-end code for consistency.
-- [lint-staged](https://github.com/okonet/lint-staged): Runs formatting and linting on staged files before each commit to prevent bad code from being pushed.
-    - Note: if you are a Mac user, and your commits are erroring out with the message `" not foundECURSIVE_EXEC_FIRST_FAIL  Command "lint-staged`, then you likely need to change your line-endings in `./husky/pre-commit` and `./husky/commit-msg` from CRLF to LF.
-- [commitizen](https://www.conventionalcommits.org/en/v1.0.0/): This pre-commit hook uses conventional commit syntax. Check this link out to understand how to format your commit messages. Here are some common examples:
-    - `feat: Major feature added`
-    - `docs: Documentation changed/updated`
-    - `fix: Bug fixed and code restored to working state`
-    - `refactor(style): Changed some code around to adhere to better style`
-    - `chore: Some update/chore that you've been needing to do`
-
----
-
-## Next Steps
-
-- See `client/README.md` for front-end development instructions.
-- See `java/README.md` for back-end/reactor development.
-- See `test/README.md` for comprehensive testing guide and workflow.
-
----
-
-## Support
-
-For questions or issues, contact the SEMOSS team or refer to internal documentation.

@@ -1,10 +1,8 @@
+// HomePage.tsx - The default landing page.
+// Replace ExampleComponent with your own content to start building.
+
 import { ExampleComponent } from "@/components";
 
-/**
- * Renders the home page, currently displaying an example component.
- *
- * @component
- */
 export const HomePage = () => {
 	return <ExampleComponent />;
 };

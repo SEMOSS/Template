@@ -1,58 +1,63 @@
-# Client Folder README
+# Client
 
-This folder contains the front-end React application for your SEMOSS app.
+React frontend for this SEMOSS app. Built with Vite, Tailwind CSS v4, and shadcn/ui.
 
----
+## Setup
 
-## Local development
+1. Install dependencies:
+   ```
+   cd client
+   pnpm i
+   ```
 
-Before running or building the app, you need to create a `.env.local` file in this folder. This file stores environment-specific variables, impora SEMOSS app ID.
+2. Create `client/.env.local` with your app ID:
+   ```
+   APP="your-app-id"
+   ```
 
-1. In the `client` folder, create a new file called `.env.local`.
-2. Add the following line (replace `your-app-id` with your actual SEMOSS app ID): `VITE_APP="your-app-id"`
+## Commands
 
-After setting up your `.env.local file`, you’ll need to add a `project.properties` file for the Java backend. This serves as a foundational configuration file that is required for project structure and build tools.
+All commands run from the `client/` folder:
 
-1. In the `java` folder (in the `client` directory), create a new file named `project.properties`.
-2. Leave this blank ofr now, no configuration is currently needed, however the file must exist to ensure the backend can initialize.
+- **`pnpm dev`** — Start the local Vite dev server with hot reload
+- **`pnpm build`** — Production build → outputs to `portals/`
+- **`pnpm dlx shadcn@latest add [component-name]`** — Add a new shadcn/ui component
 
-## Essential commands
+## Publishing
 
-1. **pnpm i** - Install Dependencies
+After building, go to the SEMOSS UI editor and click "Publish files" to make changes visible to users. The `portals/` folder is what gets served.
 
-   1. Run "pnpm i" in the `client` folder to install all necessary packages for the front-end React application.
-   2. Run "pnpm i" in the project root (`assets` folder) to set up the broader project dependencies, including tools like Biome.
+## Structure
 
-2. **pnpm build:**
+```
+client/
+├── src/
+│   ├── index.tsx          App entry point
+│   ├── App.tsx            Root component with SDK provider
+│   ├── index.css          Tailwind v4 theme and global styles
+│   ├── components/        Shared components and shadcn/ui primitives
+│   ├── pages/             Route pages and layouts
+│   ├── lib/               Utility functions
+│   └── assets/            Static assets (images, etc.)
+├── .env.local             App ID (not committed)
+├── vite.config.ts         Vite configuration
+├── components.json        shadcn/ui CLI config
+├── tailwind.config.js     Kept empty for shadcn/ui CLI compatibility
+└── tsconfig.json          TypeScript config
+```
 
-   1. Run "pnpm build" in the `assets` folder to compile and bundle your front-end code and related resources for production.
-   2. Build output is placed into the `portals` folder within `assets`. The `portals` directory is what SEMOSS displays as your local app.
+## Key Patterns
 
-> **Note:**  
-> After saving changes to your code, run **pnpm build** in the `assets`
-> folder to update the build. To see updates in your SEMOSS app (http://
-> localhost:9090/SemossWeb/packages/client/dist/#/), use the Publish
-> Files, Refresh Files, and then Refresh buttons to ensure your changes
-> appear.
+- **SDK hook**: `useInsight()` from `@semoss/sdk/react` provides `actions.run()`, `actions.sendMCPResponseToPlayground()`, `isInitialized`, and `tool`
+- **Calling reactors**: `actions.run('ReactorName(param=value)')` — drop the "Reactor" suffix
+- **Calling Python MCP tools**: `actions.run('RunMCPTool(tool=["tool_name"], param=...)')`
+- **Sending results to Playground**: `actions.sendMCPResponseToPlayground(response, status, executedParams)`
+- **Escaping user input**: Always use `JSON.stringify()` when interpolating into Pixel commands
 
-3. **pnpm dev:**
+## Resources
 
-   1. Run "pnpm dev" in the `assets` folder to launch a local development server for your app.
-   2. This command starts a local Vite server, which serves your project on your machine and provides hot reloading.
-   3. When you save changes to your files, Vite immediately updates the app in your browser so you can see your latest changes without running pnpm build and manually refreshing.
-   
-4. **pnpm dlx shadcn@latest add [component-name]**\
-   
-   1. To add a new shadcn componet to use with your front end, from the `client` folder run pnpm dlx shadcn-ui@latest add [component-name]
+- [shadcn/ui](https://ui.shadcn.com/)
+- [Tailwind CSS](https://tailwindcss.com/)
+- [Radix UI](https://www.radix-ui.com/)
+- [Vite](https://vite.dev/)
 
-
-## Resources 
-
-- [shadcn/ui Documentation](https://ui.shadcn.com/)
-- [Tailwind CSS Documentation](https://tailwindcss.com/)
-- [Radix UI Primitives](https://www.radix-ui.com/)
-
-
-## Support
-
-For questions or issues, contact the SEMOSS team or refer to internal documentation.

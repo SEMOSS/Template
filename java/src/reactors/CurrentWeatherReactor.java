@@ -3,17 +3,33 @@ package reactors;
 import prerna.sablecc2.om.PixelDataType;
 import prerna.sablecc2.om.nounmeta.NounMetadata;
 
+/**
+ * Provides a simple reactor that can be called from SEMOSS with a city and state.
+ *
+ * <p>This reactor exists so the app has a predictable example of how to accept input,
+ * apply reactor logic, and return a user-facing response.</p>
+ */
 public class CurrentWeatherReactor extends AbstractProjectReactor {
 
+   
     private static final String CITY_KEY = "city";
     private static final String STATE_KEY = "state";
 
+    /**
+     * Declares the inputs this reactor requires.
+     * <p>This is needed so the framework knows what values must be supplied before execution.</p>
+     */
     public CurrentWeatherReactor() {
         this.keysToGet = new String[] { CITY_KEY, STATE_KEY };
         this.keyRequired = new int[] { 1, 1 };
     }
     
-     @Override
+    /**
+     * Runs the main reactor logic.
+     * This method is needed because it is the entry point SEMOSS calls after setup is complete.
+     */
+    
+    @Override
     protected NounMetadata doExecute() {
         String city = this.keyValue.get(CITY_KEY);
         String state = this.keyValue.get(STATE_KEY);
@@ -68,11 +84,21 @@ public class CurrentWeatherReactor extends AbstractProjectReactor {
         }
     }
 
-     @Override
+    /**
+     * Supplies the overall tool description for generated reactor metadata.
+     * <p>This is needed so users can understand the purpose of the reactor in SEMOSS tooling.</p>
+     */
+    @Override
     public String getReactorDescription() {
         return "Returns the current weather information for a specified city and state.";
     }
 
+    /**
+     * Supplies parameter descriptions for generated metadata.
+     * This is needed so we explain each input clearly in forms and manifests.
+     * @param key the input key being described
+     * @return a human-readable description for that key
+     */
     @Override
     protected String getDescriptionForKey(String key) {
         if (key.equals(CITY_KEY)) {

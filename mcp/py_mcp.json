@@ -1,118 +1,65 @@
 {
     "_meta": {
-        "last_modified_date": "2026-03-02",
-        "file_last_modified_date": "2026-03-02",
-        "source_file": "C:/workspace/Semoss/project/MCP Infographic Py__184e2417-c9d3-4740-809b-784059efa87a/app_root/version/assets/py/mcp_driver.py"
+        "last_modified_date": "2026-03-11",
+        "file_last_modified_date": "2026-03-11",
+        "source_file": "/Users/tevanburen/Documents/SEMOSS/workspace/Semoss/project/Blank Canvas__9447b875-266e-4814-a1de-c840ff88401a/app_root/version/assets/py/mcp_driver.py"
     },
     "tools": [
         {
-            "name": "_extract_key_values",
-            "title": " Extract Key Values",
-            "description": "No docstring present or unable to parse docstring from function",
+            "name": "fahrenheit_to_celsius",
+            "title": "Fahrenheit To Celsius",
+            "description": "Convert a temperature from Fahrenheit to Celsius.",
             "inputSchema": {
                 "properties": {
-                    "lines": {
-                        "title": "Lines",
+                    "temperature_f": {
+                        "title": "Temperature F",
                         "description": "No docstring present or unable to parse docstring from function",
-                        "type": "array",
-                        "items": {
-                            "type": "string"
-                        }
+                        "type": "number"
                     }
                 },
                 "required": [
-                    "lines"
+                    "temperature_f"
                 ],
-                "title": " Extract Key Values Arguments",
+                "title": "Fahrenheit To Celsius Arguments",
                 "type": "object"
             },
             "_meta": {
-                "generated_on": "2026-03-02",
-                "SMSS_MCP_EXECUTION": "ask",
-                "SMSS_MCP_UI": {},
-                "SMSS_FUNCTION_NAME": "_extract_key_values"
-            },
-            "_type": "python"
-        },
-        {
-            "name": "_split_sentences",
-            "title": " Split Sentences",
-            "description": "No docstring present or unable to parse docstring from function",
-            "inputSchema": {
-                "properties": {
-                    "text": {
-                        "title": "Text",
-                        "description": "No docstring present or unable to parse docstring from function",
-                        "type": "string"
-                    }
-                },
-                "required": [
-                    "text"
-                ],
-                "title": " Split Sentences Arguments",
-                "type": "object"
-            },
-            "_meta": {
-                "generated_on": "2026-03-02",
-                "SMSS_MCP_EXECUTION": "ask",
-                "SMSS_MCP_UI": {},
-                "SMSS_FUNCTION_NAME": "_split_sentences"
-            },
-            "_type": "python"
-        },
-        {
-            "name": "_build_infographic_html",
-            "title": " Build Infographic Html",
-            "description": "No docstring present or unable to parse docstring from function",
-            "inputSchema": {
-                "properties": {
-                    "event_details": {
-                        "title": "Event Details",
-                        "description": "No docstring present or unable to parse docstring from function",
-                        "type": "string"
-                    }
-                },
-                "required": [
-                    "event_details"
-                ],
-                "title": " Build Infographic Html Arguments",
-                "type": "object"
-            },
-            "_meta": {
-                "generated_on": "2026-03-02",
-                "SMSS_MCP_EXECUTION": "ask",
-                "SMSS_MCP_UI": {},
-                "SMSS_FUNCTION_NAME": "_build_infographic_html"
-            },
-            "_type": "python"
-        },
-        {
-            "name": "generate_event_infographic",
-            "title": "Generate Event Infographic",
-            "description": "Generate a styled HTML infographic from a special event description.\n\nArgs:\n    event_details: Free-form text describing the event and its details.\n\nReturns:\n    JSON string with generation status, saved file info, and generated HTML.",
-            "inputSchema": {
-                "properties": {
-                    "event_details": {
-                        "title": "Event Details",
-                        "description": "No docstring present or unable to parse docstring from function",
-                        "type": "string"
-                    }
-                },
-                "required": [
-                    "event_details"
-                ],
-                "title": "Generate Event Infographic Arguments",
-                "type": "object"
-            },
-            "_meta": {
-                "generated_on": "2026-03-02",
-                "SMSS_MCP_EXECUTION": "ask",
+                "generated_on": "2026-03-11",
+                "SMSS_MCP_EXECUTION": "auto",
                 "SMSS_MCP_UI": {
-                    "loadingMessage": "Generating your event infographic...",
-                    "resourceURI": "/#/",
-                    "displayLocation": "inline"
+                    "displayLocation": "inline",
+                    "loadingMessage": "Converting temperature..."
                 },
-                "SMSS_FUNCTION_NAME": "generate_event_infographic"
+                "SMSS_FUNCTION_NAME": "fahrenheit_to_celsius"
+            },
+            "_type": "python"
+        },
+        {
+            "name": "celsius_to_fahrenheit",
+            "title": "Celsius To Fahrenheit",
+            "description": "Convert a temperature from Celsius to Fahrenheit.",
+            "inputSchema": {
+                "properties": {
+                    "temperature_c": {
+                        "title": "Temperature C",
+                        "description": "No docstring present or unable to parse docstring from function",
+                        "type": "number"
+                    }
+                },
+                "required": [
+                    "temperature_c"
+                ],
+                "title": "Celsius To Fahrenheit Arguments",
+                "type": "object"
+            },
+            "_meta": {
+                "generated_on": "2026-03-11",
+                "SMSS_MCP_EXECUTION": "auto",
+                "SMSS_MCP_UI": {
+                    "displayLocation": "inline",
+                    "loadingMessage": "Converting temperature..."
+                },
+                "SMSS_FUNCTION_NAME": "celsius_to_fahrenheit"
             },
             "_type": "python"
         }

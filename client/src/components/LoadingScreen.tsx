@@ -1,15 +1,12 @@
+// LoadingScreen.tsx - Centered spinner used during SEMOSS initialization.
+// Set overlay={true} to render on top of existing content with a backdrop.
+
 import { Spinner } from "@/components/ui/spinner";
 
 interface LoadingScreenProps {
-	/** Whether to overlay the loading screen on top of existing content */
 	overlay?: boolean;
 }
 
-/**
- * Returns a loading screen with a centered circular progress indicator
- *
- * @component
- */
 export const LoadingScreen = ({ overlay = false }: LoadingScreenProps) => (
 	<div
 		className={`flex items-center justify-center h-full ${

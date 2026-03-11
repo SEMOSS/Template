@@ -1,3 +1,15 @@
+/* Global styles and Tailwind CSS theme configuration.
+ *
+ * Tailwind v4 uses @import "tailwindcss" instead of @tailwind directives.
+ * The @theme block maps CSS custom properties to Tailwind utility classes.
+ * Colors defined in :root (light) and .dark (dark mode) use oklch color space.
+ *
+ * To customize the theme, edit the CSS variables below. shadcn/ui components
+ * reference these variables for consistent theming across the app.
+ *
+ * To add new shadcn/ui components: npx shadcn@latest add <component-name>
+ */
+
 @import "tailwindcss";
 
 @plugin "tailwindcss-animate";

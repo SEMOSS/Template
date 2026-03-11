@@ -1,10 +1,8 @@
+// ErrorPage.tsx - Shown when a route throws an unhandled error.
+// Used as the ErrorBoundary in Router.tsx to prevent full app crashes.
+
 import { TriangleAlert } from "lucide-react";
 
-/**
- * Renders a warning message for any FE errors encountered.
- *
- * @component
- */
 export const ErrorPage = () => {
 	return (
 		<div className="flex flex-col items-center justify-center h-full">
