@@ -47,11 +47,19 @@ The primary hook is `useInsight()` from `@semoss/sdk/react`:
 
 Manifests are auto-generated. Never edit `mcp/*.json` directly.
 
-**Python:** Run `MakePythonMCP()` after adding/changing `@mcp_metadata` decorated functions in `py/mcp_driver.py`
+**Python:** Do NOT edit `mcp/py_mcp.json` directly. Instead, provide the user with the `MakePythonMCP()` Pixel command to run in the SEMOSS Playground — it reads the `@mcp_metadata` decorators from `py/mcp_driver.py` and regenerates the manifest automatically. No arguments needed:
+```
+MakePythonMCP();
+```
 
-**Java:** Run `MakePixelMCP(reactor=["ReactorName"], mcpMetadata=[...])` after changing reactors. Drop "Reactor" suffix from reactor names in this call.
+**Java:** Do NOT edit `mcp/pixel_mcp.json` directly. Instead, provide the user with the `MakePixelMCP()` Pixel command to run in the SEMOSS Playground — it reads the reactor class and regenerates the manifest automatically.
 
-**MCP metadata options:** `resourceURI` (React route for custom UI, e.g. `/#/tool` — omit for default UI), `execution` (`"ask"` / `"auto"` / `"disabled"`), `loadingMessage` (custom message shown during auto-execution), `displayLocation` (`"inline"` / `"sidebar"` / `"none"`)
+Example command for a reactor with a custom sidebar UI:
+```
+MakePixelMCP(reactor=["GeneratePresentation"], mcpMetadata=[{ "SMSS_MCP_UI": { "displayLocation": "sidebar", "resourceURI": "/#/" }, "SMSS_MCP_EXECUTION": "ask" }]);
+```
+
+**MCP metadata options:** `resourceURI` (React route for custom UI, e.g. `/#/` — omit for default UI), `execution` (`"ask"` / `"auto"` / `"disabled"`), `loadingMessage` (custom message shown during auto-execution), `displayLocation` (`"inline"` / `"sidebar"` / `"none"`)
 
 ## Default UI vs Custom UI
 
@@ -71,6 +79,7 @@ Both Python and Java tools support either UI mode — just include or omit `reso
 - Return errors via `NounMetadata.getErrorNounMessage("description")`
 - Implement `getDescriptionForKey()` and `getReactorDescription()` for manifest generation
 - `IModelEngine.ask()` returns response objects, not strings — use reflection to call `getResponse()`, never `toString()`
+- Resolve a model engine by ID: `IModelEngine modelEngine = Utility.getModel(modelId);` (import `prerna.util.Utility`) — returns `null` if not found
 - File paths: use `this.insight.getInsightFolder()`
 
 ## Python MCP Tool Rules
@@ -115,7 +124,7 @@ Both Python and Java tools support either UI mode — just include or omit `reso
 
 ## Do Not
 
-- Edit `portals/`, `classes/`, `target/`, or `mcp/*.json`
+- Edit `portals/`, `classes/`, `target/`, or `mcp/*.json` — these are auto-generated. Give the user the `MakePixelMCP()` or `MakePythonMCP()` Pixel command to run instead
 - Use the deprecated `actions.runMCPTool()` SDK method
 - Use `toString()` on `IModelEngine` responses in Java
 - Access `tool.inputs` in React (use `tool.parameters`)
