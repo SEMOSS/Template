@@ -6,7 +6,7 @@ import prerna.sablecc2.om.nounmeta.NounMetadata;
 /**
  * Provides a simple reactor that can be called from SEMOSS with a city and state.
  *
- * <p>This reactor exists so the app has a predictable example of how to accept input,
+ * This reactor exists so the app has a predictable example of how to accept input,
  * apply reactor logic, and return a user-facing response.</p>
  */
 public class CurrentWeatherReactor extends AbstractProjectReactor {
