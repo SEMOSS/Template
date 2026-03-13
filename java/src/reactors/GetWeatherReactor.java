@@ -10,34 +10,6 @@ import prerna.sablecc2.om.nounmeta.NounMetadata;
 public class GetWeatherReactor extends AbstractProjectReactor {
 
     private static final String CITY_KEY = "city";
-    private static final String[] FORECASTS = new String[] {
-            "The high today is: 75, The low today is: 55, Description: \"Pleasant and sunny with a light breeze.\"",
-            "The high today is: 60, The low today is: 45, Description: \"Cool day with occasional clouds.\"",
-            "The high today is: -5, The low today is: -25, Description: \"Please do not go outside, it's very cold!\"",
-            "The high today is: 60, The low today is: 42, Description: \"Mild weather with patchy sunshine.\"",
-            "The high today is: 56, The low today is: 43, Description: \"Crisp air and mostly overcast skies.\"",
-            "The high today is: 90, The low today is: 70, Description: \"Hot and bright; hydrate often.\"",
-            "The high today is: 95, The low today is: 81, Description: \"Very hot conditions with strong sun, sunscreen is a must.\"",
-            "The high today is: 40, The low today is: 20, Description: \"Chilly and calm; keep a jacket handy.\"",
-            "The high today is: 15, The low today is: -1, Description: \"Cold and icy; bundle up if you must go outside. Expect slippery conditions.\"",
-            "The high today is: 56, The low today is: 51, Description: \"Gloomy day, expect rain and drizzle.\"",
-            "The high today is: 72, The low today is: 65, Description: \"Warm and humid with a chance of thunderstorms.\"",
-            "The high today is: 34, The low today is: 22, Description: \"Cold with a chance of snow showers.\"",
-            "The high today is: 125, The low today is: 95, Description: \"Extreme temperatures demand full heat precautions.\"",
-            "The high today is: 25, The low today is: 18, Description: \"Chilly and overcast; bundle up if you go outside.\"",
-            "The high today is: 35, The low today is: 22, Description: \"Clear skies but cold; dress warmly.\"",
-            "The high today is: 44, The low today is: 37, Description: \"Cool and damp with a chance of light rain.\"",
-            "The high today is: 35, The low today is: 18, Description: \"Brisk and cloudy; a good day for indoor activities.\"",
-            "The high today is: 13, The low today is: 4, Description: \"Very cold with strong winds; limit outdoor exposure.\"",
-            "The high today is: 6, The low today is: -2, Description: \"Severe cold alert conditions.\"",
-            "The high today is: 4, The low today is: -5, Description: \"Intense cold index far below safe levels.\"",
-            "The high today is: -9, The low today is: -12, Description: \"Critical cold hazard across the region.\"",
-            "The high today is: -5, The low today is: -11, Description: \"Extreme cold stress expected.\"",
-            "The high today is: 61, The low today is: 53, Description: \"Warm and muggy with a high chance of thunderstorms.\"",
-            "The high today is: 44, The low today is: 37, Description: \"Cool and damp with a chance of light rain.\"",
-            "The high today is: 69, The low today is: 54, Description: \"Warm and sunny with a gentle breeze. Perfect day for outdoor activities.\"",
-            "The high today is: 35, The low today is: 22, Description: \"Cold but pleasant with clear skies.\""
-    };
 
     public GetWeatherReactor() {
         this.keysToGet = new String[] { CITY_KEY };
@@ -53,7 +25,7 @@ public class GetWeatherReactor extends AbstractProjectReactor {
         }
 
         String city = input.trim();
-        
+
         char firstChar = city.charAt(0);
         char firstLetter = Character.toUpperCase(firstChar);
 
@@ -62,10 +34,10 @@ public class GetWeatherReactor extends AbstractProjectReactor {
             int forecastIndex = firstLetter - 'A';
             forecast = FORECASTS[forecastIndex];
         } else {
-            forecast = "The high today is: 1000, The low today is: 1, Description: \"Hmm, weird. Let's just say if you go out its wraps\"";
+            forecast = "looks unusual, with a high that may reach 1000°F and a low that may fall to 1°F.";
         }
 
-        String response = " Here is the current conditions for " + city + ": " + forecast + ".";
+        String response = "The weather today in " + city + " " + forecast;
 
         return new NounMetadata(response, PixelDataType.CONST_STRING);
     }
@@ -82,4 +54,33 @@ public class GetWeatherReactor extends AbstractProjectReactor {
         }
         return super.getDescriptionForKey(key);
     }
+
+    private static final String[] FORECASTS = new String[] {
+        "feels pretty pleasant, with sun, a light breeze, a high near 75°F, and a low around 55°F tonight.",
+        "looks mostly cool with a bit cloudy, temperatures top out around 60°F before slipping to about 45°F later.",
+        "is freezing, so bundle up, with highs reaching -5°F and lows sinking to around -25°F.",
+        "feels nice overall, a sunny day with temperatures around 60°F this afternoon and 42°F overnight.",
+        "stays on the cool side with lingering clouds, peaking near 56°F and easing to 43°F later on.",
+        "turns hot and mostly sunny by midday, with a high near 90°F and a warm low around 70°F.",
+        "gets very hot fast, with strong sun, a high around 95°F, and a low near 81°F.",
+        "feels chilly but calm, with temperatures reaching about 40°F before dropping to around 20°F tonight.",
+        "stays cold and may get icy in spots, with a high near 15°F and a low around -1°F.",
+        "feels humid with light drizzle on and off, while temperatures stay between 51°F and 56°F.",
+        "feels warm, humid, and a little unsettled, with thunderstorm chances and temperatures near 72°F and 65°F.",
+        "keeps that cold pattern going, with possible snow showers, a high around 34°F, and a low near 22°F.",
+        "is dangerously hot, with a high around 125°F and a low near 95°F, so take heat precautions.",
+        "stays gray and cold through the day, with temperatures around 25°F for the high and 18°F for the low.",
+        "looks clear but still feels cold, with a high near 35°F and a low around 22°F.",
+        "stays cool and damp, with a little light rain possible and temperatures near 44°F and 37°F.",
+        "feels brisk and mostly cloudy, with temperatures hovering between about 18°F and 35°F.",
+        "is windy on top of that, so expect a cold day with a high near 13°F and a low around 4°F.",
+        "seems very cold all day, with about 6°F for the high and -2°F for the low.",
+        "is likely going to be very windy, and temperatures will stay low, running from about -5°F to 4°F.",
+        "continues to be hazardously cold, with readings locked between -12°F and -9°F.",
+        "is freezing with barely any sun at all, plus a high near -5°F and a low around -11°F.",
+        "shows muggy air and storm chances still in play, with a high near 61°F and a low near 53°F.",
+        "has on-and-off light rain keeping things cool, with a high around 44°F and a low around 37°F.",
+        "feels comfortable and bright overall, with sunshine, a gentle breeze, and temperatures from 54°F to 69°F.",
+        "is cold but fairly calm today, reaching about 35°F before dipping to roughly 22°F tonight."
+    };
 }
