@@ -1,7 +1,5 @@
 package reactors;
 
-import java.util.regex.Matcher;
-import java.util.regex.Pattern;
 import prerna.sablecc2.om.PixelDataType;
 import prerna.sablecc2.om.nounmeta.NounMetadata;
 
@@ -55,17 +53,12 @@ public class GetWeatherReactor extends AbstractProjectReactor {
         }
 
         String city = input.trim();
-        Pattern cityPattern = Pattern.compile("(?i).*\\b(?:weather\\s+in|weather\\s+for|in|for)\\s+(.+?)[.!?]*$");
-        Matcher matcher = cityPattern.matcher(city);
-        if (matcher.matches()) {
-            city = matcher.group(1).trim();
-        }
-
+        
         char firstChar = city.charAt(0);
         char firstLetter = Character.toUpperCase(firstChar);
 
         String forecast;
-        if (Character.isLetter(firstChar)) {
+        if (firstLetter >= 'A' && firstLetter <= 'Z') {
             int forecastIndex = firstLetter - 'A';
             forecast = FORECASTS[forecastIndex];
         } else {
