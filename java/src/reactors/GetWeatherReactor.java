@@ -1,5 +1,7 @@
 package reactors;
 
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 import prerna.sablecc2.om.PixelDataType;
 import prerna.sablecc2.om.nounmeta.NounMetadata;
 
@@ -10,207 +12,76 @@ import prerna.sablecc2.om.nounmeta.NounMetadata;
 public class GetWeatherReactor extends AbstractProjectReactor {
 
     private static final String CITY_KEY = "city";
+    private static final String[] FORECASTS = new String[] {
+            "The high today is: 75, The low today is: 55, Description: \"Pleasant and sunny with a light breeze.\"",
+            "The high today is: 60, The low today is: 45, Description: \"Cool day with occasional clouds.\"",
+            "The high today is: -5, The low today is: -25, Description: \"Please do not go outside, it's very cold!\"",
+            "The high today is: 60, The low today is: 42, Description: \"Mild weather with patchy sunshine.\"",
+            "The high today is: 56, The low today is: 43, Description: \"Crisp air and mostly overcast skies.\"",
+            "The high today is: 90, The low today is: 70, Description: \"Hot and bright; hydrate often.\"",
+            "The high today is: 95, The low today is: 81, Description: \"Very hot conditions with strong sun, sunscreen is a must.\"",
+            "The high today is: 40, The low today is: 20, Description: \"Chilly and calm; keep a jacket handy.\"",
+            "The high today is: 15, The low today is: -1, Description: \"Cold and icy; bundle up if you must go outside. Expect slippery conditions.\"",
+            "The high today is: 56, The low today is: 51, Description: \"Gloomy day, expect rain and drizzle.\"",
+            "The high today is: 72, The low today is: 65, Description: \"Warm and humid with a chance of thunderstorms.\"",
+            "The high today is: 34, The low today is: 22, Description: \"Cold with a chance of snow showers.\"",
+            "The high today is: 125, The low today is: 95, Description: \"Extreme temperatures demand full heat precautions.\"",
+            "The high today is: 25, The low today is: 18, Description: \"Chilly and overcast; bundle up if you go outside.\"",
+            "The high today is: 35, The low today is: 22, Description: \"Clear skies but cold; dress warmly.\"",
+            "The high today is: 44, The low today is: 37, Description: \"Cool and damp with a chance of light rain.\"",
+            "The high today is: 35, The low today is: 18, Description: \"Brisk and cloudy; a good day for indoor activities.\"",
+            "The high today is: 13, The low today is: 4, Description: \"Very cold with strong winds; limit outdoor exposure.\"",
+            "The high today is: 6, The low today is: -2, Description: \"Severe cold alert conditions.\"",
+            "The high today is: 4, The low today is: -5, Description: \"Intense cold index far below safe levels.\"",
+            "The high today is: -9, The low today is: -12, Description: \"Critical cold hazard across the region.\"",
+            "The high today is: -5, The low today is: -11, Description: \"Extreme cold stress expected.\"",
+            "The high today is: 61, The low today is: 53, Description: \"Warm and muggy with a high chance of thunderstorms.\"",
+            "The high today is: 44, The low today is: 37, Description: \"Cool and damp with a chance of light rain.\"",
+            "The high today is: 69, The low today is: 54, Description: \"Warm and sunny with a gentle breeze. Perfect day for outdoor activities.\"",
+            "The high today is: 35, The low today is: 22, Description: \"Cold but pleasant with clear skies.\""
+    };
 
-    /**
-     * Declares the inputs this reactor requires.
-     * <p>
-     * This is needed so the framework knows what values must be supplied before
-     * execution.
-     * </p>
-     */
     public GetWeatherReactor() {
         this.keysToGet = new String[] { CITY_KEY };
         this.keyRequired = new int[] { 1 };
     }
 
-    /**
-     * Runs the main reactor logic.
-     * This method is needed because it is the entry point SEMOSS calls after setup
-     * is complete.
-     */
-
     @Override
     protected NounMetadata doExecute() {
-        String city = this.keyValue.get(CITY_KEY);
+        String input = this.keyValue.get(CITY_KEY);
 
-        if (city == null || city.trim().isEmpty()) {
+        if (input == null || input.trim().isEmpty()) {
             throw new IllegalArgumentException("City is required to determine temperature.");
         }
 
-        String forecast = getForecastForCity(city);
+        String city = input.trim();
+        Pattern cityPattern = Pattern.compile("(?i).*\\b(?:weather\\s+in|weather\\s+for|in|for)\\s+(.+?)[.!?]*$");
+        Matcher matcher = cityPattern.matcher(city);
+        if (matcher.matches()) {
+            city = matcher.group(1).trim();
+        }
+
+        char firstChar = city.charAt(0);
+        char firstLetter = Character.toUpperCase(firstChar);
+
+        String forecast;
+        if (Character.isLetter(firstChar)) {
+            int forecastIndex = firstLetter - 'A';
+            forecast = FORECASTS[forecastIndex];
+        } else {
+            forecast = "The high today is: 1000, The low today is: 1, Description: \"Hmm, weird. Let's just say if you go out its wraps\"";
+        }
 
         String response = " Here is the current conditions for " + city + ": " + forecast + ".";
 
         return new NounMetadata(response, PixelDataType.CONST_STRING);
     }
 
-    private String getForecastForCity(String city) {
-        char firstChar = city.trim().charAt(0);
-        char firstLetter = Character.toUpperCase(firstChar);
-
-        int high;
-        int low;
-        String description;
-
-        switch (firstLetter) {
-            case 'A':
-                high = 75;
-                low = 55;
-                description = "Pleasant and sunny with a light breeze.";
-                break;
-            case 'B':
-                high = 60;
-                low = 45;
-                description = "Cool day with occasional clouds.";
-                break;
-            case 'C':
-                high = -5;
-                low = -25;
-                description = "Please do not go outside, it's very cold!";
-                break;
-            case 'D':
-                high = 60;
-                low = 42;
-                description = "Mild weather with patchy sunshine.";
-                break;
-            case 'E':
-                high = 56;
-                low = 43;
-                description = "Crisp air and mostly overcast skies.";
-                break;
-            case 'F':
-                high = 90;
-                low = 70;
-                description = "Hot and bright; hydrate often.";
-                break;
-            case 'G':
-                high = 95;
-                low = 81;
-                description = "Very hot conditions with strong sun, sunscreen is a must.";
-                break;
-            case 'H':
-                high = 40;
-                low = 20;
-                description = "Chilly and calm; keep a jacket handy.";
-                break;
-            case 'I':
-                high = 15;
-                low = -1;
-                description = "Cold and icy; bundle up if you must go outside. Expect slippery conditions.";
-                break;
-            case 'J':
-                high = 56;
-                low = 51;
-                description = "Gloomy day, expect rain and drizzle.";
-                break;
-            case 'K':
-                high = 72;
-                low = 65;
-                description = "Warm and humid with a chance of thunderstorms.";
-                break;
-            case 'L':
-                high = 34;
-                low = 22;
-                description = "Cold with a chance of snow showers.";
-                break;
-            case 'M':
-                high = 125;
-                low = 95;
-                description = "Extreme temperatures demand full heat precautions.";
-                break;
-            case 'N':
-                high = 25;
-                low = 18;
-                description = "Chilly and overcast; bundle up if you go outside.";
-                break;
-            case 'O':
-                high = 35;
-                low = 22;
-                description = "Clear skies but cold; dress warmly.";
-                break;
-            case 'P':
-                high = 44;
-                low = 37;
-                description = "Cool and damp with a chance of light rain.";
-                break;
-            case 'Q':
-                high = 35;
-                low = 18;
-                description = "Brisk and cloudy; a good day for indoor activities.";
-                break;
-            case 'R':
-                high = 13;
-                low = 4;
-                description = "Very cold with strong winds; limit outdoor exposure.";
-                break;
-            case 'S':
-                high = 6;
-                low = -2;
-                description = "Severe cold alert conditions.";
-                break;
-            case 'T':
-                high = 4;
-                low = -5;
-                description = "Intense cold index far below safe levels.";
-                break;
-            case 'U':
-                high = -9;
-                low = -12;
-                description = "Critical cold hazard across the region.";
-                break;
-            case 'V':
-                high = -5;
-                low = -11;
-                description = "Extreme cold stress expected.";
-                break;
-            case 'W':
-                high = 61;
-                low = 53;
-                description = "Warm and muggy with a high chance of thunderstorms.";
-                break;
-            case 'X':
-                high = 44;
-                low = 37;
-                description = "Cool and damp with a chance of light rain.";
-                break;
-            case 'Y':
-                high = 69;
-                low = 54;
-                description = "Warm and sunny with a gentle breeze. Perfect day for outdoor activities.";
-                break;
-            case 'Z':
-                high = 35;
-                low = 22;
-                description = "Cold but pleasant with clear skies.";
-                break;
-            default:
-                high = 1000;
-                low = 1;
-                description = "Flip a coin before you go out, it could either rain money or volcanic ash. Try your luck and have fun!";
-                break;
-        }
-
-        return "The high today is: " + high + ", The low today is: " + low + ", Description: \"" + description + "\"";
-    }
-
-    /**
-     * <p>
-     * This is needed so users can understand the purpose of the reactor in SEMOSS
-     * tooling.
-     * </p>
-     */
     @Override
     public String getReactorDescription() {
         return "Returns the current weather information for a specified city.";
     }
 
-    /**
-     * Supplies parameter descriptions for generated metadata.
-     * This is needed so we explain each input clearly in forms and manifests.
-     * 
-     * @param key the input key being described
-     * @return a human-readable description for that key
-     */
     @Override
     protected String getDescriptionForKey(String key) {
         if (key.equals(CITY_KEY)) {
