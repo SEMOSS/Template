@@ -5,12 +5,15 @@ import java.util.Map;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import prerna.auth.User;
+import prerna.engine.api.IDatabaseEngine;
+import prerna.engine.impl.rdbms.RDBMSNativeEngine;
 import prerna.reactor.AbstractReactor;
 import prerna.sablecc2.om.GenRowStruct;
 import prerna.sablecc2.om.PixelDataType;
 import prerna.sablecc2.om.PixelOperationType;
 import prerna.sablecc2.om.nounmeta.NounMetadata;
 import util.ProjectProperties;
+import prerna.util.Utility;
 
 // Base class for all reactors in this project.
 //
@@ -36,6 +39,14 @@ public abstract class AbstractProjectReactor extends AbstractReactor {
   protected User user;                          // The authenticated user running this reactor
   protected String projectId;                   // The SEMOSS project/app ID
   protected ProjectProperties projectProperties; // Values from java/project.properties
+
+  /** The database identifier associated with the current project. */
+  protected String databaseId;
+
+  /** The database engine instance for executing database operations. */
+  protected RDBMSNativeEngine database;
+
+  protected IDatabaseEngine iDatabase;
 
   // TODO: Initialize additional protected variables (engines, external services,
   // etc.)
@@ -68,6 +79,13 @@ public abstract class AbstractProjectReactor extends AbstractReactor {
 
     // Load properties from java/project.properties (e.g. engine IDs, config values)
     projectProperties = ProjectProperties.getInstance(projectId);
+
+    // Update protected variables
+    databaseId = projectProperties.getDatabaseId();
+    if (databaseId != null) {
+      database = (RDBMSNativeEngine) Utility.getDatabase(databaseId);
+    }
+
 
     // TODO: Initialize additional resources (engines, external services, etc.)
 
