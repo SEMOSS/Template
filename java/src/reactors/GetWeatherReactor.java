@@ -4,7 +4,6 @@ import prerna.sablecc2.om.PixelDataType;
 import prerna.sablecc2.om.nounmeta.NounMetadata;
 
 // GetWeather reactor: returns a hardcoded forecast for a given city.
-//
 // Called from the frontend as:  GetWeather(city=["Boston"])
 // Note: SEMOSS strips the "Reactor" suffix, so GetWeatherReactor becomes GetWeather().
 public class GetWeatherReactor extends AbstractProjectReactor {
@@ -47,7 +46,7 @@ public class GetWeatherReactor extends AbstractProjectReactor {
 	}
 
 	@Override
-	public String getDescriptionForKey(String key) {
+	protected String getDescriptionForKey(String key) {
 		if (CITY_KEY.equals(key)) {
 			return "The city to get the weather forecast for.";
 		}
