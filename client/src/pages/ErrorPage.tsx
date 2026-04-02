@@ -8,8 +8,8 @@ export const ErrorPage = () => {
 		<div className="flex flex-col items-center justify-center h-full">
 			<TriangleAlert className="size-8" />
 			<div>
-				An error has occurred. Please try again or contact support if the
-				problem persists.
+				An error has occurred. Please try again or contact support if
+				the problem persists.
 			</div>
 		</div>
 	);

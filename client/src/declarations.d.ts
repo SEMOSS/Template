@@ -3,9 +3,9 @@
 
 // Environment variables available via import.meta.env (configured in .env and .env.local)
 interface ImportMetaEnv {
-	readonly ENDPOINT: string;       // SEMOSS server URL (e.g. http://localhost:9090)
-	readonly MODULE: string;         // API module path (e.g. /Monolith)
-	readonly APP: string;            // App/project ID
+	readonly ENDPOINT: string; // SEMOSS server URL (e.g. http://localhost:9090)
+	readonly MODULE: string; // API module path (e.g. /Monolith)
+	readonly APP: string; // App/project ID
 	readonly VITE_ACCESS_KEY: string; // Local dev auth (not used in production)
 	readonly VITE_SECRET_KEY: string; // Local dev auth (not used in production)
 }
