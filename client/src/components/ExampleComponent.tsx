@@ -37,24 +37,27 @@ export const ExampleComponent = () => {
 	// Call the GetWeather reactor via a Pixel command.
 	// Pixel is the SEMOSS query language. Reactor names drop the "Reactor" suffix:
 	//   GetWeatherReactor -> GetWeather(city=["value"])
-	const handleGetForecast = useCallback(async (city: string) => {
-		setIsRunning(true);
-		try {
-			const { pixelReturn } = await actions.run<[string]>(
-				`GetWeather(city=${JSON.stringify(city)})`,
-			);
+	const handleGetForecast = useCallback(
+		async (city: string) => {
+			setIsRunning(true);
+			try {
+				const { pixelReturn } = await actions.run<[string]>(
+					`GetWeather(city=${JSON.stringify(city)})`,
+				);
 
-			if (pixelReturn[0].operationType.includes("ERROR")) {
-				throw new Error(pixelReturn[0].output);
+				if (pixelReturn[0].operationType.includes("ERROR")) {
+					throw new Error(pixelReturn[0].output);
+				}
+
+				setForecast(pixelReturn[0].output);
+			} catch (e) {
+				toast.error(`Failed to get forecast: ${e.message}`);
+			} finally {
+				setIsRunning(false);
 			}
-
-			setForecast(pixelReturn[0].output);
-		} catch (e) {
-			toast.error(`Failed to get forecast: ${e.message}`);
-		} finally {
-			setIsRunning(false);
-		}
-	}, [actions]);
+		},
+		[actions],
+	);
 
 	// Send the result back to the Playground chat.
 	// The SDK handles matching this response to the correct MCP tool invocation.
@@ -72,18 +75,21 @@ export const ExampleComponent = () => {
 			if (tool.tool_response) {
 				// Viewing a past execution — restore the previous result
 				setForecast(tool.tool_response);
-				setCity((tool.executedParameters?.city || tool.parameters?.city) as string || "");
+				setCity(
+					((tool.executedParameters?.city ||
+						tool.parameters?.city) as string) || "",
+				);
 				setHasSentToChat(true);
 			} else {
 				// Fresh MCP invocation — auto-fill inputs and optionally auto-run
-				const cityFromParams = tool.parameters?.city as string || "";
+				const cityFromParams = (tool.parameters?.city as string) || "";
 				setCity(cityFromParams);
 				if (cityFromParams) {
 					handleGetForecast(cityFromParams);
 				}
 			}
 		}
-	}, [tool]);
+	}, [tool, handleGetForecast]);
 
 	const disabled = isRunning || hasSentToChat;
 
@@ -102,7 +108,10 @@ export const ExampleComponent = () => {
 				/>
 			</div>
 
-			<Button onClick={() => handleGetForecast(city)} disabled={disabled || !city.trim()}>
+			<Button
+				onClick={() => handleGetForecast(city)}
+				disabled={disabled || !city.trim()}
+			>
 				{isRunning ? "Fetching forecast..." : "Get Forecast"}
 			</Button>
 
@@ -118,7 +127,11 @@ export const ExampleComponent = () => {
 				/>
 			</div>
 
-			<Button variant="outline" onClick={handleSendToChat} disabled={!forecast || disabled}>
+			<Button
+				variant="outline"
+				onClick={handleSendToChat}
+				disabled={!forecast || disabled}
+			>
 				Send to Playground
 			</Button>
 		</div>

@@ -22,7 +22,8 @@ import util.ProjectProperties;
 //
 // To create a new reactor:
 //   1. Create a new class in this folder extending AbstractProjectReactor
-//   2. Define keysToGet (parameter names) and keyRequired (1=required, 0=optional) in the constructor
+//   2. Define keysToGet (parameter names) and keyRequired (1=required, 0=optional) in the
+// constructor
 //   3. Implement doExecute() with your business logic
 //   4. Access parameters via this.keyValue.get("paramName") after organizeKeys() runs
 //   5. Return results as NounMetadata (strings, maps, etc.)
@@ -33,8 +34,8 @@ public abstract class AbstractProjectReactor extends AbstractReactor {
   private static final Logger LOGGER = LogManager.getLogger(AbstractProjectReactor.class);
 
   // These protected variables are available in all subclass reactors
-  protected User user;                          // The authenticated user running this reactor
-  protected String projectId;                   // The SEMOSS project/app ID
+  protected User user; // The authenticated user running this reactor
+  protected String projectId; // The SEMOSS project/app ID
   protected ProjectProperties projectProperties; // Values from java/project.properties
 
   // TODO: Initialize additional protected variables (engines, external services,

@@ -10,22 +10,27 @@ import json
 
 from smssutil import mcp_metadata
 
-@mcp_metadata({
-    "execution": "auto",
-    "displayLocation": "inline",
-    "loadingMessage": "Converting temperature..."
-})
+
+@mcp_metadata(
+    {
+        "execution": "auto",
+        "displayLocation": "inline",
+        "loadingMessage": "Converting temperature...",
+    }
+)
 def fahrenheit_to_celsius(temperature_f: float) -> str:
     """Convert a temperature from Fahrenheit to Celsius."""
     celsius = (temperature_f - 32) * 5 / 9
     return json.dumps({"fahrenheit": temperature_f, "celsius": round(celsius, 2)})
 
 
-@mcp_metadata({
-    "execution": "auto",
-    "displayLocation": "inline",
-    "loadingMessage": "Converting temperature..."
-})
+@mcp_metadata(
+    {
+        "execution": "auto",
+        "displayLocation": "inline",
+        "loadingMessage": "Converting temperature...",
+    }
+)
 def celsius_to_fahrenheit(temperature_c: float) -> str:
     """Convert a temperature from Celsius to Fahrenheit."""
     fahrenheit = temperature_c * 9 / 5 + 32
