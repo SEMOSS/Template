@@ -92,7 +92,7 @@ To make changes visible to users:
 
 - The "Publish files" button in the SEMOSS UI creates a snapshot for users.
 - The `portals` folder contains files available to users, including `portals/index.html` (the app's main entry point).
-- Front-end source code typically lives in the `client` folder and is bundled into `portals` using Webpack (see `client/README.md` for details).
+- Front-end source code typically lives in the `client` folder and is bundled into `portals` using Vite (see `client/README.md` for details).
 - Back-end Java reactors are in the `java` folder. When you click "Recompile reactors" in the SEMOSS UI, SEMOSS compiles these and places `.class` files in the `classes` folder (see `java/README.md` for more).
 
 ---

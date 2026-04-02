@@ -6,14 +6,17 @@ This folder contains the front-end React application for your SEMOSS app.
 
 ## Local development
 
-Before running or building the app, you need to create a `.env.local` file in this folder. This file stores environment-specific variables, impora SEMOSS app ID.
+Before running or building the app, you need to create a `.env.local` file in this folder. This file stores environment-specific variables like your SEMOSS app ID.
 
 1. In the `client` folder, create a new file called `.env.local`.
-2. Add the following line (replace `your-app-id` with your actual SEMOSS app ID): `VITE_APP="your-app-id"`
+2. Add the following line (replace `your-app-id` with your actual SEMOSS app ID): `APP="your-app-id"`
+
+> **Note:**
+> Vite normally only exposes environment variables prefixed with `VITE_` to client code. This project uses a custom Vite configuration (`loadEnv` with an empty prefix in `vite.config.ts`) that loads all environment variables and explicitly injects them via the `define` option. This is why the variable is named `APP` rather than `VITE_APP`.
 
 After setting up your `.env.local file`, you’ll need to add a `project.properties` file for the Java backend. This serves as a foundational configuration file that is required for project structure and build tools.
 
-1. In the `java` folder (in the `client` directory), create a new file named `project.properties`.
+1. In the `java` folder (at the project root), create a new file named `project.properties`.
 2. Leave this blank ofr now, no configuration is currently needed, however the file must exist to ensure the backend can initialize.
 
 ## Essential commands
@@ -25,11 +28,11 @@ After setting up your `.env.local file`, you’ll need to add a `project.propert
 
 2. **pnpm build:**
 
-   1. Run "pnpm build" in the `assets` folder to compile and bundle your front-end code and related resources for production.
+   1. Run "pnpm build" in the `client` folder to compile and bundle your front-end code and related resources for production.
    2. Build output is placed into the `portals` folder within `assets`. The `portals` directory is what SEMOSS displays as your local app.
 
 > **Note:**  
-> After saving changes to your code, run **pnpm build** in the `assets`
+> After saving changes to your code, run **pnpm build** in the `client`
 > folder to update the build. To see updates in your SEMOSS app (http://
 > localhost:9090/SemossWeb/packages/client/dist/#/), use the Publish
 > Files, Refresh Files, and then Refresh buttons to ensure your changes
