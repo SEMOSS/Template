@@ -9,7 +9,7 @@ This folder contains the front-end React application for your SEMOSS app.
 Before running or building the app, you need to create a `.env.local` file in this folder. This file stores environment-specific variables, impora SEMOSS app ID.
 
 1. In the `client` folder, create a new file called `.env.local`.
-2. Add the following line (replace `your-app-id` with your actual SEMOSS app ID): `CLIENT_APP="your-app-id"`
+2. Add the following line (replace `your-app-id` with your actual SEMOSS app ID): `VITE_APP="your-app-id"`
 
 After setting up your `.env.local file`, you’ll need to add a `project.properties` file for the Java backend. This serves as a foundational configuration file that is required for project structure and build tools.
 
