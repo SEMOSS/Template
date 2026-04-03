@@ -8,18 +8,13 @@ on:
       snapshot:
         description: 'CI version snapshot'
         required: true
-        default: '5.0.0-alpha-SNAPSHOT'
+        default: '5.2.0-SNAPSHOT'
         type: choice
         options:
-          - '5.0.0-alpha-SNAPSHOT'
+          - '5.2.0-SNAPSHOT'
           # Add other snapshot versions as needed here!
-      use_cache:
-        description: 'Use cached Maven dependencies if available'
-        required: true
-        default: true
-        type: boolean
       clean_install:
-        description: 'Run `mvn clean install -U` if not using cache'
+        description: 'Run `mvn clean install -U` to force-update dependencies'
         required: true
         default: false
         type: boolean
@@ -30,8 +25,7 @@ jobs:
     runs-on: ubuntu-latest
     container: maven:3.9.9-amazoncorretto-21-debian
     env:
-      SNAPSHOT: ${{ inputs.snapshot || '5.0.0-alpha-SNAPSHOT' }}
-      USE_CACHE: ${{ inputs.use_cache || 'true' }}
+      SNAPSHOT: ${{ inputs.snapshot || '5.2.0-SNAPSHOT' }}
       CLEAN_INSTALL: ${{ inputs.clean_install || 'false' }}
     
     steps:
@@ -40,30 +34,27 @@ jobs:
         
       - name: Cache Maven packages
         id: cache-maven
-        if: env.USE_CACHE == 'true'
         uses: actions/cache@v4
         with:
           path: /root/.m2/repository
-          key: ${{ runner.os }}-maven-${{ hashFiles('**/pom.xml') }}
+          key: ${{ runner.os }}-maven-${{ hashFiles('**/pom.xml') }}-${{ env.SNAPSHOT }}
           restore-keys: |
+            ${{ runner.os }}-maven-${{ hashFiles('**/pom.xml') }}-
             ${{ runner.os }}-maven-
 
       - name: Maven Install
-        if: env.USE_CACHE == 'false' || steps.cache-maven.outputs.cache-hit != 'true'
+        if: steps.cache-maven.outputs.cache-hit != 'true' || env.CLEAN_INSTALL == 'true'
         run: |
-          set -o pipefail
           echo "Clean install: ${CLEAN_INSTALL}"
           echo "Version snapshot: ${SNAPSHOT}"
           if [ "${CLEAN_INSTALL}" = "true" ]; then
             echo "Running mvn clean install with -U flag"
-            mvn clean install -U -DskipTests=true -Dci.version="${SNAPSHOT}" | grep -v "^Progress ([0-9]\+):"
+            mvn -B clean install -U -DskipTests=true -Dci.version="${SNAPSHOT}"
           else
             echo "Running mvn install without -U flag"
-            mvn install -DskipTests=true -Dci.version="${SNAPSHOT}" | grep -v "^Progress ([0-9]\+):"
+            mvn -B install -DskipTests=true -Dci.version="${SNAPSHOT}"
           fi
             
       - name: Run Unit Tests
-        run: |
-          set -o pipefail
-          mvn test -Dci.version="${SNAPSHOT}" | grep -v "^Progress ([0-9]\+):"
+        run: mvn -B ${{ steps.cache-maven.outputs.cache-hit == 'true' && '-o' || '' }} test -Dci.version="${SNAPSHOT}"
           
