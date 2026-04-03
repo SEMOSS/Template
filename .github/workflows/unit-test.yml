@@ -51,6 +51,7 @@ jobs:
       - name: Maven Install
         if: env.USE_CACHE == 'false' || steps.cache-maven.outputs.cache-hit != 'true'
         run: |
+          set -o pipefail
           echo "Clean install: ${CLEAN_INSTALL}"
           echo "Version snapshot: ${SNAPSHOT}"
           if [ "${CLEAN_INSTALL}" = "true" ]; then
@@ -63,5 +64,6 @@ jobs:
             
       - name: Run Unit Tests
         run: |
+          set -o pipefail
           mvn test -Dci.version="${SNAPSHOT}" | grep -v "^Progress ([0-9]\+):"
           
