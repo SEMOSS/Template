@@ -17,7 +17,9 @@
   </properties>
   <build>
     <sourceDirectory>java/src</sourceDirectory>
+    <testSourceDirectory>test</testSourceDirectory>
     <outputDirectory>classes</outputDirectory>
+    <testOutputDirectory>test-classes</testOutputDirectory>
     <resources>
       <resource>
         <directory>java</directory>
@@ -34,6 +36,28 @@
           <source>21</source>
           <target>21</target>
         </configuration>
+      </plugin>
+      <plugin>
+        <groupId>org.apache.maven.plugins</groupId>
+        <artifactId>maven-javadoc-plugin</artifactId>
+        <version>3.6.3</version>
+        <configuration>
+          <source>21</source>
+          <target>21</target>
+          <encoding>UTF-8</encoding>
+          <show>private</show>
+          <nohelp>true</nohelp>
+          <failOnError>false</failOnError>
+          <additionalJOption>-Xdoclint:none</additionalJOption>
+        </configuration>
+        <executions>
+          <execution>
+            <id>attach-javadocs</id>
+            <goals>
+              <goal>jar</goal>
+            </goals>
+          </execution>
+        </executions>
       </plugin>
     </plugins>
   </build>
@@ -58,6 +82,37 @@
         <enabled>true</enabled>
       </snapshots>
     </repository>
+    <repository>
+      <id>public</id>
+      <name>Sonatype's Maven repository</name>
+      <url>https://oss.sonatype.org/content/groups/public</url>
+      <releases>
+        <enabled>true</enabled>
+      </releases>
+      <snapshots>
+        <enabled>false</enabled>
+      </snapshots>
+    </repository>
+    <repository>
+      <id>sonatype-snapshots</id>
+      <name>Sonatype Snapshots</name>
+      <url>https://central.sonatype.com/repository/maven-snapshots</url>
+      <snapshots>
+        <enabled>true</enabled>
+        <updatePolicy>always</updatePolicy>
+      </snapshots>
+    </repository>
+    <repository>
+      <id>3rdPartyJARs</id>
+      <name>Maven repository</name>
+      <url>https://maven.semoss.org/repository/3rdPartyJARs</url>
+      <releases>
+        <enabled>true</enabled>
+      </releases>
+      <snapshots>
+        <enabled>true</enabled>
+      </snapshots>
+    </repository>
   </repositories>
   <dependencies>
     <dependency>
@@ -66,5 +121,54 @@
       <version>${ci.version}</version>
       <scope>provided</scope>
     </dependency>
+    <!--  testing jars  -->
+    <!-- https://mvnrepository.com/artifact/org.junit.jupiter/junit-jupiter-api -->
+    <dependency>
+      <groupId>org.junit.jupiter</groupId>
+      <artifactId>junit-jupiter</artifactId>
+      <version>6.0.0</version>
+      <scope>test</scope>
+    </dependency>
+    <!-- https://mvnrepository.com/artifact/org.junit.platform/junit-platform-suite -->
+    <dependency>
+      <groupId>org.junit.platform</groupId>
+      <artifactId>junit-platform-suite</artifactId>
+      <version>6.0.0</version>
+      <scope>test</scope>
+    </dependency>
+    <!-- https://mvnrepository.com/artifact/org.mockito/mockito-core -->
+    <dependency>
+      <groupId>org.mockito</groupId>
+      <artifactId>mockito-core</artifactId>
+      <version>5.18.0</version>
+      <scope>test</scope>
+      <exclusions>
+        <exclusion>
+          <groupId>net.bytebuddy</groupId>
+          <artifactId>byte-buddy</artifactId>
+        </exclusion>
+        <exclusion>
+          <groupId>org.objenesis</groupId>
+          <artifactId>objenesis</artifactId>
+        </exclusion>
+      </exclusions>
+    </dependency>
   </dependencies>
+  <reporting>
+    <plugins>
+      <plugin>
+        <groupId>org.apache.maven.plugins</groupId>
+        <artifactId>maven-javadoc-plugin</artifactId>
+        <version>3.6.3</version>
+        <configuration>
+          <source>21</source>
+          <encoding>UTF-8</encoding>
+          <show>private</show>
+          <nohelp>true</nohelp>
+          <failOnError>false</failOnError>
+          <additionalJOption>-Xdoclint:none</additionalJOption>
+        </configuration>
+      </plugin>
+    </plugins>
+  </reporting>
 </project>
