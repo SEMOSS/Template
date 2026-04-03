@@ -8,15 +8,22 @@ import org.apache.logging.log4j.Logger;
 import prerna.util.AssetUtility;
 import prerna.util.Utility;
 
-// Loads configuration from java/project.properties and exposes values to reactors.
-//
-// This is a singleton: AbstractProjectReactor calls getInstance(projectId) during
-// preExecute() to initialize it. After that, getInstance() returns the cached instance.
-//
-// To add a new property:
-//   1. Add the key=value to java/project.properties
-//   2. Add a private field and getter in this class
-//   3. Read the value in loadProp() using projectProperties.getProperty("yourKey")
+/**
+ * Loads configuration from {@code java/project.properties} and exposes values to reactors.
+ *
+ * <p>This is a singleton: {@link reactors.AbstractProjectReactor} calls {@link
+ * #getInstance(String)} during {@code preExecute()} to initialize it. After that, {@link
+ * #getInstance()} returns the cached instance.
+ *
+ * <p>To add a new property:
+ *
+ * <ol>
+ *   <li>Add the {@code key=value} to {@code java/project.properties}
+ *   <li>Add a private field and getter in this class
+ *   <li>Read the value in {@link #loadProp(String)} using {@code
+ *       projectProperties.getProperty("yourKey")}
+ * </ol>
+ */
 public class ProjectProperties {
 
   private static final Logger LOGGER = LogManager.getLogger(ProjectProperties.class);
@@ -28,7 +35,12 @@ public class ProjectProperties {
 
   private ProjectProperties() {}
 
-  // Returns the cached singleton. Throws if getInstance(projectId) hasn't been called yet.
+  /**
+   * Returns the cached singleton.
+   *
+   * @return the singleton instance
+   * @throws RuntimeException if {@link #getInstance(String)} hasn't been called yet
+   */
   public static ProjectProperties getInstance() {
     if (INSTANCE == null) {
       throw new RuntimeException("Unable to load project configuration");
@@ -36,7 +48,12 @@ public class ProjectProperties {
     return INSTANCE;
   }
 
-  // First call: loads properties from disk. Subsequent calls: returns cached instance.
+  /**
+   * Returns the singleton, loading properties from disk on first call.
+   *
+   * @param projectId the SEMOSS project ID used to locate the properties file
+   * @return the singleton instance
+   */
   public static ProjectProperties getInstance(String projectId) {
     if (INSTANCE == null) {
       loadProp(projectId);
@@ -44,8 +61,12 @@ public class ProjectProperties {
     return INSTANCE;
   }
 
-  // Reads java/project.properties and populates this instance's fields.
-  // If the file is missing or unreadable, INSTANCE stays null and a warning is logged.
+  /**
+   * Reads {@code java/project.properties} and populates this instance's fields. If the file is
+   * missing or unreadable, {@code INSTANCE} stays {@code null} and a warning is logged.
+   *
+   * @param projectId the SEMOSS project ID used to locate the properties file
+   */
   private static void loadProp(String projectId) {
     ProjectProperties newInstance = new ProjectProperties();
 

@@ -2,8 +2,7 @@
 	"private": true,
 	"scripts": {
 		"build": "vite build",
-		"dev": "vite",
-		"javadoc": "mvn clean javadoc:javadoc && mvn site && pnpm exec http-server target/site/apidocs -p 1227 -a localhost -o"
+		"dev": "vite"
 	},
 	"dependencies": {
 		"@radix-ui/react-label": "^2.1.8",

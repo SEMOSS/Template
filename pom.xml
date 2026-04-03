@@ -102,17 +102,6 @@
         <updatePolicy>always</updatePolicy>
       </snapshots>
     </repository>
-    <repository>
-      <id>3rdPartyJARs</id>
-      <name>Maven repository</name>
-      <url>https://maven.semoss.org/repository/3rdPartyJARs</url>
-      <releases>
-        <enabled>true</enabled>
-      </releases>
-      <snapshots>
-        <enabled>true</enabled>
-      </snapshots>
-    </repository>
   </repositories>
   <dependencies>
     <dependency>
