@@ -122,7 +122,9 @@ def build_server_connection(endpoint: str, access_token: str, secret: str):
             "Make sure the SEMOSS Python SDK is installed in this environment."
         ) from exc
 
-    return ServerClient(base=endpoint.rstrip("/"), access_key=access_token, secret_key=secret)
+    return ServerClient(
+        base=endpoint.rstrip("/"), access_key=access_token, secret_key=secret
+    )
 
 
 def parse_bool(value: object) -> bool:
@@ -217,7 +219,7 @@ def run_project_pixel(
     server_connection, pixel: str, insight_id: str | None = None
 ) -> object:
     response = server_connection.run_pixel(
-        _px(pixel), insight_id=insight_id, full_response=True
+        pixel, insight_id=insight_id, full_response=True
     )
     return pixel_output(response)
 
@@ -225,7 +227,7 @@ def run_project_pixel(
 def browse_remote_directory(
     server_connection, project_id: str, directory_path: str
 ) -> list[dict[str, object]]:
-    pixel = f'BrowseAsset(filePath=["{_px(directory_path)}"], space=["{_px(project_id)}"]);'
+    pixel = f'BrowseAsset(filePath=["{directory_path}"], space=["{project_id}"]);'
     output = run_project_pixel(server_connection, pixel)
     if isinstance(output, list):
         return [item for item in output if isinstance(item, dict)]
@@ -267,7 +269,7 @@ def remote_asset_exists(
 def delete_remote_asset(
     server_connection, project_id: str, remote_file_path: str
 ) -> object:
-    pixel = f'DeleteAsset(filePath=["{_px(remote_file_path)}"], space=["{_px(project_id)}"]);'
+    pixel = f'DeleteAsset(filePath=["{remote_file_path}"], space=["{project_id}"]);'
     return run_project_pixel(server_connection, pixel)
 
 
@@ -277,7 +279,7 @@ def publish_project(server_connection, project_id: str) -> object:
 
 
 def make_python_mcp(server_connection, project_id: str) -> object:
-    pixel = f'SetContext("{_px(project_id)}"); MakePythonMCP(project=["{_px(project_id)}"]);'
+    pixel = f'SetContext("{project_id}"); MakePythonMCP(project=["{project_id}"]);'
     return run_project_pixel(server_connection, pixel)
 
 
@@ -488,7 +490,10 @@ def prompt_for_missing_config(gcai_config: dict[str, str]) -> dict[str, str]:
     if not base_url:
         print("No BASE_URL found in gcai.config.")
         host = input(f"  SEMOSS host [{DEFAULT_HOST}]: ").strip() or DEFAULT_HOST
-        module = input(f"  API module URL [{DEFAULT_BASE_URL}]: ").strip() or DEFAULT_BASE_URL
+        module = (
+            input(f"  API module URL [{DEFAULT_BASE_URL}]: ").strip()
+            or DEFAULT_BASE_URL
+        )
         base_url = f"{host.rstrip('/')}{module}"
         updated["BASE_URL"] = base_url
 
@@ -503,6 +508,7 @@ def prompt_for_missing_config(gcai_config: dict[str, str]) -> dict[str, str]:
             access = input("  Access Key: ").strip()
         if not secret:
             import getpass
+
             secret = getpass.getpass("  Secret Key: ")
 
         if not access or not secret:
@@ -512,7 +518,11 @@ def prompt_for_missing_config(gcai_config: dict[str, str]) -> dict[str, str]:
         updated["SECRET_KEY"] = secret
 
     if updated:
-        save = input("Save these values to gcai.config for future runs? [Y/n]: ").strip().lower()
+        save = (
+            input("Save these values to gcai.config for future runs? [Y/n]: ")
+            .strip()
+            .lower()
+        )
         if save not in {"n", "no"}:
             _write_gcai_config(updated)
             print(f"Saved to {GCAI_CONFIG_PATH}")
@@ -602,7 +612,9 @@ def parse_args() -> argparse.Namespace:
     return parser.parse_args(raw_args)
 
 
-def build_semoss_context(skip_connection: bool = False) -> tuple[dict[str, str], dict[str, object], str, object]:
+def build_semoss_context(
+    skip_connection: bool = False,
+) -> tuple[dict[str, str], dict[str, object], str, object]:
     gcai_config = load_gcai_config(GCAI_CONFIG_PATH)
     semoss_config = load_semoss_config(SEMOSS_CONFIG_PATH)
     gcai_config = prompt_for_missing_config(gcai_config)
@@ -777,7 +789,7 @@ def deploy_bulk(
     # Extract — UnzipFile filePath is relative to version/assets (the server prepends it).
     # Pass just the zip filename; no extractPath so server extracts alongside the zip.
     print(f"Extracting on remote … {zip_path.name}")
-    unzip_pixel = f'UnzipFile(filePath=["/{_px(zip_path.name)}"], space=["{_px(project_id)}"], overwrite=[true]);'
+    unzip_pixel = f'UnzipFile(filePath=["/{zip_path.name}"], space=["{project_id}"], overwrite=[true]);'
     unzip_result = run_project_pixel(server_connection, unzip_pixel)
     print(f"Extraction result: {json.dumps(unzip_result, indent=2, default=str)}")
 
@@ -860,7 +872,9 @@ def deploy_localhost(project_id: str, server_connection) -> int:
         pymcp_result = make_python_mcp(server_connection, project_id)
         print(f"Python MCP Build: {json.dumps(pymcp_result, indent=2, default=str)}")
     except Exception as exc:
-        print(f"  [warn] MakePythonMCP failed (run it manually in the Playground): {exc}")
+        print(
+            f"  [warn] MakePythonMCP failed (run it manually in the Playground): {exc}"
+        )
 
     print("Publishing project …")
     pub_result = publish_project(server_connection, project_id)
@@ -880,7 +894,9 @@ def main() -> int:
 
     if args.command == "deploy":
         # Check for localhost before attempting to connect (connection would fail)
-        gcai_config, semoss_config, project_id, _ = build_semoss_context(skip_connection=True)
+        gcai_config, semoss_config, project_id, _ = build_semoss_context(
+            skip_connection=True
+        )
         if is_localhost(gcai_config, semoss_config):
             _, _, _, server_connection = build_semoss_context()
             return deploy_localhost(project_id, server_connection)
@@ -888,13 +904,17 @@ def main() -> int:
         return deploy_bulk(args.folders, project_id, server_connection)
 
     if args.command == "query":
-        gcai_config, semoss_config, project_id, server_connection = build_semoss_context()
+        gcai_config, semoss_config, project_id, server_connection = (
+            build_semoss_context()
+        )
         db_id = args.db_id
         if not db_id:
             semoss_cfg = load_semoss_config(SEMOSS_CONFIG_PATH)
             db_id = str(semoss_cfg.get("database_id", ""))
         if not db_id:
-            raise SystemExit("No database_id. Pass --db-id <id> or set it in semoss_config/config.json.")
+            raise SystemExit(
+                "No database_id. Pass --db-id <id> or set it in semoss_config/config.json."
+            )
         pixel = f'Database(database=["{db_id}"])|Query("<encode>{args.sql}</encode>")|Collect(500);'
         response = server_connection.run_pixel(pixel, full_response=True)
         print(json.dumps(pixel_output(response), indent=2, default=str))
