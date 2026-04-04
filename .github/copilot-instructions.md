@@ -1,6 +1,6 @@
 You are creating applications for the SEMOSS platform. Use Python only for simple local operations such as base64 conversion. Local means this desktop workspace. SEMOSS means the remote project/app.
 
-If `semoss_config` is missing, first ask which SEMOSS instance to use and record `base_url`. Default values are:
+If `semoss_config` is missing, first ask which SEMOSS instance to use and record `base_url`. Always present the default values below and explicitly ask whether the user wants to use them — do not assume:
 - `base_url`: `https://workshop.cfg.deloitte.com/`
 - `api_module_url`: `/cfg-ai-dev/Monolith`
 - `web_module_url`: `/cfg-ai-dev/SemossWeb`
@@ -18,6 +18,21 @@ d. If the user says yes, pass that value into the `mcp` argument of the create-p
 e. Also ask whether the user wants a full app UI, an agent-enabled app, or only MCP/agent tools with no working app UI requirement.
 f. Save `semoss_config/config.json` as JSON with at least: project/app id, module, created_on, base_url, api_module_url, web_module_url, and `is_mcp`.
 g. Persist that config into the remote project's config directory as well.
+h. After the project is linked or created, check whether `gcai.config` exists in the workspace root. If it is missing or any required property is absent, prompt the user for each value individually — always show the suggested default and ask whether to use it. Never silently apply a default. Write/update `gcai.config` with:
+   - `BASE_URL` — fully qualified API base URL (suggested default: `base_url` + `api_module_url` from `semoss_config`, e.g. `https://workshop.cfg.deloitte.com/cfg-ai-dev/Monolith`)
+   - `PROJECT_ID` — the project/app ID (suggested default: value from `semoss_config/config.json`)
+   - `IS_MCP` — `true` or `false` (suggested default: value from `semoss_config/config.json`)
+   - `ACCESS_KEY` and `SECRET_KEY` — credentials for the SEMOSS instance. These must be added manually by the user; do not prompt for them interactively.
+   
+   The file format is `KEY=VALUE`, one per line. Example:
+   ```
+   BASE_URL=https://workshop.cfg.deloitte.com/cfg-ai-dev/Monolith
+   PROJECT_ID=0076968e-eedf-49b9-b2d8-bf72147b2a3e
+   IS_MCP=true
+   ACCESS_KEY=myAccessKey
+   SECRET_KEY=mySecretKey
+   ```
+   If `gcai.config` already exists with all five keys present, read them, confirm the values with the user, and continue.
 
 When saving files, always use the `ai_server` SDK or the helper in `scripts/semoss_asset_sync.py`.
 
@@ -33,6 +48,15 @@ server_connection.run_pixel('1+1')
 Before upload, check whether the remote file already exists. If it does, ask the user before deleting it. After delete and after upload, publish the project. Then list files so the result is visible.
 
 If databases are involved, never create the database through MCP. Always direct the user to create the database in the UI first so they stay in control of the setup decisions, review the inputs, and confirm the final configuration. After that, ask for the database id, get the schema, decode the base64 payload, and store the schema in `semoss_config`. Use Python for base64 conversion when needed.
+
+For all database SQL operations (DDL and DML), use the `SqlQuery` reactor — do NOT use `Database(...)|Query(...)` or `Database(...)|Update(...)`:
+- **Read queries:** `SqlQuery(database=["<db_id>"], query=["<SQL>"])` via `actions.run()` or `server_connection.run_pixel()`
+- **DDL / writes:** `SqlQuery(database=["<db_id>"], query=["<SQL>"], queryType=["update"], commit=[true])` for CREATE, ALTER, INSERT, UPDATE, DELETE, DROP
+
+After any successful SQL DDL or DML changes (CREATE, ALTER, INSERT, UPDATE, DELETE, DROP):
+1. **Create a migration script** — save the SQL to `data/migration_<NNN>_<short_description>.sql` where NNN is a zero-padded sequence number (e.g. `001`, `002`). Each file contains only the statements for that change, one statement per line, terminated with `;`.
+2. **Update the schema file** — reflect the change in `semoss_config/schema.sql` (or `semoss_config/schema.json` if that is what exists). For DDL changes update table/column definitions; for seed data changes add a comment noting the data was seeded.
+Both steps are mandatory — do not skip either one.
 
 UI guidance:
 - Unless the user says otherwise, build the UI as a single page HTML app.

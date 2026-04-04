@@ -43,7 +43,10 @@ def load_gcai_config(config_path: Path) -> dict[str, str]:
         if not stripped or stripped.startswith("#") or "=" not in stripped:
             continue
         key, value = stripped.split("=", 1)
-        values[key.strip()] = value.strip()
+        v = value.strip()
+        if len(v) >= 2 and v[0] in ('"', "'") and v[-1] == v[0]:
+            v = v[1:-1]
+        values[key.strip()] = v
     return values
 
 
@@ -119,7 +122,7 @@ def build_server_connection(endpoint: str, access_token: str, secret: str):
             "Make sure the SEMOSS Python SDK is installed in this environment."
         ) from exc
 
-    return ServerClient(base=endpoint, access_key=access_token, secret_key=secret)
+    return ServerClient(base=endpoint.rstrip("/"), access_key=access_token, secret_key=secret)
 
 
 def parse_bool(value: object) -> bool:
@@ -205,11 +208,16 @@ def pixel_output(response: dict) -> object:
     return pixel_return[0].get("output")
 
 
+def _px(value: str) -> str:
+    """Escape a string value for safe embedding inside a Pixel argument list."""
+    return str(value).replace('"', '\\"')
+
+
 def run_project_pixel(
     server_connection, pixel: str, insight_id: str | None = None
 ) -> object:
     response = server_connection.run_pixel(
-        pixel, insight_id=insight_id, full_response=True
+        _px(pixel), insight_id=insight_id, full_response=True
     )
     return pixel_output(response)
 
@@ -217,7 +225,7 @@ def run_project_pixel(
 def browse_remote_directory(
     server_connection, project_id: str, directory_path: str
 ) -> list[dict[str, object]]:
-    pixel = f'BrowseAsset(filePath=["{directory_path}"], space=["{project_id}"]);'
+    pixel = f'BrowseAsset(filePath=["{_px(directory_path)}"], space=["{_px(project_id)}"]);'
     output = run_project_pixel(server_connection, pixel)
     if isinstance(output, list):
         return [item for item in output if isinstance(item, dict)]
@@ -259,7 +267,7 @@ def remote_asset_exists(
 def delete_remote_asset(
     server_connection, project_id: str, remote_file_path: str
 ) -> object:
-    pixel = f'DeleteAsset(filePath=["{remote_file_path}"], space=["{project_id}"]);'
+    pixel = f'DeleteAsset(filePath=["{_px(remote_file_path)}"], space=["{_px(project_id)}"]);'
     return run_project_pixel(server_connection, pixel)
 
 
@@ -269,7 +277,7 @@ def publish_project(server_connection, project_id: str) -> object:
 
 
 def make_python_mcp(server_connection, project_id: str) -> object:
-    pixel = f'SetContext("{project_id}"); MakePythonMCP(project=["{project_id}"]);'
+    pixel = f'SetContext("{_px(project_id)}"); MakePythonMCP(project=["{_px(project_id)}"]);'
     return run_project_pixel(server_connection, pixel)
 
 
@@ -457,6 +465,61 @@ def sync_remote_folder_to_local(
     }
 
 
+def _write_gcai_config(updates: dict[str, str]) -> None:
+    """Merge *updates* into gcai.config, preserving existing keys."""
+    existing: dict[str, str] = {}
+    if GCAI_CONFIG_PATH.exists():
+        existing = load_gcai_config(GCAI_CONFIG_PATH)
+    merged = {**existing, **updates}
+    lines = [f"{k}={v}" for k, v in merged.items()]
+    GCAI_CONFIG_PATH.write_text("\n".join(lines) + "\n", encoding="utf-8")
+
+
+def prompt_for_missing_config(gcai_config: dict[str, str]) -> dict[str, str]:
+    """
+    Ensure BASE_URL, ACCESS_KEY, and SECRET_KEY are present in gcai_config.
+    Prompts the user for any that are missing and offers to save them to
+    gcai.config so future runs skip the prompts.
+    """
+    updated: dict[str, str] = {}
+
+    # ── Endpoint ──────────────────────────────────────────────────────────
+    base_url = gcai_config.get("BASE_URL", "").strip()
+    if not base_url:
+        print("No BASE_URL found in gcai.config.")
+        host = input(f"  SEMOSS host [{DEFAULT_HOST}]: ").strip() or DEFAULT_HOST
+        module = input(f"  API module URL [{DEFAULT_BASE_URL}]: ").strip() or DEFAULT_BASE_URL
+        base_url = f"{host.rstrip('/')}{module}"
+        updated["BASE_URL"] = base_url
+
+    # ── Credentials ───────────────────────────────────────────────────────
+    access = gcai_config.get("ACCESS_KEY", "").strip()
+    secret = gcai_config.get("SECRET_KEY", "").strip()
+
+    if not access or not secret:
+        print("Dev credentials (ACCESS_KEY / SECRET_KEY) not found in gcai.config.")
+        print("These are separate from the keys in .vscode/mcp.json.")
+        if not access:
+            access = input("  Access Key: ").strip()
+        if not secret:
+            import getpass
+            secret = getpass.getpass("  Secret Key: ")
+
+        if not access or not secret:
+            raise SystemExit("Access key and secret key are required.")
+
+        updated["ACCESS_KEY"] = access
+        updated["SECRET_KEY"] = secret
+
+    if updated:
+        save = input("Save these values to gcai.config for future runs? [Y/n]: ").strip().lower()
+        if save not in {"n", "no"}:
+            _write_gcai_config(updated)
+            print(f"Saved to {GCAI_CONFIG_PATH}")
+
+    return {**gcai_config, **updated}
+
+
 def build_parser() -> argparse.ArgumentParser:
     parser = argparse.ArgumentParser(
         description="Upload local assets to SEMOSS or sync remote assets to local."
@@ -499,6 +562,24 @@ def build_parser() -> argparse.ArgumentParser:
         help="Override which local folders to include (default: portals py java).",
     )
 
+    query_parser = subparsers.add_parser(
+        "query",
+        help="Run a SQL SELECT against the project database and print results as JSON.",
+    )
+    query_parser.add_argument("sql", help="SQL statement to execute.")
+    query_parser.add_argument(
+        "--db-id",
+        dest="db_id",
+        default=None,
+        help="Database engine ID (default: database_id from semoss_config/config.json).",
+    )
+
+    pixel_parser = subparsers.add_parser(
+        "pixel",
+        help='Run an arbitrary Pixel string. Escape embedded quotes as \\".',
+    )
+    pixel_parser.add_argument("pixel_str", help="Pixel string to execute.")
+
     return parser
 
 
@@ -509,6 +590,8 @@ def parse_args() -> argparse.Namespace:
         "upload",
         "sync-from-remote",
         "deploy",
+        "query",
+        "pixel",
         "-h",
         "--help",
     }:
@@ -522,7 +605,7 @@ def parse_args() -> argparse.Namespace:
 def build_semoss_context(skip_connection: bool = False) -> tuple[dict[str, str], dict[str, object], str, object]:
     gcai_config = load_gcai_config(GCAI_CONFIG_PATH)
     semoss_config = load_semoss_config(SEMOSS_CONFIG_PATH)
-    access_token, secret = load_bearer_parts(MCP_CONFIG_PATH)
+    gcai_config = prompt_for_missing_config(gcai_config)
 
     project_id = get_project_id(gcai_config, semoss_config)
     if not project_id:
@@ -535,8 +618,8 @@ def build_semoss_context(skip_connection: bool = False) -> tuple[dict[str, str],
 
     server_connection = build_server_connection(
         endpoint=build_api_endpoint(gcai_config, semoss_config),
-        access_token=access_token,
-        secret=secret,
+        access_token=gcai_config["ACCESS_KEY"],
+        secret=gcai_config["SECRET_KEY"],
     )
     return gcai_config, semoss_config, project_id, server_connection
 
@@ -651,8 +734,6 @@ def deploy_bulk(
 
     # Folders that live under version/assets on the remote (need the prefix in the zip)
     ROOT_FOLDERS = {"portals", "mcp", "config", "data", "py", "java"}
-    # Folders that live at the project root on the remote (no prefix needed)
-    VERSIONED_FOLDERS = {"java"}
 
     with zipfile.ZipFile(zip_path, "w", zipfile.ZIP_DEFLATED) as zf:
         for folder_name in deploy_folders:
@@ -696,7 +777,7 @@ def deploy_bulk(
     # Extract — UnzipFile filePath is relative to version/assets (the server prepends it).
     # Pass just the zip filename; no extractPath so server extracts alongside the zip.
     print(f"Extracting on remote … {zip_path.name}")
-    unzip_pixel = f'UnzipFile(filePath=["/{zip_path.name}"], space=["{project_id}"], overwrite=[true]);'
+    unzip_pixel = f'UnzipFile(filePath=["/{_px(zip_path.name)}"], space=["{_px(project_id)}"], overwrite=[true]);'
     unzip_result = run_project_pixel(server_connection, unzip_pixel)
     print(f"Extraction result: {json.dumps(unzip_result, indent=2, default=str)}")
 
@@ -801,10 +882,34 @@ def main() -> int:
         # Check for localhost before attempting to connect (connection would fail)
         gcai_config, semoss_config, project_id, _ = build_semoss_context(skip_connection=True)
         if is_localhost(gcai_config, semoss_config):
-            print("Localhost detected — skipping deploy. Use the SEMOSS UI or run MakePythonMCP() in the Playground.")
-            return 0
+            _, _, _, server_connection = build_semoss_context()
+            return deploy_localhost(project_id, server_connection)
         _, _, _, server_connection = build_semoss_context()
         return deploy_bulk(args.folders, project_id, server_connection)
+
+    if args.command == "query":
+        gcai_config, semoss_config, project_id, server_connection = build_semoss_context()
+        db_id = args.db_id
+        if not db_id:
+            semoss_cfg = load_semoss_config(SEMOSS_CONFIG_PATH)
+            db_id = str(semoss_cfg.get("database_id", ""))
+        if not db_id:
+            raise SystemExit("No database_id. Pass --db-id <id> or set it in semoss_config/config.json.")
+        pixel = f'Database(database=["{db_id}"])|Query("<encode>{args.sql}</encode>")|Collect(500);'
+        response = server_connection.run_pixel(pixel, full_response=True)
+        print(json.dumps(pixel_output(response), indent=2, default=str))
+        return 0
+
+    if args.command == "pixel":
+        _, _, _, server_connection = build_semoss_context()
+        pixel = args.pixel_str
+        if pixel == "-":
+            pixel = sys.stdin.read().strip()
+        else:
+            pixel = pixel.replace('\\"', '"')
+        response = server_connection.run_pixel(pixel, full_response=True)
+        print(json.dumps(pixel_output(response), indent=2, default=str))
+        return 0
 
     gcai_config, semoss_config, project_id, server_connection = build_semoss_context()
 
