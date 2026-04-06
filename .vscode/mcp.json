@@ -9,28 +9,6 @@
 				"--header",
 				"Authorization:Bearer access:secret"
 			]
-		},
-		"Semoss_project_manager": {
-			"name": "project manager",
-			"command": "npx",
-			"args": [
-				"-y",
-				"mcp-remote",
-				"https://workshop.cfg.deloitte.com/cfg-ai-dev/Monolith/api/ext/mcp/03e8cbeb-2f76-4213-9766-57448a3837a4/comms",
-				"--header",
-				"Authorization:Bearer access:secret"
-			]
-		},
-		"Semoss_database_helper": {
-			"name": "db helper",
-			"command": "npx",
-			"args": [
-				"-y",
-				"mcp-remote",
-				"https://workshop.cfg.deloitte.com/cfg-ai-dev/Monolith/api/ext/mcp/394404bf-02e5-44b2-bc7c-e93d9b698f58/comms",
-				"--header",
-				"Authorization:Bearer access:secret"
-			]
 		}
 	},
 	"inputs": []

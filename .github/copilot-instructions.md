@@ -16,7 +16,7 @@ b. If it is not linked, ask whether to create a new SEMOSS project or link an ex
 c. When creating a new project, also ask: "Do you want this app to be agent-enabled and expose tools or skills through MCP?"
 d. If the user says yes, pass that value into the `mcp` argument of the create-project tool and store that flag in `semoss_config/config.json`.
 e. Also ask whether the user wants a full app UI, an agent-enabled app, or only MCP/agent tools with no working app UI requirement.
-f. Save `semoss_config/config.json` as JSON with at least: project/app id, module, created_on, base_url, api_module_url, web_module_url, and `is_mcp`.
+f. Save `semoss_config/config.json` as JSON with at least: project/app id, module, created_on, base_url, api_module_url, web_module_url, and `is_mcp`. Prompt users for values when needed, but always show the default and ask for confirmation before applying it. Never silently apply defaults.
 g. Persist that config into the remote project's config directory as well.
 h. After the project is linked or created, check whether `gcai.config` exists in the workspace root. If it is missing or any required property is absent, prompt the user for each value individually — always show the suggested default and ask whether to use it. Never silently apply a default. Write/update `gcai.config` with:
    - `BASE_URL` — fully qualified API base URL (suggested default: `base_url` + `api_module_url` from `semoss_config`, e.g. `https://workshop.cfg.deloitte.com/cfg-ai-dev/Monolith`)
@@ -33,6 +33,7 @@ h. After the project is linked or created, check whether `gcai.config` exists in
    SECRET_KEY=mySecretKey
    ```
    If `gcai.config` already exists with all five keys present, read them, confirm the values with the user, and continue.
+i. Ask if they want to create a database or use an existing and prompt for the database_id.
 
 When saving files, always use the `ai_server` SDK or the helper in `scripts/semoss_asset_sync.py`.
 
@@ -59,6 +60,7 @@ After any successful SQL DDL or DML changes (CREATE, ALTER, INSERT, UPDATE, DELE
 Both steps are mandatory — do not skip either one.
 
 UI guidance:
+- The APP key in the .env in the Client folder corresponds to the project/app id in SEMOSS. Make sure to set that when creating or linking a project.
 - Unless the user says otherwise, build the UI as a single page HTML app.
 - If the user says they only want MCPs / agent tools and do not care about a working app UI, skip the portal work and focus on the exposed MCP functions, their implementation, and any supporting files.
 - If the app is marked as agent-enabled, do not stop at the HTML UI. Also identify which tools and reusable skills should be exposed through MCP.
@@ -88,6 +90,8 @@ Do not put write-file style calls into context. It wastes context.
 Use only the specified MCPs. Do not install new libraries. Do not create a virtual environment. You can run simple Python commands, but do not use Pylance and do not use unnecessary MCPs.
 
 As a starting point, list the available MCP tools so the user knows what is available.
+
+For java, if there is a database id involved in the project, updated the one in java/project.properties so reactors are calling the correct database.
 
 Be concise. Keep code and instructions reviewable.
 

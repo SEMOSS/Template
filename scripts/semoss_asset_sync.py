@@ -897,9 +897,6 @@ def main() -> int:
         gcai_config, semoss_config, project_id, _ = build_semoss_context(
             skip_connection=True
         )
-        if is_localhost(gcai_config, semoss_config):
-            _, _, _, server_connection = build_semoss_context()
-            return deploy_localhost(project_id, server_connection)
         _, _, _, server_connection = build_semoss_context()
         return deploy_bulk(args.folders, project_id, server_connection)
 
