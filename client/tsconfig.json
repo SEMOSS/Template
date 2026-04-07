@@ -1,5 +1,6 @@
 {
 	"compilerOptions": {
+		"baseUrl": ".",
 		"target": "es6",
 		"lib": ["dom", "dom.iterable", "esnext"],
 		"allowJs": true,
@@ -16,10 +17,9 @@
 		"incremental": true,
 		"experimentalDecorators": true,
 		"paths": {
-			"@/*": ["./src/*"]
+			"@/*": ["src/*"]
 		},
-		"outDir": "../portals",
-		"rootDir": "./src"
+		"outDir": "../portals"
 	},
 	"include": ["./src/**/*"]
 }
