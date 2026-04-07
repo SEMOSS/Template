@@ -8,11 +8,10 @@ Comprehensive test suite for SEMOSS Template project reactors with organized tes
 test/
 ├── reactors/
 │   ├── BaseReactorTest.java          # Base test class with common mocking utilities
-│   ├── ReactorTestSuite.java         # Test suite to run all tests together
-│   └── example/
-│       ├── HelloReactorTest.java     # Tests for HelloUserReactor
-│       ├── CallPythonReactorTest.java # Tests for CallPythonReactor
-│       └── OpenMCPAppReactorTest.java # Tests for OpenMCPAppReactor
+│   ├── GetWeatherReactorTest.java    # Tests for GetWeatherReactor
+│   └── ReactorTestSuite.java         # Test suite to run all tests together
+└── resources/
+    └── log4j2-test.xml               # Logging configuration for tests
 ```
 
 ## Running Tests
@@ -26,14 +25,8 @@ mvn test -Dtest=ReactorTestSuite
 ### Run Individual Test Classes
 
 ```bash
-# Run HelloUserReactor tests
-mvn test -Dtest=HelloReactorTest
-
-# Run CallPythonReactor tests
-mvn test -Dtest=CallPythonReactorTest
-
-# Run OpenMCPAppReactor tests
-mvn test -Dtest=OpenMCPAppReactorTest
+# Run GetWeatherReactor tests
+mvn test -Dtest=GetWeatherReactorTest
 ```
 
 ### Run All Tests
@@ -45,7 +38,7 @@ mvn test
 ### Run Specific Test Method
 
 ```bash
-mvn test -Dtest=HelloReactorTest#testHelloUserReactor_CustomName
+mvn test -Dtest=GetWeatherReactorTest#testGetWeatherReactor_CustomCity
 ```
 
 ## Testing Workflow
@@ -175,14 +168,14 @@ mvn test -Dtest=YourReactorTest#testSpecificScenario -X
 
 ### Workflow Best Practices
 
-✅ **Do:**
+**Do:**
 - Run tests frequently during development
 - Write tests for bug fixes before fixing the bug
 - Keep tests fast and focused
 - Run full test suite before pushing to remote
 - Update test documentation when adding new tests
 
-❌ **Don't:**
+**Don't:**
 - Skip writing tests for "simple" reactors
 - Commit code with failing tests
 - Ignore test failures in CI/CD
@@ -191,25 +184,10 @@ mvn test -Dtest=YourReactorTest#testSpecificScenario -X
 
 ## Test Coverage
 
-### HelloUserReactor Tests
-- ✅ Default user greeting (no parameters)
-- ✅ Custom name parameter
-- ✅ Empty string name parameter
-
-### CallPythonReactor Tests
-- ✅ Fibonacci calculation for input 0
-- ✅ Fibonacci calculation for input 1
-- ✅ Fibonacci calculation for input 5
-- ✅ Fibonacci calculation for input 10
-- ✅ Fibonacci calculation for input 20 (large number)
-- ✅ Argument list verification
-
-### OpenMCPAppReactor Tests
-- ✅ Returns placeholder message
-- ✅ Exact message verification
-- ✅ No parameters required
-- ✅ Reactor description verification
-- ✅ Multiple executions consistency
+### GetWeatherReactor Tests
+- Default weather retrieval
+- Custom city parameter
+- Error handling for missing parameters
 
 ## BaseReactorTest Utilities
 
