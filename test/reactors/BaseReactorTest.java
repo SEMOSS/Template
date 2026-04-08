@@ -30,16 +30,13 @@ import prerna.util.AssetUtility;
  * tests.
  * All reactor test classes should extend this class to leverage shared test
  * infrastructure.
- * 
- * <p>
+ *
  * This class handles:
- * <ul>
- * <li>Mock setup and teardown for common SEMOSS components</li>
- * <li>Temporary directory management for project assets</li>
- * <li>User authentication mocking</li>
- * <li>Project property file creation</li>
- * <li>PyTranslator mocking for Python-based reactors</li>
- * </ul>
+ *   - Mock setup and teardown for common SEMOSS components
+ *   - Temporary directory management for project assets
+ *   - User authentication mocking
+ *   - Project property file creation
+ *   - PyTranslator mocking for Python-based reactors
  */
 public abstract class BaseReactorTest {
 

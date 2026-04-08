@@ -18,23 +18,17 @@ import util.ProjectProperties;
  * <p>Every reactor you create should extend this class instead of {@link AbstractReactor} directly.
  * It handles:
  *
- * <ul>
- *   <li>SEMOSS initialization (project ID, user context, project properties)
- *   <li>Standardized error handling (exceptions become error responses, not crashes)
- *   <li>Common helper methods (e.g. {@link #getMap(String)} for map-type parameters)
- * </ul>
+ * <p>- SEMOSS initialization (project ID, user context, project properties) - Standardized error
+ * handling (exceptions become error responses, not crashes) - Common helper methods (e.g. {@link
+ * #getMap(String)} for map-type parameters)
  *
  * <p>To create a new reactor:
  *
- * <ol>
- *   <li>Create a new class in this folder extending {@code AbstractProjectReactor}
- *   <li>Define {@code keysToGet} (parameter names) and {@code keyRequired} (1=required, 0=optional)
- *       in the constructor
- *   <li>Implement {@link #doExecute()} with your business logic
- *   <li>Access parameters via {@code this.keyValue.get("paramName")} after {@link #organizeKeys()}
- *       runs
- *   <li>Return results as {@link NounMetadata} (strings, maps, etc.)
- * </ol>
+ * <p>1. Create a new class in this folder extending {@code AbstractProjectReactor} 2. Define {@code
+ * keysToGet} (parameter names) and {@code keyRequired} (1=required, 0=optional) in the constructor
+ * 3. Implement {@link #doExecute()} with your business logic 4. Access parameters via {@code
+ * this.keyValue.get("paramName")} after {@link #organizeKeys()} runs 5. Return results as {@link
+ * NounMetadata} (strings, maps, etc.)
  *
  * @see GetWeatherReactor
  */

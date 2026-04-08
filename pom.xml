@@ -42,28 +42,6 @@
           <target>21</target>
         </configuration>
       </plugin>
-      <plugin>
-        <groupId>org.apache.maven.plugins</groupId>
-        <artifactId>maven-javadoc-plugin</artifactId>
-        <version>3.6.3</version>
-        <configuration>
-          <source>21</source>
-          <target>21</target>
-          <encoding>UTF-8</encoding>
-          <show>private</show>
-          <nohelp>true</nohelp>
-          <failOnError>false</failOnError>
-          <additionalJOption>-Xdoclint:none</additionalJOption>
-        </configuration>
-        <executions>
-          <execution>
-            <id>attach-javadocs</id>
-            <goals>
-              <goal>jar</goal>
-            </goals>
-          </execution>
-        </executions>
-      </plugin>
     </plugins>
   </build>
   <repositories>
@@ -115,7 +93,7 @@
       <version>${ci.version}</version>
       <scope>provided</scope>
     </dependency>
-    <!--  testing jars  -->
+    <!--  Testing jars  -->
     <!-- https://mvnrepository.com/artifact/org.junit.jupiter/junit-jupiter-api -->
     <dependency>
       <groupId>org.junit.jupiter</groupId>
@@ -148,21 +126,4 @@
       </exclusions>
     </dependency>
   </dependencies>
-  <reporting>
-    <plugins>
-      <plugin>
-        <groupId>org.apache.maven.plugins</groupId>
-        <artifactId>maven-javadoc-plugin</artifactId>
-        <version>3.6.3</version>
-        <configuration>
-          <source>21</source>
-          <encoding>UTF-8</encoding>
-          <show>private</show>
-          <nohelp>true</nohelp>
-          <failOnError>false</failOnError>
-          <additionalJOption>-Xdoclint:none</additionalJOption>
-        </configuration>
-      </plugin>
-    </plugins>
-  </reporting>
 </project>

@@ -2,8 +2,7 @@
 	"private": true,
 	"scripts": {
 		"fix": "biome format --write && biome lint && pre-commit run --all-files || pre-commit run --all-files",
-		"dev": "pnpm --dir client dev",
-		"javadoc": "mvn clean javadoc:javadoc && mvn site && pnpm exec http-server target/site/apidocs -p 1227 -a localhost -o"
+		"dev": "pnpm --dir client dev"
 	},
 	"devDependencies": {
 		"@biomejs/biome": "2.4.10",

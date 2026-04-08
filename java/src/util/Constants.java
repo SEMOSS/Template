@@ -6,10 +6,7 @@ package util;
  *
  * <p>Example:
  *
- * <pre>
- *   public static final String DEFAULT_MODEL = "gpt-4";
- *   public static final int MAX_RETRIES = 3;
- * </pre>
+ * <p>public static final String DEFAULT_MODEL = "gpt-4"; public static final int MAX_RETRIES = 3;
  */
 public class Constants {
 

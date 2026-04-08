@@ -7,9 +7,7 @@ import org.junit.platform.suite.api.SuiteDisplayName;
 /**
  * Test suite that runs all reactor tests in the project.
  *
- * <pre>
- * mvn test -Dtest=ReactorTestSuite
- * </pre>
+ *   mvn test -Dtest=ReactorTestSuite
  */
 @Suite
 @SuiteDisplayName("Reactor Test Suite")

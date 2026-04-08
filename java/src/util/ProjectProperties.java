@@ -17,12 +17,9 @@ import prerna.util.Utility;
  *
  * <p>To add a new property:
  *
- * <ol>
- *   <li>Add the {@code key=value} to {@code java/project.properties}
- *   <li>Add a private field and getter in this class
- *   <li>Read the value in {@link #loadProp(String)} using {@code
- *       projectProperties.getProperty("yourKey")}
- * </ol>
+ * <p>1. Add the {@code key=value} to {@code java/project.properties} 2. Add a private field and
+ * getter in this class 3. Read the value in {@link #loadProp(String)} using {@code
+ * projectProperties.getProperty("yourKey")}
  */
 public class ProjectProperties {
 

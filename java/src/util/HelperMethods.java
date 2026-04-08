@@ -6,9 +6,7 @@ package util;
  *
  * <p>Example:
  *
- * <pre>
- *   public static String sanitizeInput(String input) { ... }
- *   public static Map&lt;String, Object&gt; buildSuccessResponse(Object data) { ... }
- * </pre>
+ * <p>public static String sanitizeInput(String input) { ... } public static Map<String, Object>
+ * buildSuccessResponse(Object data) { ... }
  */
 public class HelperMethods {}
