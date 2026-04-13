@@ -60,8 +60,9 @@ Example command for a reactor with a custom sidebar UI:
 ```
 MakePixelMCP(reactor=["GeneratePresentation"], mcpMetadata=[{ "SMSS_MCP_UI": { "displayLocation": "sidebar", "resourceURI": "/#/" }, "SMSS_MCP_EXECUTION": "ask" }]);
 ```
+> **Route must exist:** The `resourceURI` value (e.g. `/#/` or `/#/generate`) must correspond to a route defined in `client/src/pages/Router.tsx`. If the route doesn't exist, the tool UI will hit the catch-all and redirect to `/`.
 
-**MCP metadata options:** `resourceURI` (React route for custom UI, e.g. `/#/` — omit for default UI), `execution` (`"ask"` / `"auto"` / `"disabled"`), `loadingMessage` (custom message shown during auto-execution), `displayLocation` (`"inline"` / `"sidebar"` / `"none"`)
+**MCP metadata options:** `resourceURI` (React route for custom UI — must match a route in Router.tsx; omit for default UI), `execution` (`"ask"` / `"auto"` / `"disabled"`), `loadingMessage` (custom message shown during auto-execution), `displayLocation` (`"inline"` / `"sidebar"` / `"none"`)
 
 ## Default UI vs Custom UI
 
@@ -71,6 +72,19 @@ Tools can use either the **default UI** or a **custom UI**:
 - **Custom UI:** When `resourceURI` points to a React route (e.g. `/#/`), Playground renders your app's frontend. Use this when you need rich interactions, visualizations, multi-step workflows, or custom layouts. Routes must use hash router (`/#/path`) because SEMOSS serves the app in an iframe — standard browser routing won't work.
 
 Both Python and Java tools support either UI mode — just include or omit `resourceURI` in the MCP metadata. Python tools tend to be simple and typically use the default UI. The examples in `py/mcp_driver.py` use the default UI. The `GetWeather` Java reactor uses a custom UI defined in `client/src/components/ExampleComponent.tsx`.
+
+### Routing for Custom UI Tools
+
+**Be intentional with routes.** The `resourceURI` in MCP metadata maps directly to a route in `client/src/pages/Router.tsx`. Every tool with a custom UI needs a deliberate route assignment:
+
+- **`/#/`** → the root route (`/` in Router.tsx). Use this only if the app has a single tool with a custom UI, or if you intentionally want multiple tools to share the same UI.
+- **`/#/tool-name`** → a dedicated route (`/tool-name` in Router.tsx). Use this when the app has multiple tools that each need their own UI.
+
+**When adding a new tool with a custom UI, always do both steps:**
+1. Add a route in `Router.tsx` (e.g. `{ path: '/generate', Component: GeneratePage }`)
+2. Set `resourceURI` in the `MakePixelMCP()` call to match (e.g. `"resourceURI": "/#/generate"`)
+
+If two tools point to the same `resourceURI`, they will render the same component — the UI won't know which tool invoked it unless you inspect `tool.parameters`. In most cases, give each tool its own route.
 
 ## Java Reactor Rules
 
