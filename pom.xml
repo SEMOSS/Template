@@ -52,7 +52,7 @@
       </plugin>
     </plugins>
   </build>
-  <!-- Maven repositories: Central, SEMOSS 3rd-party, and Sonatype for snapshots -->
+  <!-- Maven repositories: Central and SEMOSS Nexus -->
   <repositories>
     <!-- Maven Central — primary public repository -->
     <repository>
@@ -74,28 +74,6 @@
       </releases>
       <snapshots>
         <enabled>true</enabled>
-      </snapshots>
-    </repository>
-    <!-- Sonatype OSS — public releases from open-source projects -->
-    <repository>
-      <id>public</id>
-      <name>Sonatype's Maven repository</name>
-      <url>https://oss.sonatype.org/content/groups/public</url>
-      <releases>
-        <enabled>true</enabled>
-      </releases>
-      <snapshots>
-        <enabled>false</enabled>
-      </snapshots>
-    </repository>
-    <!-- Sonatype Snapshots — for SNAPSHOT builds that update on every check -->
-    <repository>
-      <id>sonatype-snapshots</id>
-      <name>Sonatype Snapshots</name>
-      <url>https://central.sonatype.com/repository/maven-snapshots</url>
-      <snapshots>
-        <enabled>true</enabled>
-        <updatePolicy>always</updatePolicy>
       </snapshots>
     </repository>
   </repositories>
