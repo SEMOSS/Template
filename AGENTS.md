@@ -58,10 +58,10 @@ MakePythonMCP();
 
 Example command for a reactor with a custom sidebar UI:
 ```
-MakePixelMCP(reactor=["GeneratePresentation"], mcpMetadata=[{ "SMSS_MCP_UI": { "displayLocation": "sidebar", "resourceURI": "/#/" }, "SMSS_MCP_EXECUTION": "ask" }]);
+MakePixelMCP(reactor=["ExampleTool"], mcpMetadata=[{ "SMSS_MCP_UI": { "displayLocation": "sidebar", "resourceURI": "/#/example-tool-page" }, "SMSS_MCP_EXECUTION": "ask" }]);
 ```
 
-**MCP metadata options:** `resourceURI` (React route for custom UI, e.g. `/#/` — omit for default UI), `execution` (`"ask"` / `"auto"` / `"disabled"`), `loadingMessage` (custom message shown during auto-execution), `displayLocation` (`"inline"` / `"sidebar"` / `"none"`)
+**MCP metadata options:** `resourceURI` (React route for custom UI, e.g. `/#/example-tool-page` — omit for default UI), `execution` (`"ask"` / `"auto"` / `"disabled"`), `loadingMessage` (custom message shown during auto-execution), `displayLocation` (`"inline"` / `"sidebar"` / `"none"`)
 
 ## Default UI vs Custom UI
 
