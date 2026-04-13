@@ -12,48 +12,40 @@ import prerna.sablecc2.om.PixelOperationType;
 import prerna.sablecc2.om.nounmeta.NounMetadata;
 import util.ProjectProperties;
 
-/**
- * Base class for all reactors in this project.
- *
- * <p>Every reactor you create should extend this class instead of {@link AbstractReactor} directly.
- * It handles:
- *
- * <p>- SEMOSS initialization (project ID, user context, project properties) - Standardized error
- * handling (exceptions become error responses, not crashes) - Common helper methods (e.g. {@link
- * #getMap(String)} for map-type parameters)
- *
- * <p>To create a new reactor:
- *
- * <p>1. Create a new class in this folder extending {@code AbstractProjectReactor} 2. Define {@code
- * keysToGet} (parameter names) and {@code keyRequired} (1=required, 0=optional) in the constructor
- * 3. Implement {@link #doExecute()} with your business logic 4. Access parameters via {@code
- * this.keyValue.get("paramName")} after {@link #organizeKeys()} runs 5. Return results as {@link
- * NounMetadata} (strings, maps, etc.)
- *
- * @see GetWeatherReactor
- */
+// Base class for all reactors in this project.
+//
+// Every reactor you create should extend this class instead of AbstractReactor directly.
+// It handles:
+//   - SEMOSS initialization (project ID, user context, project properties)
+//   - Standardized error handling (exceptions become error responses, not crashes)
+//   - Common helper methods (e.g. getMap for map-type parameters)
+//
+// To create a new reactor:
+//   1. Create a new class in this folder extending AbstractProjectReactor
+//   2. Define keysToGet (parameter names) and keyRequired (1=required, 0=optional) in the
+// constructor
+//   3. Implement doExecute() with your business logic
+//   4. Access parameters via this.keyValue.get("paramName") after organizeKeys() runs
+//   5. Return results as NounMetadata (strings, maps, etc.)
+//
+// See GetWeatherReactor.java for a working example.
 public abstract class AbstractProjectReactor extends AbstractReactor {
 
   private static final Logger LOGGER = LogManager.getLogger(AbstractProjectReactor.class);
 
-  /** The authenticated user running this reactor. */
-  protected User user;
+  // These protected variables are available in all subclass reactors
+  protected User user; // The authenticated user running this reactor
+  protected String projectId; // The SEMOSS project/app ID
+  protected ProjectProperties projectProperties; // Values from java/project.properties
 
-  /** The SEMOSS project/app ID. */
-  protected String projectId;
+  // TODO: Initialize additional protected variables (engines, external services,
+  // etc.)
 
-  /** Values from {@code java/project.properties}. */
-  protected ProjectProperties projectProperties;
-
-  /** Stores the reactor result. */
   protected NounMetadata result = null;
 
-  /**
-   * Runs {@link #preExecute()} for setup, then {@link #doExecute()} for business logic. If anything
-   * throws, the error is logged and returned as an error response instead of crashing the reactor.
-   *
-   * @return the result of reactor execution, or an error response if an exception occurs
-   */
+  // Runs preExecute() for setup, then doExecute() for business logic.
+  // If anything throws, the error is logged and returned as an error response
+  // instead of crashing the reactor.
   @Override
   public NounMetadata execute() {
     try {
@@ -65,10 +57,9 @@ public abstract class AbstractProjectReactor extends AbstractReactor {
     }
   }
 
-  /**
-   * Sets up project context before your reactor logic runs. Override this to add your own
-   * initialization (e.g. loading engines), but always call {@code super.preExecute()} first.
-   */
+  // Sets up project context before your reactor logic runs.
+  // Override this to add your own initialization (e.g. loading engines),
+  // but always call super.preExecute() first.
   protected void preExecute() {
     // Resolve the project ID from the insight context
     projectId = this.insight.getContextProjectId();
@@ -86,13 +77,9 @@ public abstract class AbstractProjectReactor extends AbstractReactor {
     organizeKeys(); // Populates this.keyValue from the Pixel command arguments
   }
 
-  /**
-   * Extracts a {@link Map} parameter from the Pixel command. Useful when the frontend passes JSON
-   * objects as parameters.
-   *
-   * @param paramName the name of the map parameter to extract
-   * @return the map value, or {@code null} if no map parameter is found
-   */
+  // Helper to extract a Map parameter from the Pixel command.
+  // Useful when the frontend passes JSON objects as parameters.
+  // Returns null if no map parameter is found.
   @SuppressWarnings("unchecked")
   protected Map<String, Object> getMap(String paramName) {
     GenRowStruct mapGrs = this.store.getGenRowStruct(paramName);
@@ -111,11 +98,8 @@ public abstract class AbstractProjectReactor extends AbstractReactor {
     return null;
   }
 
-  /**
-   * Implement this in your reactor subclass. This is where your business logic goes. Access
-   * parameters via {@code this.keyValue}.
-   *
-   * @return the result wrapped in {@link NounMetadata}
-   */
+  // Implement this in your reactor subclass.
+  // This is where your business logic goes. Access parameters via this.keyValue.
+  // Return your result wrapped in NounMetadata.
   protected abstract NounMetadata doExecute();
 }

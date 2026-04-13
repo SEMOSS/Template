@@ -4,11 +4,9 @@ import org.junit.platform.suite.api.SelectClasses;
 import org.junit.platform.suite.api.Suite;
 import org.junit.platform.suite.api.SuiteDisplayName;
 
-/**
- * Test suite that runs all reactor tests in the project.
- *
- *   mvn test -Dtest=ReactorTestSuite
- */
+// Test suite that runs all reactor tests in the project.
+//
+//   mvn test -Dtest=ReactorTestSuite
 @Suite
 @SuiteDisplayName("Reactor Test Suite")
 @SelectClasses({

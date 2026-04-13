@@ -25,60 +25,53 @@ import prerna.om.Insight;
 import prerna.sablecc2.om.NounStore;
 import prerna.util.AssetUtility;
 
-/**
- * Base test class providing common mocking utilities and setup for reactor
- * tests.
- * All reactor test classes should extend this class to leverage shared test
- * infrastructure.
- *
- * This class handles:
- *   - Mock setup and teardown for common SEMOSS components
- *   - Temporary directory management for project assets
- *   - User authentication mocking
- *   - Project property file creation
- *   - PyTranslator mocking for Python-based reactors
- */
+// Base test class providing common mocking utilities and setup for reactor
+// tests.
+// All reactor test classes should extend this class to leverage shared test
+// infrastructure.
+//
+// This class handles:
+//   - Mock setup and teardown for common SEMOSS components
+//   - Temporary directory management for project assets
+//   - User authentication mocking
+//   - Project property file creation
+//   - PyTranslator mocking for Python-based reactors
 public abstract class BaseReactorTest {
 
-    /** Mock insight providing context for reactor execution */
+    // Mock insight providing context for reactor execution
     @Mock
     protected Insight insight;
 
-    /** Mock user for authentication context */
+    // Mock user for authentication context
     @Mock
     protected User user;
 
-    /** Mock noun store for reactor parameter management */
+    // Mock noun store for reactor parameter management
     @Mock
     protected NounStore nounStore;
 
-    /** Mock PyTranslator for Python integration testing */
+    // Mock PyTranslator for Python integration testing
     @Mock
     protected PyTranslator pyTranslator;
 
-    /** Static mock for AssetUtility to control project asset paths */
+    // Static mock for AssetUtility to control project asset paths
     protected MockedStatic<AssetUtility> assetUtilsMock;
 
-    /** AutoCloseable for managing Mockito annotations lifecycle */
+    // AutoCloseable for managing Mockito annotations lifecycle
     private AutoCloseable mocks;
 
-    /** Temporary directory for test execution */
+    // Temporary directory for test execution
     protected Path tempDir;
 
-    /** Fake project ID for testing */
+    // Fake project ID for testing
     protected static final String TEST_PROJECT_ID = "test-project-id";
 
-    /** Default test user name */
+    // Default test user name
     protected static final String TEST_USER_NAME = "TestUser";
 
-    /**
-     * Sets up the test environment before each test execution.
-     * This method initializes mocks, creates temporary directories, and sets up
-     * common mock behaviors for insight, user, and asset utilities.
-     * 
-     * @param p Temporary directory provided by JUnit
-     * @throws IOException if file operations fail during setup
-     */
+    // Sets up the test environment before each test execution.
+    // Initializes mocks, creates temporary directories, and sets up
+    // common mock behaviors for insight, user, and asset utilities.
     @BeforeEach
     void baseSetup(@TempDir Path p) throws IOException {
         tempDir = p;
@@ -90,10 +83,8 @@ public abstract class BaseReactorTest {
         setupProjectProperties();
     }
 
-    /**
-     * Sets up mock behaviors for the Insight object.
-     * Configures project ID retrieval and user context.
-     */
+    // Sets up mock behaviors for the Insight object.
+    // Configures project ID retrieval and user context.
     protected void setupInsightMocks() {
         when(insight.getUser()).thenReturn(user);
         when(insight.getContextProjectId()).thenReturn(TEST_PROJECT_ID);
@@ -101,10 +92,8 @@ public abstract class BaseReactorTest {
         when(insight.getPyTranslator()).thenReturn(pyTranslator);
     }
 
-    /**
-     * Sets up mock behaviors for the User object.
-     * Creates a mock access token with test user credentials.
-     */
+    // Sets up mock behaviors for the User object.
+    // Creates a mock access token with test user credentials.
     protected void setupUserMocks() {
         AccessToken token = new AccessToken();
         token.setName(TEST_USER_NAME);
@@ -112,24 +101,18 @@ public abstract class BaseReactorTest {
         when(user.getPrimaryLoginToken()).thenReturn(token);
     }
 
-    /**
-     * Sets up static mocking for AssetUtility.
-     * Configures the asset utility to return the temporary directory as the project
-     * assets folder.
-     */
+    // Sets up static mocking for AssetUtility.
+    // Configures the asset utility to return the temporary directory as the project
+    // assets folder.
     protected void setupAssetUtilityMocks() {
         assetUtilsMock = Mockito.mockStatic(AssetUtility.class);
         assetUtilsMock.when(() -> AssetUtility.getProjectAssetsFolder(TEST_PROJECT_ID))
                 .thenReturn(tempDir.toAbsolutePath().toString());
     }
 
-    /**
-     * Creates a project.properties file in the temporary directory.
-     * Subclasses can override {@link #configureProjectProperties(Properties)} to
-     * add custom properties.
-     * 
-     * @throws IOException if file creation or writing fails
-     */
+    // Creates a project.properties file in the temporary directory.
+    // Subclasses can override configureProjectProperties(Properties) to
+    // add custom properties.
     protected void setupProjectProperties() throws IOException {
         Properties props = new Properties();
         configureProjectProperties(props);
@@ -144,26 +127,16 @@ public abstract class BaseReactorTest {
         }
     }
 
-    /**
-     * Hook method for subclasses to configure custom project properties.
-     * Override this method to add specific properties needed for your reactor
-     * tests.
-     * 
-     * @param props Properties object to configure
-     */
+    // Hook method for subclasses to configure custom project properties.
+    // Override this method to add specific properties needed for your reactor
+    // tests.
     protected void configureProjectProperties(Properties props) {
         // Default implementation - subclasses can override to add custom properties
     }
 
-    /**
-     * Sets up mock behaviors for PyTranslator.
-     * Configures default responses for Python module loading and function
-     * execution.
-     * 
-     * @param moduleName   The name of the Python module to mock
-     * @param functionName The name of the Python function to mock
-     * @param returnValue  The value to return when the function is called
-     */
+    // Sets up mock behaviors for PyTranslator.
+    // Configures default responses for Python module loading and function
+    // execution.
     protected void setupPyTranslatorMocks(String moduleName, String functionName, Object returnValue) {
         when(pyTranslator.loadPythonModuleFromFile(
                 Mockito.eq(insight),
@@ -179,14 +152,8 @@ public abstract class BaseReactorTest {
                 .thenReturn(returnValue);
     }
 
-    /**
-     * Creates a Python source file in the temporary directory for testing.
-     * Useful for reactors that need to load Python files.
-     * 
-     * @param fileName The name of the Python file to create
-     * @param content  The content of the Python file
-     * @throws IOException if file creation fails
-     */
+    // Creates a Python source file in the temporary directory for testing.
+    // Useful for reactors that need to load Python files.
     protected void createPythonFile(String fileName, String content) throws IOException {
         Path pyDir = tempDir.resolve("py");
         Files.createDirectories(pyDir);
@@ -194,14 +161,8 @@ public abstract class BaseReactorTest {
         Files.writeString(pythonFile, content);
     }
 
-    /**
-     * Helper method to set a parameter value on a reactor.
-     * This directly sets the value in the reactor's keyValue map via reflection.
-     * 
-     * @param reactor The reactor to set the parameter on
-     * @param key     The parameter key
-     * @param value   The parameter value
-     */
+    // Helper method to set a parameter value on a reactor.
+    // This directly sets the value in the reactor's keyValue map via reflection.
     protected void setReactorParameter(reactors.AbstractProjectReactor reactor, String key, String value) {
         try {
             // Access the protected keyValue map field via reflection
@@ -225,9 +186,7 @@ public abstract class BaseReactorTest {
         }
     }
 
-    /**
-     * Helper method to find a field in the class hierarchy.
-     */
+    // Helper method to find a field in the class hierarchy.
     private java.lang.reflect.Field findField(Class<?> clazz, String fieldName) throws NoSuchFieldException {
         Class<?> current = clazz;
         while (current != null) {
@@ -240,24 +199,14 @@ public abstract class BaseReactorTest {
         throw new NoSuchFieldException(fieldName);
     }
 
-    /**
-     * Helper method to set a numeric parameter on a reactor.
-     * Converts the number to a string automatically.
-     * 
-     * @param reactor The reactor to set the parameter on
-     * @param key     The parameter key
-     * @param value   The numeric value
-     */
+    // Helper method to set a numeric parameter on a reactor.
+    // Converts the number to a string automatically.
     protected void setReactorParameter(reactors.AbstractProjectReactor reactor, String key, int value) {
         setReactorParameter(reactor, key, String.valueOf(value));
     }
 
-    /**
-     * Cleans up test resources after each test execution.
-     * Closes static mocks and Mockito annotations.
-     * 
-     * @throws Exception if cleanup fails
-     */
+    // Cleans up test resources after each test execution.
+    // Closes static mocks and Mockito annotations.
     @AfterEach
     void baseTearDown() throws Exception {
         if (assetUtilsMock != null) {

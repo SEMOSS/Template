@@ -12,18 +12,16 @@ import prerna.sablecc2.om.PixelDataType;
 import prerna.sablecc2.om.PixelOperationType;
 import prerna.sablecc2.om.nounmeta.NounMetadata;
 
-/**
- * Tests for {@link GetWeatherReactor}.
- *
- * Verifies the reactor's output for valid cities, missing parameters,
- * cities with spaces, and reactor/key description methods.
- */
+// Tests for GetWeatherReactor.
+//
+// Verifies the reactor's output for valid cities, missing parameters,
+// cities with spaces, and reactor/key description methods.
 @DisplayName("GetWeatherReactor Tests")
 public class GetWeatherReactorTest extends BaseReactorTest {
 
     private GetWeatherReactor reactor;
 
-    /** Initializes a fresh {@link GetWeatherReactor} before each test. */
+    // Initializes a fresh GetWeatherReactor before each test.
     @BeforeEach
     void setup() {
         reactor = new GetWeatherReactor();
@@ -31,7 +29,7 @@ public class GetWeatherReactorTest extends BaseReactorTest {
         reactor.setNounStore(nounStore);
     }
 
-    /** Verifies that a valid city returns the expected sunny forecast string. */
+    // Verifies that a valid city returns the expected sunny forecast string.
     @Test
     @DisplayName("Should return sunny forecast for a given city")
     void testGetWeather_validCity() {
@@ -45,7 +43,7 @@ public class GetWeatherReactorTest extends BaseReactorTest {
         assertEquals("It will be sunny in Boston today.", forecast);
     }
 
-    /** Verifies that the city name is included in the response for any city. */
+    // Verifies that the city name is included in the response for any city.
     @Test
     @DisplayName("Should include city name in response for different cities")
     void testGetWeather_differentCity() {
@@ -58,10 +56,8 @@ public class GetWeatherReactorTest extends BaseReactorTest {
         assertTrue(forecast.contains("Tokyo"));
     }
 
-    /**
-     * Verifies that omitting the city parameter results in an error response.
-     * {@link AbstractProjectReactor} wraps unhandled exceptions as error responses.
-     */
+    // Verifies that omitting the city parameter results in an error response.
+    // AbstractProjectReactor wraps unhandled exceptions as error responses.
     @Test
     @DisplayName("Should return error when city parameter is missing")
     void testGetWeather_missingCity() {
@@ -76,7 +72,7 @@ public class GetWeatherReactorTest extends BaseReactorTest {
         );
     }
 
-    /** Verifies that city names containing spaces are handled correctly. */
+    // Verifies that city names containing spaces are handled correctly.
     @Test
     @DisplayName("Should handle city with spaces")
     void testGetWeather_cityWithSpaces() {
@@ -89,7 +85,7 @@ public class GetWeatherReactorTest extends BaseReactorTest {
         assertEquals("It will be sunny in New York today.", forecast);
     }
 
-    /** Verifies that {@code getReactorDescription()} returns a non-null weather-related string. */
+    // Verifies that getReactorDescription() returns a non-null weather-related string.
     @Test
     @DisplayName("Should return correct reactor description")
     void testGetReactorDescription() {
@@ -98,7 +94,7 @@ public class GetWeatherReactorTest extends BaseReactorTest {
         assertTrue(desc.toLowerCase().contains("weather"));
     }
 
-    /** Verifies that {@code getDescriptionForKey("city")} returns a city-related description. */
+    // Verifies that getDescriptionForKey("city") returns a city-related description.
     @Test
     @DisplayName("Should return correct description for city key")
     void testGetDescriptionForKey_city() {
@@ -107,7 +103,7 @@ public class GetWeatherReactorTest extends BaseReactorTest {
         assertTrue(desc.toLowerCase().contains("city"));
     }
 
-    /** Verifies that {@code getDescriptionForKey()} returns {@code null} for unknown keys. */
+    // Verifies that getDescriptionForKey() returns null for unknown keys.
     @Test
     @DisplayName("Should return null description for unknown key")
     void testGetDescriptionForKey_unknown() {
