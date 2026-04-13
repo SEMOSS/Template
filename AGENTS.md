@@ -62,6 +62,7 @@ MakePixelMCP(reactor=["ExampleTool"], mcpMetadata=[{ "SMSS_MCP_UI": { "displayLo
 ```
 
 **MCP metadata options:** `resourceURI` (React route for custom UI, e.g. `/#/example-tool-page` — omit for default UI), `execution` (`"ask"` / `"auto"` / `"disabled"`), `loadingMessage` (custom message shown during auto-execution), `displayLocation` (`"inline"` / `"sidebar"` / `"none"`)
+**MCP metadata options:** `resourceURI` (React route for custom UI, e.g. `/#/example-tool-page` — omit for default UI), `execution` (`"ask"` / `"auto"` / `"disabled"`), `loadingMessage` (custom message shown during auto-execution), `displayLocation` (`"inline"` / `"sidebar"` / `"none"`)
 
 ## Default UI vs Custom UI
 
