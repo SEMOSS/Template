@@ -1,7 +1,7 @@
 {
 	"_meta": {
-		"last_modified_date": "2026-03-11",
-		"file_last_modified_date": "2026-03-11",
+		"last_modified_date": "2026-04-10",
+		"file_last_modified_date": "2026-04-10",
 		"source_file": "/Users/tevanburen/Documents/SEMOSS/workspace/Semoss/project/Blank Canvas__9447b875-266e-4814-a1de-c840ff88401a/app_root/version/assets/py/mcp_driver.py"
 	},
 	"tools": [
@@ -22,11 +22,12 @@
 				"type": "object"
 			},
 			"_meta": {
-				"generated_on": "2026-03-11",
+				"generated_on": "2026-04-10",
 				"SMSS_MCP_EXECUTION": "auto",
 				"SMSS_MCP_UI": {
 					"displayLocation": "inline",
-					"loadingMessage": "Converting temperature..."
+					"loadingMessage": "Converting temperature...",
+					"resourceURI": "/#/"
 				},
 				"SMSS_FUNCTION_NAME": "fahrenheit_to_celsius"
 			},
@@ -49,7 +50,7 @@
 				"type": "object"
 			},
 			"_meta": {
-				"generated_on": "2026-03-11",
+				"generated_on": "2026-04-10",
 				"SMSS_MCP_EXECUTION": "auto",
 				"SMSS_MCP_UI": {
 					"displayLocation": "inline",
