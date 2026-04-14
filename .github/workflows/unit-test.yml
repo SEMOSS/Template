@@ -7,10 +7,10 @@ on:
       snapshot:
         description: 'CI version snapshot'
         required: true
-        default: '5.2.0-SNAPSHOT'
+        default: '5.3.0-SNAPSHOT'
         type: choice
         options:
-          - '5.2.0-SNAPSHOT'
+          - '5.3.0-SNAPSHOT'
           # Add other snapshot versions as needed here!
       clean_install:
         description: 'Run `mvn clean install -U` to force-update dependencies'
@@ -24,7 +24,7 @@ jobs:
     runs-on: ubuntu-latest
     container: maven:3.9.9-amazoncorretto-21-debian
     env:
-      SNAPSHOT: ${{ inputs.snapshot || '5.2.0-SNAPSHOT' }}
+      SNAPSHOT: ${{ inputs.snapshot || '5.3.0-SNAPSHOT' }}
       CLEAN_INSTALL: ${{ inputs.clean_install || 'false' }}
     
     steps:
