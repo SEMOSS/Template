@@ -6,14 +6,17 @@ client/node_modules/
 portals/
 classes/
 target/
+test-classes/
 
 # Local configuration files
 *.local
 java/project.properties
 .admin/
-.DS_Store
+**/.DS_Store
 **/.env
+**/.env.*
 !client/.env
+.history/
 
 # cache
 py/__pycache__/

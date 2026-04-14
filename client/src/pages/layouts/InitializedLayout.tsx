@@ -1,7 +1,7 @@
-import { Stack } from "@mui/material";
-import { useInsight } from "@semoss/sdk-react";
+import { useInsight } from "@semoss/sdk/react";
 import { Outlet } from "react-router-dom";
 import { LoadingScreen, MainNavigation } from "@/components";
+import { ErrorPage } from "../ErrorPage";
 
 /**
  * Renders a loading wheel if SEMOSS is not initialized.
@@ -9,23 +9,29 @@ import { LoadingScreen, MainNavigation } from "@/components";
  * @component
  */
 export const InitializedLayout = () => {
-	const { isInitialized } = useInsight();
+	/**
+	 * Library hooks
+	 */
+	const { isInitialized, error } = useInsight();
 
 	return (
-		<Stack height="100vh">
+		<div className="flex flex-col h-screen">
 			{/* Allow users to navigate around the app */}
 			<MainNavigation />
 
 			{isInitialized ? (
 				// If initialized, set up padding and scroll
-				<Stack padding={2} overflow="auto" height="100%">
+				<div className="p-4 overflow-auto h-full">
 					{/* Outlet is a react router component; it allows the router to choose the child based on the route */}
 					<Outlet />
-				</Stack>
+				</div>
+			) : error ? (
+				// If there was an error during initialization, show it
+				<ErrorPage />
 			) : (
 				// Otherwise, show a centered loading wheel
 				<LoadingScreen />
 			)}
-		</Stack>
+		</div>
 	);
 };

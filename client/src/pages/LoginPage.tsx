@@ -1,7 +1,9 @@
-import { Button, Stack, TextField } from "@mui/material";
-import { useInsight } from "@semoss/sdk-react";
+import { useInsight } from "@semoss/sdk/react";
 import { type ChangeEvent, useRef, useState } from "react";
 import { Navigate, useLocation } from "react-router-dom";
+import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
+import { Label } from "@/components/ui/label";
 import { useAppContext } from "@/contexts";
 import { useLoadingState } from "@/hooks";
 
@@ -57,48 +59,52 @@ export const LoginPage = () => {
 	if (isAuthorized) return <Navigate to={state?.target ?? "/"} />;
 
 	return (
-		<Stack spacing={2}>
-			<TextField
-				label="Username"
-				value={username}
-				onChange={(event) => updateState("username", event)}
-				error={showError}
-				required
-				disabled={isLoginLoading}
-				onKeyDown={(event) => {
-					if (event.key === "Enter" && username) {
-						// If the user hits enter, take them to the password box
-						passwordInputRef.current?.focus();
-					}
-				}}
-			/>
-			<TextField
-				label="Password"
-				value={password}
-				onChange={(event) => updateState("password", event)}
-				error={showError}
-				required
-				helperText={
-					showError ? "Username and password do not match" : " "
-				}
-				disabled={isLoginLoading}
-				type="password"
-				onKeyDown={(event) => {
-					if (event.key === "Enter" && isLoginReady) {
-						// If the user hits Enter, have them attempt to log in
-						passwordLogin();
-					}
-				}}
-				inputRef={passwordInputRef}
-			/>
+		<div className="flex flex-col space-y-4">
+			<div className="space-y-2">
+				<Label htmlFor="username">Username</Label>
+				<Input
+					id="username"
+					value={username}
+					onChange={(event) => updateState("username", event)}
+					required
+					disabled={isLoginLoading}
+					onKeyDown={(event) => {
+						if (event.key === "Enter" && username) {
+							// If the user hits enter, take them to the password box
+							passwordInputRef.current?.focus();
+						}
+					}}
+				/>
+			</div>
+			<div className="space-y-2">
+				<Label htmlFor="password">Password</Label>
+				<Input
+					id="password"
+					value={password}
+					onChange={(event) => updateState("password", event)}
+					required
+					disabled={isLoginLoading}
+					type="password"
+					onKeyDown={(event) => {
+						if (event.key === "Enter" && isLoginReady) {
+							// If the user hits Enter, have them attempt to log in
+							passwordLogin();
+						}
+					}}
+					ref={passwordInputRef}
+				/>
+				{showError && (
+					<p className="text-sm">
+						Username or password is incorrect.
+					</p>
+				)}
+			</div>
 			<Button
-				variant="contained"
 				onClick={passwordLogin}
-				disabled={!isLoginReady}
-				loading={isLoginLoading}
+				disabled={!isLoginReady || isLoginLoading}
 			>
-				Log in
+				{isLoginLoading ? "Logging in..." : "Log in"}
 			</Button>
-		</Stack>
+		</div>
 	);
 };

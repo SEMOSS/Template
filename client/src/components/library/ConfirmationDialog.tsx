@@ -1,34 +1,39 @@
 import {
-	Dialog,
-	DialogActions,
-	DialogContent,
-	DialogTitle,
-} from "@mui/material";
-import type { ReactNode } from "react";
+	AlertDialog,
+	AlertDialogContent,
+	AlertDialogDescription,
+	AlertDialogFooter,
+	AlertDialogHeader,
+	AlertDialogTitle,
+} from "@/components/ui/alert-dialog";
 
 export interface ConfirmationDialogProps {
 	open: boolean;
 	title: string;
-	buttons?: ReactNode;
-	text?: string;
+	text: string;
+	buttons: React.ReactNode;
 }
 
 /**
- * Renders a dialog with standard confirmation options.
+ * Reusable confirmation dialog component
  *
  * @component
  */
 export const ConfirmationDialog = ({
 	open,
-	buttons,
 	title,
 	text,
+	buttons,
 }: ConfirmationDialogProps) => {
 	return (
-		<Dialog open={open} fullWidth maxWidth="sm">
-			<DialogTitle>{title}</DialogTitle>
-			{text && <DialogContent>{text}</DialogContent>}
-			<DialogActions>{buttons}</DialogActions>
-		</Dialog>
+		<AlertDialog open={open}>
+			<AlertDialogContent>
+				<AlertDialogHeader>
+					<AlertDialogTitle>{title}</AlertDialogTitle>
+					<AlertDialogDescription>{text}</AlertDialogDescription>
+				</AlertDialogHeader>
+				<AlertDialogFooter>{buttons}</AlertDialogFooter>
+			</AlertDialogContent>
+		</AlertDialog>
 	);
 };

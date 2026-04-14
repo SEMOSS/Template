@@ -1,26 +1,35 @@
 import { getSystemConfig, runPixel as runPixelSemossSdk } from "@semoss/sdk";
-import { useInsight } from "@semoss/sdk-react";
+import { useInsight } from "@semoss/sdk/react";
 import {
 	createContext,
-	type Dispatch,
 	type PropsWithChildren,
-	type SetStateAction,
 	useCallback,
 	useContext,
 	useEffect,
 	useState,
 } from "react";
-import { MessageSnackbar, type MessageSnackbarProps } from "@/components";
+import { toast } from "sonner";
 import { useLoadingState } from "@/hooks";
 
 export interface AppContextType {
-	runPixel: <T = unknown>(pixelString: string) => Promise<T>;
+	runPixel: (<T = unknown>(
+		pixelString: string,
+		successMessage?: string,
+	) => Promise<T>) &
+		(<T extends unknown[] = unknown[]>(
+			pixelString: string[],
+			successMessage?: string,
+		) => Promise<T>);
+	sendMCPResponseToPlayground: (
+		toolName: string,
+		toolResponse: string,
+	) => void;
 	login: (username: string, password: string) => Promise<boolean>;
 	logout: () => Promise<boolean>;
 	userLoginName: string;
 	isAppDataLoading: boolean;
-	onePlusTwo: number;
-	setMessageSnackbarProps: Dispatch<SetStateAction<MessageSnackbarProps>>;
+	isUserLoginLoading: boolean;
+	exampleStateData?: number;
 }
 
 const AppContext = createContext<AppContextType | undefined>(undefined);
@@ -49,34 +58,36 @@ export const useAppContext = (): AppContextType => {
  */
 export const AppContextProvider = ({ children }: PropsWithChildren) => {
 	// Get the current state of the current insight
-	const { actions, isReady, system, insightId } = useInsight();
+	const { actions, isReady, system, insightId, tool } = useInsight();
 
 	/**
 	 * State
 	 */
+	const [isUserLoginLoading, setIsUserLoginLoading] = useLoadingState(false);
 	const [isAppDataLoading, setIsAppDataLoading] = useLoadingState(true);
 	const [userLoginName, setUserLoginName] = useState<string | null>(null);
-	const [messageSnackbarProps, setMessageSnackbarProps] =
-		useState<MessageSnackbarProps>({
-			open: false,
-			message: "",
-			severity: "info",
-		});
 	// Example state variable to store the result of a pixel operation
-	const [onePlusTwo, setOnePlusTwo] = useState<number>();
+	const [exampleStateData, setExampleStateData] = useState<number>();
 
 	/**
 	 * Functions
 	 */
 
-	// Function to run a pixel and return the result. Opens the snackbar if there is an error.
+	/**
+	 * Run pixel code
+	 * @param pixelString - the pixel string to run
+	 * @param successMessage - optional parameter to show a success message
+	 */
 	const runPixel = useCallback(
-		async <T,>(pixelString: string) => {
+		async <T = unknown>(
+			pixelString: string | string[],
+			successMessage?: string,
+		) => {
+			const multiple = Array.isArray(pixelString);
 			try {
-				const response = await runPixelSemossSdk<T[]>(
-					pixelString,
-					insightId,
-				);
+				const response = await runPixelSemossSdk<
+					T extends unknown[] ? T : T[]
+				>(multiple ? pixelString.join("; ") : pixelString, insightId);
 				if (response.errors.length > 0)
 					throw new Error(
 						response.errors
@@ -96,22 +107,47 @@ export const AppContextProvider = ({ children }: PropsWithChildren) => {
 							)
 							.join(", "),
 					);
-				return response.pixelReturn[0].output;
+				if (successMessage) {
+					toast.success(successMessage);
+				}
+				return (
+					multiple
+						? response.pixelReturn.map((item) => item.output)
+						: response.pixelReturn[0].output
+				) as T;
 			} catch (error) {
-				setMessageSnackbarProps({
-					open: true,
-					message: `${error.message ?? "Error during operation"}`,
-					severity: "error",
-				});
+				toast.error(`${error.message ?? "Error during operation"}`);
 				throw error;
 			}
 		},
 		[insightId],
 	);
 
+	/**
+	 * If running in MCP mode, send the response to Playground
+	 * @param name - name of the tool
+	 * @param response - response from the tool to send to Playground
+	 */
+	const sendMCPResponseToPlayground = useCallback(
+		(toolName: string, toolResponse: string) => {
+			try {
+				if (tool && tool.name === toolName) {
+					actions.sendMCPResponseToPlayground(toolResponse);
+				}
+			} catch (error) {
+				toast.error(
+					`${error.message ?? "Error sending response to Playground"}`,
+				);
+				throw error;
+			}
+		},
+		[actions, tool],
+	);
+
 	// Allow users to log in, and grab their name when they do
 	const login = useCallback(
 		async (username: string, password: string) => {
+			const loadingKey = setIsUserLoginLoading(true);
 			try {
 				await actions.login({
 					type: "native",
@@ -127,21 +163,26 @@ export const AppContextProvider = ({ children }: PropsWithChildren) => {
 				return true;
 			} catch {
 				return false;
+			} finally {
+				setIsUserLoginLoading(false, loadingKey);
 			}
 		},
-		[actions],
+		[actions, setIsUserLoginLoading],
 	);
 
 	// Allow users to log out, and clear their name when they do
 	const logout = useCallback(async () => {
+		const loadingKey = setIsUserLoginLoading(true);
 		try {
 			await actions.logout();
 			setUserLoginName(null);
 			return true;
 		} catch {
 			return false;
+		} finally {
+			setIsUserLoginLoading(false, loadingKey);
 		}
-	}, [actions]);
+	}, [actions, setIsUserLoginLoading]);
 
 	/**
 	 * Effects
@@ -151,37 +192,47 @@ export const AppContextProvider = ({ children }: PropsWithChildren) => {
 		const loadAppData = async () => {
 			const loadingKey = setIsAppDataLoading(true);
 
-			// Define a type for the loader and setter pairs
-			// This allows us to load multiple pieces of data simultaneously and set them in state
-			interface LoadSetPair<T> {
-				loader: string;
-				value?: T;
-				setter?: (value: T) => void;
+			try {
+				// Define a type for the loader and setter pairs
+				// This allows us to load multiple pieces of data simultaneously and set them in state after everything has loaded successfully
+				interface LoadSetPair<T> {
+					loader: () => Promise<T>;
+					value?: T;
+					setter?: (value: T) => void;
+				}
+
+				// Create an array of loadSetPairs, each containing a loader function and a setter function
+				const loadSetPairs: LoadSetPair<unknown>[] = [
+					// Example pixel to load some data
+					{
+						loader: async () => {
+							return await runPixel<number>(`1 + 2`);
+						},
+						setter: (response) => setExampleStateData(response),
+					} satisfies LoadSetPair<number>,
+				];
+
+				// Execute all loaders in parallel and wait for them all to complete
+				await Promise.all(
+					loadSetPairs.map(async (loadSetPair) => {
+						loadSetPair.value = await loadSetPair.loader();
+						return;
+					}),
+				);
+
+				// Once all loaders have completed, set the loading state to false
+				// and call each setter with the loaded value
+				setIsAppDataLoading(false, loadingKey, () =>
+					loadSetPairs.forEach((loadSetPair) => {
+						loadSetPair.setter?.(loadSetPair.value);
+					}),
+				);
+			} catch (e) {
+				// If any loader fails, display an error message
+				toast.error(
+					`Error initializing app data${e.message ? `: ${e.message}` : ""}`,
+				);
 			}
-
-			// Create an array of loadSetPairs, each containing a loader function and a setter function
-			const loadSetPairs: LoadSetPair<unknown>[] = [
-				{
-					loader: "1 + 2",
-					setter: (response) => setOnePlusTwo(response),
-				} satisfies LoadSetPair<number>,
-			];
-
-			// Execute all loaders in parallel and wait for them all to complete
-			await Promise.all(
-				loadSetPairs.map(async (loadSetPair) => {
-					loadSetPair.value = await runPixel(loadSetPair.loader);
-					return true;
-				}),
-			);
-
-			// Once all loaders have completed, set the loading state to false
-			// and call each setter with the loaded value
-			setIsAppDataLoading(false, loadingKey, () =>
-				loadSetPairs.forEach((loadSetPair) => {
-					loadSetPair.setter?.(loadSetPair.value);
-				}),
-			);
 		};
 
 		if (isReady) {
@@ -202,17 +253,16 @@ export const AppContextProvider = ({ children }: PropsWithChildren) => {
 		<AppContext.Provider
 			value={{
 				runPixel,
-				onePlusTwo,
+				sendMCPResponseToPlayground,
+				exampleStateData,
 				isAppDataLoading,
-				setMessageSnackbarProps,
 				login,
 				logout,
 				userLoginName,
+				isUserLoginLoading,
 			}}
 		>
 			{children}
-			{/* The MessageSnackbar component is rendered here so that it can be used to display messages throughout the app */}
-			<MessageSnackbar {...messageSnackbarProps} />
 		</AppContext.Provider>
 	);
 };

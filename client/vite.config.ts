@@ -1,18 +1,19 @@
 import { resolve } from "node:path";
-import { defineConfig, loadEnv } from "vite";
+import tailwindcss from "@tailwindcss/vite";
 import react from "@vitejs/plugin-react";
+import { defineConfig, loadEnv } from "vite";
 
 export default defineConfig(({ mode }) => {
 	const env = loadEnv(mode, process.cwd(), "") as {
 		ENDPOINT: string;
 		MODULE: string;
+		APP: string;
 	};
 
 	return {
 		root: "src",
 		base: "./",
 		envDir: "../",
-		envPrefix: "CLIENT_",
 		resolve: {
 			alias: {
 				"@": resolve(__dirname, "./src"),
@@ -21,6 +22,7 @@ export default defineConfig(({ mode }) => {
 		define: {
 			"import.meta.env.ENDPOINT": JSON.stringify(env.ENDPOINT),
 			"import.meta.env.MODULE": JSON.stringify(env.MODULE),
+			"import.meta.env.APP": JSON.stringify(env.APP),
 		},
 		server: {
 			proxy: {
@@ -35,6 +37,6 @@ export default defineConfig(({ mode }) => {
 			outDir: "../../portals",
 			emptyOutDir: true,
 		},
-		plugins: [react()],
+		plugins: [react(), tailwindcss()],
 	};
 });

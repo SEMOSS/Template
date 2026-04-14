@@ -15,7 +15,9 @@ This repository provides a starting point for SEMOSS React applications. It incl
 Before using this repository, ensure you have the following:
 
 - **SEMOSS installed locally:**  
-  [SEMOSS Installation Guide](https://amedeloitte.sharepoint.com/:p:/r/sites/SEMOSS/_layouts/15/Doc.aspx?sourcedoc=%7B4234D7E0-E161-4168-B889-29B4BBE07C67%7D&file=SEMOSS%20DEV%20Install_2024-07-24%20Working%20Version.pptx&action=edit&mobileredirect=true)  
+  [SEMOSS Windows Installation Guide](https://workshop.cfg.deloitte.com/docs/windows-developer-install)  
+  [SEMOSS Mac Installation Guide](https://workshop.cfg.deloitte.com/docs/Advanced%20Installation/Mac%20Developer%20Install) 
+
   To verify installation, go to [http://localhost:9090/SemossWeb/packages/client/dist/#/](http://localhost:9090/SemossWeb/packages/client/dist/#/). The SEMOSS UI should load.
 
 - **Basic Git knowledge:**  
@@ -90,7 +92,7 @@ To make changes visible to users:
 
 - The "Publish files" button in the SEMOSS UI creates a snapshot for users.
 - The `portals` folder contains files available to users, including `portals/index.html` (the app's main entry point).
-- Front-end source code typically lives in the `client` folder and is bundled into `portals` using Webpack (see `client/README.md` for details).
+- Front-end source code typically lives in the `client` folder and is bundled into `portals` using Vite (see `client/README.md` for details).
 - Back-end Java reactors are in the `java` folder. When you click "Recompile reactors" in the SEMOSS UI, SEMOSS compiles these and places `.class` files in the `classes` folder (see `java/README.md` for more).
 
 ---
@@ -115,6 +117,7 @@ This repository includes several tools to help maintain code quality:
 
 - See `client/README.md` for front-end development instructions.
 - See `java/README.md` for back-end/reactor development.
+- See `test/README.md` for comprehensive testing guide and workflow.
 
 ---
 
