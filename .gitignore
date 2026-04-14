@@ -24,3 +24,5 @@ py/__pycache__/
 .classpath
 .project
 .settings/
+**/.env
+!client/.env
