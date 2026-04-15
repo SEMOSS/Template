@@ -9,7 +9,7 @@ assets/
 ├── client/          React + Vite + Tailwind v4 + shadcn/ui (frontend source)
 ├── java/            Java reactors (backend logic, compiled by SEMOSS)
 ├── py/              Python tools (simple transforms, API calls)
-├── mcp/             Auto-generated MCP manifests (do not edit)
+├── mcp/             MCP manifests (auto-generated; can be edited directly for metadata changes)
 ├── portals/         Built frontend output (do not edit directly)
 ├── classes/         Compiled Java .class files (do not edit)
 ├── target/          Maven build artifacts (do not edit)
@@ -47,15 +47,15 @@ assets/
    pnpm build   # Production build → portals/
    ```
 
-6. **Publish:** In the SEMOSS UI, open the editor → click "Publish files" to make changes visible to users.
+6. **Publish:** Use the `Semoss_project_manager` MCP server to publish without touching the UI (ask your agent), or manually open the SEMOSS app editor → click "Publish files".
 
 ## Key Concepts
 
 - **Frontend** (`client/`): React app using `@semoss/sdk` to communicate with SEMOSS. Builds to `portals/`. See `client/README.md`.
-- **Java Reactors** (`java/`): Backend logic compiled by SEMOSS into `classes/`. Click "Recompile reactors" in the SEMOSS UI after changes. See `java/README.md`.
+- **Java Reactors** (`java/`): Backend logic compiled by SEMOSS into `classes/`. Trigger recompilation via `Semoss_project_manager` or click "Recompile reactors" in the SEMOSS UI. See `java/README.md`.
 - **Python Tools** (`py/`): Add MCP tools in `py/mcp_driver.py` with `@mcp_metadata` decorator. Simple tools can use Playground's default UI (no React needed) by omitting `resourceURI`.
-- **MCP Manifests** (`mcp/`): Auto-generated. Run `MakePythonMCP()` or `MakePixelMCP(...)` to regenerate. Never edit manually.
-- **Publishing**: The SEMOSS UI snapshots `portals/` to a public location. Build first, then publish.
+- **MCP Manifests** (`mcp/`): The cleanest way to regenerate these is running `MakePythonMCP()` or `MakePixelMCP(...)` in the Playground — they read from source automatically. Agents can also write the JSON directly.
+- **Publishing**: Snapshots `portals/` to a public location. Build first (`pnpm build`), then publish via `Semoss_project_manager` or the SEMOSS app editor.
 
 ## More Info
 

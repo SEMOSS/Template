@@ -26,11 +26,11 @@ This project ships a `.mcp.json` at the repo root. When connected, agents have a
 
 | Server | Purpose |
 |--------|---------|
-| `Semoss_Platform_Instructions` | SEMOSS platform guidance — how to use SEMOSS features, APIs, and patterns |
-| `Semoss_project_manager` | Project management — creating/managing SEMOSS apps and projects |
-| `Semoss_database_helper` | Database assistance — querying and working with SEMOSS-connected databases |
+| `Semoss_Platform_Instructions` | SEMOSS platform guidance — Pixel commands, APIs, how features work. First stop when you're unsure about anything SEMOSS-specific. |
+| `Semoss_project_manager` | Manage and publish apps without touching the UI — build, publish files, manage project assets. Use this instead of the SEMOSS app editor for publishing. |
+| `Semoss_database_helper` | Inspect and query SEMOSS-connected databases — list available databases, explore schemas, run queries. |
 
-**When vibe coding:** Use these servers actively. `Semoss_Platform_Instructions` is the first place to check when you're unsure how a SEMOSS feature works. `Semoss_database_helper` can inspect available databases before writing reactor queries.
+**When vibe coding:** Use these servers actively — they replace most of what you'd otherwise do in the SEMOSS UI. Before writing any Pixel command or reactor, check `Semoss_Platform_Instructions`. Before writing a reactor that queries a database, use `Semoss_database_helper` to inspect what's available. When you're ready to publish the app, use `Semoss_project_manager` instead of asking the user to click through the UI.
 
 ### First-Time Setup (Agent Instructions)
 
@@ -60,7 +60,7 @@ This project ships a `.mcp.json` at the repo root. When connected, agents have a
 - **`client/`** — React + Vite + Tailwind v4 + shadcn/ui. Builds to `portals/` for publishing
 - **`java/src/reactors/`** — Java reactors (complex logic, DB access, heavy computation)
 - **`py/`** — Python tools (simple transforms, API calls, quick prototypes). Create `mcp_driver.py` when adding Python MCP tools
-- **`mcp/`** — Auto-generated manifests (`py_mcp.json`, `pixel_mcp.json`). Never edit manually
+- **`mcp/`** — MCP manifests (`py_mcp.json`, `pixel_mcp.json`). Cleanest path is regenerating via Pixel commands; agents can also write them directly
 - **`portals/`**, **`classes/`**, **`target/`** — Generated. Don't edit directly
 
 ## SDK
@@ -96,20 +96,22 @@ The primary hook is `useInsight()` from `@semoss/sdk/react`:
 **Ongoing:**
 3. `pnpm dev` inside `client/` — local dev server with hot reload (proxies to SEMOSS backend via `ENDPOINT`/`MODULE` in `.env`)
 4. `pnpm build` inside `client/` — production build, outputs to `portals/`
-5. Publish via SEMOSS UI after building — click "Publish files" in the app editor
+5. Publish after building — use `Semoss_project_manager` (MCP server) to publish without touching the UI, or manually click "Publish files" in the SEMOSS app editor
 
 If `portals/` is missing or stale, run `pnpm i && pnpm build` in `client/` to regenerate it.
 
 ## MCP Manifests
 
-Manifests are auto-generated. Never edit `mcp/*.json` directly.
+Manifests in `mcp/` are normally auto-generated from source — prefer keeping them in sync that way. But agents can also edit them directly when it's more practical (e.g., tweaking metadata without changing source files).
 
-**Python:** Do NOT edit `mcp/py_mcp.json` directly. Instead, provide the user with the `MakePythonMCP()` Pixel command to run in the SEMOSS Playground — it reads the `@mcp_metadata` decorators from `py/mcp_driver.py` and regenerates the manifest automatically. No arguments needed:
+**Python — preferred:** Run `MakePythonMCP()` in the SEMOSS Playground. It reads the `@mcp_metadata` decorators from `py/mcp_driver.py` and regenerates `mcp/py_mcp.json` automatically. No arguments needed:
 ```
 MakePythonMCP();
 ```
+**Python — direct:** Agents can also write `mcp/py_mcp.json` directly — useful when the user isn't running the Playground or when quick iteration is more important than going through the source decorator flow.
 
-**Java:** Do NOT edit `mcp/pixel_mcp.json` directly. Instead, provide the user with the `MakePixelMCP()` Pixel command to run in the SEMOSS Playground — it reads the reactor class and regenerates the manifest automatically.
+**Java — preferred:** Run `MakePixelMCP()` in the SEMOSS Playground. It reads the reactor class and regenerates `mcp/pixel_mcp.json` automatically.
+**Java — direct:** Agents can also write `mcp/pixel_mcp.json` directly for the same reasons.
 
 Example command for a reactor with a custom sidebar UI:
 ```
@@ -195,7 +197,8 @@ If two tools point to the same `resourceURI`, they will render the same componen
 
 ## Do Not
 
-- Edit `portals/`, `classes/`, `target/`, or `mcp/*.json` — these are auto-generated. Give the user the `MakePixelMCP()` or `MakePythonMCP()` Pixel command to run instead
+- Edit `portals/`, `classes/`, or `target/` — these are build artifacts, always regenerated
+- Edit `mcp/*.json` when source is also changing — run `MakePixelMCP()` or `MakePythonMCP()` instead so the manifest stays in sync with the code. Writing the JSON directly is fine when the user can't run those commands
 - Use the deprecated `actions.runMCPTool()` SDK method
 - Use `toString()` on `IModelEngine` responses in Java
 - Access `tool.inputs` in React (use `tool.parameters`)
