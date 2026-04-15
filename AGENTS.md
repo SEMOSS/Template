@@ -20,7 +20,7 @@ This project ships a `.mcp.json` at the repo root. When connected, agents have a
 
 ### First-Time Setup (Agent Instructions)
 
-`.mcp.json` ships with placeholders. **If you see `<base_url>`, `<api_module_url>`, or `<accessKey:secretKey>` in `.mcp.json`, the file has not been configured yet.** Do the following:
+`.mcp.json` ships with placeholders. **If you see `<base_url>`, `<api_module_url>`, `<accessKey>`, or `<secretKey>` in `.mcp.json`, the file has not been configured yet.** Do the following:
 
 1. **Ask the user for their three values:**
    - `base_url` — SEMOSS server base URL (matches `ENDPOINT` in `client/.env`, e.g. `http://localhost:9090`)
@@ -37,7 +37,7 @@ This project ships a `.mcp.json` at the repo root. When connected, agents have a
    git add .gitignore
    ```
 
-4. **Restart the agent** (e.g. `/restart` in Claude Code) so it picks up the updated `.mcp.json` and connects to the servers.
+4. **Reload the window** so the agent picks up the updated `.mcp.json` and connects to the servers. Ask the user to reload their VS Code window: **Cmd+Shift+P → "Developer: Reload Window"** (or Ctrl+Shift+P on Windows/Linux).
 
 ---
 
