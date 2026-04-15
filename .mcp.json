@@ -1,0 +1,50 @@
+{
+	"servers": {
+		"Semoss_Platform_Instructions": 
+		{
+		  "type": "stdio",
+		  "command": "npx",
+		  "tools": [
+			"*"
+		  ],
+		  "args": [
+			"-y",
+			"mcp-remote",
+			"<base_url><api_module_url>/api/ext/mcp/67aa0dcf-04f5-460f-9075-bad8eeedad7e/comms",
+			"--header",
+			"Authorization:Bearer<accessKey:secretKey>"
+		  ]
+		},
+		"Semoss_project_manager": 
+		{
+		  "type": "stdio",
+		  "command": "npx",
+		  "tools": [
+			"*"
+		  ],
+		  "args": [
+			"-y",
+			"mcp-remote",
+			"<base_url><api_module_url>/api/ext/mcp/03e8cbeb-2f76-4213-9766-57448a3837a4/comms",
+			"--header",
+			"Authorization:Bearer<accessKey:secretKey>"
+		  ]
+		},
+		"Semoss_database_helper": 
+		{
+		  "type": "stdio",
+		  "command": "npx",
+		  "tools": [
+			"*"
+		  ],
+		  "args": [
+			"-y",
+			"mcp-remote",
+			"<base_url><api_module_url>/api/ext/mcp/394404bf-02e5-44b2-bc7c-e93d9b698f58/comms",
+			"--header",
+			"Authorization:Bearer<accessKey:secretKey>"
+		  ]
+		}
+	},
+	"inputs": []
+}
