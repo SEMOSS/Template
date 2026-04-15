@@ -6,6 +6,20 @@ Concise reference for building SEMOSS MCP tools. For working code examples, see 
 
 ---
 
+## Session Start Checklist
+
+Run through these at the start of every session, in order:
+
+1. **MCP servers configured?** — Read `.mcp.json`. If it still contains any of the placeholders (`<base_url>`, `<api_module_url>`, `<accessKey>`, `<secretKey>`), follow [First-Time Setup](#first-time-setup-agent-instructions) before doing anything else. Connected MCP servers give you access to SEMOSS platform guidance — they're worth having.
+
+2. **Frontend deps installed?** — Check whether `client/node_modules/` exists. If not, run `pnpm i` inside `client/`.
+
+3. **App ID set?** — Check `client/.env.local`. It must contain `APP="<your-app-id>"`. If missing or still a placeholder, ask the user for their app ID (visible in the SEMOSS UI URL when the app is open).
+
+4. **Orient to what's been built** — Skim `py/mcp_driver.py`, `java/src/reactors/`, and `client/src/components/` to understand whether the template examples have been replaced or if this is a fresh start.
+
+---
+
 ## SEMOSS MCP Servers (Available to Agents)
 
 This project ships a `.mcp.json` at the repo root. When connected, agents have access to three SEMOSS platform MCP servers:
@@ -22,13 +36,13 @@ This project ships a `.mcp.json` at the repo root. When connected, agents have a
 
 `.mcp.json` ships with placeholders. **If you see `<base_url>`, `<api_module_url>`, `<accessKey>`, or `<secretKey>` in `.mcp.json`, the file has not been configured yet.** Do the following:
 
-1. **Ask the user for their three values:**
+1. **Ask the user for their four values:**
    - `base_url` — SEMOSS server base URL (matches `ENDPOINT` in `client/.env`, e.g. `http://localhost:9090`)
    - `api_module_url` — API module path (matches `MODULE` in `client/.env`, e.g. `/Monolith`)
    - `accessKey` — their SEMOSS access key (from SEMOSS user settings)
    - `secretKey` — their SEMOSS secret key (from SEMOSS user settings)
 
-2. **Edit `.mcp.json`** — replace all three placeholders with the values provided. There are three server entries; replace the same placeholders in each.
+2. **Edit `.mcp.json`** — replace all four placeholders with the values provided. There are three server entries; replace the same placeholders in each.
 
 3. **Remove `.mcp.json` from version control** so credentials are never committed:
    ```
@@ -75,10 +89,16 @@ The primary hook is `useInsight()` from `@semoss/sdk/react`:
 
 ## Development Workflow
 
-1. `pnpm i` in both root and `client/`
-2. Set `APP="your-app-id"` in `client/.env.local`
-3. `pnpm dev` for development, `pnpm build` for production
-4. Build then publish via SEMOSS UI. If `portals/` is missing, run `pnpm i && pnpm build` in `client/`
+**First-time setup:**
+1. `pnpm i` inside `client/`
+2. Create `client/.env.local` with `APP="your-app-id"` (get the ID from the SEMOSS UI URL)
+
+**Ongoing:**
+3. `pnpm dev` inside `client/` — local dev server with hot reload (proxies to SEMOSS backend via `ENDPOINT`/`MODULE` in `.env`)
+4. `pnpm build` inside `client/` — production build, outputs to `portals/`
+5. Publish via SEMOSS UI after building — click "Publish files" in the app editor
+
+If `portals/` is missing or stale, run `pnpm i && pnpm build` in `client/` to regenerate it.
 
 ## MCP Manifests
 
