@@ -27,7 +27,7 @@ The primary hook is `useInsight()` from `@semoss/sdk/react`:
 **Everything goes through `actions.run()`:**
 
 - **Java reactors:** `actions.run('YourTool(param=...')')` — drop the "Reactor" suffix from class name
-- **Python MCP tools:** `actions.run('RunMCPTool(tool=["tool_name"], param=...)')` — this calls the `RunMCPTool` Pixel reactor
+- **Python MCP tools:** `actions.run('RunMCPTool(function=["tool_name"], paramValues=[{"param": "value"}])')` — this calls the `RunMCPTool` Pixel reactor
 - **Escape params with `JSON.stringify()`:** `actions.run(\`Your(text=${JSON.stringify(userInput)})\`)`
 - **Check for errors:** `pixelReturn[0].operationType.includes("ERROR")`
 - **Send to Playground after:** `actions.sendMCPResponseToPlayground(JSON.stringify(result), "success", { param })`
