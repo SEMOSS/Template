@@ -6,6 +6,41 @@ Concise reference for building SEMOSS MCP tools. For working code examples, see 
 
 ---
 
+## SEMOSS MCP Servers (Available to Agents)
+
+This project ships a `.mcp.json` at the repo root. When connected, agents have access to three SEMOSS platform MCP servers:
+
+| Server | Purpose |
+|--------|---------|
+| `Semoss_Platform_Instructions` | SEMOSS platform guidance — how to use SEMOSS features, APIs, and patterns |
+| `Semoss_project_manager` | Project management — creating/managing SEMOSS apps and projects |
+| `Semoss_database_helper` | Database assistance — querying and working with SEMOSS-connected databases |
+
+**When vibe coding:** Use these servers actively. `Semoss_Platform_Instructions` is the first place to check when you're unsure how a SEMOSS feature works. `Semoss_database_helper` can inspect available databases before writing reactor queries.
+
+### First-Time Setup (Agent Instructions)
+
+`.mcp.json` ships with placeholders. **If you see `<base_url>`, `<api_module_url>`, or `<accessKey:secretKey>` in `.mcp.json`, the file has not been configured yet.** Do the following:
+
+1. **Ask the user for their three values:**
+   - `base_url` — SEMOSS server base URL (matches `ENDPOINT` in `client/.env`, e.g. `http://localhost:9090`)
+   - `api_module_url` — API module path (matches `MODULE` in `client/.env`, e.g. `/Monolith`)
+   - `accessKey` — their SEMOSS access key (from SEMOSS user settings)
+   - `secretKey` — their SEMOSS secret key (from SEMOSS user settings)
+
+2. **Edit `.mcp.json`** — replace all three placeholders with the values provided. There are three server entries; replace the same placeholders in each.
+
+3. **Remove `.mcp.json` from version control** so credentials are never committed:
+   ```
+   git rm --cached .mcp.json
+   echo '.mcp.json' >> .gitignore
+   git add .gitignore
+   ```
+
+4. **Restart the agent** (e.g. `/restart` in Claude Code) so it picks up the updated `.mcp.json` and connects to the servers.
+
+---
+
 ## Architecture
 
 - **`client/`** — React + Vite + Tailwind v4 + shadcn/ui. Builds to `portals/` for publishing
