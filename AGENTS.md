@@ -103,6 +103,26 @@ The primary hook is `useInsight()` from `@semoss/sdk/react`:
 
 If `portals/` is missing or stale, run `pnpm i && pnpm build` in `client/` to regenerate it.
 
+## Build & Deploy
+
+### Build
+```bash
+cd client && pnpm build
+```
+
+### Live deploy (sync script)
+```bash
+cd client && pnpm build && cd ..
+python scripts/claude/semoss_asset_sync.py delete portals/assets --yes
+python scripts/claude/semoss_asset_sync.py bulk-upload portals
+```
+
+**First deploy only:** skip the `delete` step — the remote path doesn't exist yet.
+
+The sync script handles backup, upload, and publish. Don't try to replicate it with MCP tools directly.
+
+> **IMPORTANT — Always ask before deploying.** The user has multiple environments (remote and local) with different credentials. After `pnpm build` succeeds, **stop and ask the user** "Deploy to remote or local?" before running any sync/upload/publish command. Never assume based on what's in `.mcp.json` or `semoss_config/config.json`.
+
 ## MCP Manifests
 
 Manifests in `mcp/` are normally auto-generated from source — prefer keeping them in sync that way. But agents can also edit them directly when it's more practical (e.g., tweaking metadata without changing source files).
@@ -200,6 +220,7 @@ If two tools point to the same `resourceURI`, they will render the same componen
 
 ## Do Not
 
+- **Deploy without asking first** — always ask "remote or local?" after a build before running any sync/upload/publish command
 - Edit `portals/`, `classes/`, or `target/` — these are build artifacts, always regenerated
 - Edit `mcp/*.json` when source is also changing — run `MakePixelMCP()` or `MakePythonMCP()` instead so the manifest stays in sync with the code. Writing the JSON directly is fine when the user can't run those commands
 - Use the deprecated `actions.runMCPTool()` SDK method

@@ -1,0 +1,10 @@
+{
+  "project_id": "",
+  "app_id": "",
+  "module": "app",
+  "created_on": "",
+  "base_url": "https://workshop.cfg.deloitte.com/",
+  "api_module_url": "/cfg-ai-dev/Monolith",
+  "web_module_url": "/cfg-ai-dev/SemossWeb",
+  "is_mcp": false
+}

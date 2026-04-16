@@ -4,15 +4,15 @@ Reads project config from semoss_config/config.json and credentials from
 .mcp.json (Claude Code format) or .vscode/mcp.json (Copilot format).
 
 Usage:
-    python semoss_asset_sync.py upload portals/index.html
-    python semoss_asset_sync.py upload portals/index.html --yes --no-publish
-    python semoss_asset_sync.py bulk-upload portals --no-publish
-    python semoss_asset_sync.py bulk-upload portals java
-    python semoss_asset_sync.py delete portals/assets --yes
-    python semoss_asset_sync.py publish
-    python semoss_asset_sync.py portals/index.html
-    python semoss_asset_sync.py sync-from-remote portals
-    python semoss_asset_sync.py sync-from-remote portals --local-dir portals --overwrite
+    python scripts/semoss_asset_sync.py upload portals/index.html
+    python scripts/semoss_asset_sync.py upload portals/index.html --yes --no-publish
+    python scripts/semoss_asset_sync.py bulk-upload portals --no-publish
+    python scripts/semoss_asset_sync.py bulk-upload portals java
+    python scripts/semoss_asset_sync.py delete portals/assets --yes
+    python scripts/semoss_asset_sync.py publish
+    python scripts/semoss_asset_sync.py portals/index.html
+    python scripts/semoss_asset_sync.py sync-from-remote portals
+    python scripts/semoss_asset_sync.py sync-from-remote portals --local-dir portals --overwrite
 """
 
 from __future__ import annotations
@@ -34,7 +34,7 @@ from urllib.error import HTTPError, URLError
 from urllib.request import Request, urlopen
 
 
-WORKSPACE_ROOT = Path(__file__).resolve().parent.parent
+WORKSPACE_ROOT = Path(__file__).resolve().parents[2]
 CLAUDE_MCP_CONFIG_PATH = WORKSPACE_ROOT / ".mcp.json"
 COPILOT_MCP_CONFIG_PATH = WORKSPACE_ROOT / ".vscode" / "mcp.json"
 SEMOSS_CONFIG_PATH = WORKSPACE_ROOT / "semoss_config" / "config.json"
@@ -121,8 +121,6 @@ def load_semoss_config(config_path: Path) -> dict[str, str]:
             "WEB_MODULE_URL",
         )
         or DEFAULT_WEB_MODULE_URL,
-        "access_key": extract_config_value(raw_config, "access_key", "accessKey", "ACCESS_KEY"),
-        "secret_key": extract_config_value(raw_config, "secret_key", "secretKey", "SECRET_KEY"),
     }
 
 
@@ -142,7 +140,7 @@ def _extract_bearer_parts_from_server(server: dict) -> tuple[str, str]:
     if not header_value.startswith(prefix):
         raise RuntimeError("Unexpected Authorization header format in MCP config.")
 
-    bearer_value = header_value[len(prefix):]
+    bearer_value = header_value[len(prefix) :]
 
     # Resolve ${env:VAR} references (Claude Code MCP syntax)
     if "${env:" in bearer_value:
@@ -189,10 +187,10 @@ def build_api_endpoint(semoss_config: dict[str, str]) -> str:
     api_module_url = semoss_config.get("api_module_url", DEFAULT_API_MODULE_URL).strip()
 
     if api_module_url.startswith("http://") or api_module_url.startswith("https://"):
-        return f"{api_module_url.rstrip('/')}/api/"
+        return f"{api_module_url.rstrip('/')}/api"
 
     normalized_module = "/" + api_module_url.strip("/") if api_module_url else ""
-    return f"{base_url}{normalized_module}/api/"
+    return f"{base_url}{normalized_module}/api"
 
 
 def build_server_connection(endpoint: str, access_token: str, secret: str):
@@ -676,12 +674,7 @@ def parse_args() -> argparse.Namespace:
 
 def build_semoss_context() -> tuple[dict[str, str], str, object]:
     semoss_config = load_semoss_config(SEMOSS_CONFIG_PATH)
-
-    # Use credentials from config.json if present; otherwise fall back to MCP config files.
-    access_token = semoss_config.get("access_key", "")
-    secret = semoss_config.get("secret_key", "")
-    if not access_token or not secret:
-        access_token, secret = load_bearer_parts(CLAUDE_MCP_CONFIG_PATH, COPILOT_MCP_CONFIG_PATH)
+    access_token, secret = load_bearer_parts(CLAUDE_MCP_CONFIG_PATH, COPILOT_MCP_CONFIG_PATH)
 
     project_id = semoss_config.get("project_id")
     if not project_id:
