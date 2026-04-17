@@ -43,10 +43,10 @@ jobs:
         restore-keys: |
           pre-commit-
 
-    - name: Install OpenJDK 21 headless (required by pretty-format-java hook)
+    - name: Install OpenJDK 17 headless (required by pretty-format-java hook)
       run: |
         apt-get update
-        apt-get install -y --no-install-recommends openjdk-21-jre-headless
+        apt-get install -y --no-install-recommends openjdk-17-jre-headless
         java -version
 
     - name: Run pre-commit
