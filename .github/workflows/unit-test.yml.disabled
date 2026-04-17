@@ -1,3 +1,17 @@
+# -----------------------------------------------------------------------------
+# DISABLED WORKFLOW (kept for reference)
+#
+# This is the default unit-test workflow intended to run on GitHub-hosted
+# `ubuntu-latest` runners. It has been disabled by renaming the file to end in
+# `.yml.disabled` so GitHub Actions will not discover or execute it. The active
+# workflow used by this repo is `unit-test.yml`, which targets the SEMOSS
+# self-hosted CodeBuild runner (`codebuild-semoss-github-runner-...`).
+#
+# To restore this default workflow (e.g., if migrating back to GitHub-hosted
+# runners), rename this file back to `unit-test-default.yml` and remove or
+# rename the self-hosted variant.
+# -----------------------------------------------------------------------------
+
 name: Run Unit Tests
 
 on:
