@@ -11,16 +11,18 @@ jobs:
     steps:
     - uses: actions/checkout@v4
 
-    - name: Set up Node.js
-      uses: actions/setup-node@v4
-      with:
-        node-version: '24'
-        
     - name: Install pnpm
       uses: pnpm/action-setup@v4
       with:
         version: 10
-        
+
+    - name: Set up Node.js
+      uses: actions/setup-node@v4
+      with:
+        node-version: '24'
+        cache: 'pnpm'
+        cache-dependency-path: 'client/pnpm-lock.yaml'
+
     - name: Install dependencies and run frontend linting
       run: |
         if [ -d "client" ]; then
@@ -29,19 +31,30 @@ jobs:
         else
           echo "No client directory found, skipping frontend linting"
         fi
-    
-    # Python 3.12 is provided by the container
-    - name: Compute pre-commit cache key
-      id: pc-key
-      run: echo "hash=$(sha256sum .pre-commit-config.yaml | cut -d' ' -f1)" >> "$GITHUB_OUTPUT"
 
-    - name: Cache pre-commit environments
+    # Python 3.12 is provided by the container
+    - name: Compute cache keys
+      id: keys
+      run: |
+        echo "pre-commit=$(sha256sum .pre-commit-config.yaml | cut -d' ' -f1)" >> "$GITHUB_OUTPUT"
+
+    - name: Cache pre-commit hook environments
       uses: actions/cache@v4
       with:
         path: ~/.cache/pre-commit
-        key: pre-commit-${{ steps.pc-key.outputs.hash }}
+        key: pre-commit-py3.12-${{ steps.keys.outputs.pre-commit }}
         restore-keys: |
-          pre-commit-
+          pre-commit-py3.12-
+
+    - name: Cache uv downloads
+      uses: actions/cache@v4
+      with:
+        path: |
+          ~/.cache/uv
+          ~/.local/share/uv
+        key: uv-py3.12-${{ runner.os }}
+        restore-keys: |
+          uv-py3.12-
 
     - name: Install OpenJDK 17 headless (required by pretty-format-java hook)
       run: |
@@ -49,9 +62,14 @@ jobs:
         apt-get install -y --no-install-recommends openjdk-17-jre-headless
         java -version
 
+    - name: Install uv
+      run: |
+        if ! command -v uv >/dev/null 2>&1; then
+          curl -LsSf https://astral.sh/uv/install.sh | sh
+        fi
+        echo "$HOME/.local/bin" >> "$GITHUB_PATH"
+
     - name: Run pre-commit
       run: |
-        curl -LsSf https://astral.sh/uv/install.sh | sh
-        export PATH="$HOME/.local/bin:$PATH"
         uv tool install pre-commit
         uv tool run pre-commit run --all-files --show-diff-on-failure
