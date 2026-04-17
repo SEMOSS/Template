@@ -21,8 +21,8 @@ on:
 jobs:
   test:
     name: Run Test Suite
-    runs-on: ubuntu-latest
-    container: maven:3.9.9-amazoncorretto-21-debian
+    runs-on: codebuild-semoss-github-runner-${{ github.run_id }}-${{ github.run_attempt }}
+    container: public.ecr.aws/docker/library/maven:3.9.9-amazoncorretto-21-debian
     env:
       SNAPSHOT: ${{ inputs.snapshot || '5.3.0-SNAPSHOT' }}
       CLEAN_INSTALL: ${{ inputs.clean_install || 'false' }}
