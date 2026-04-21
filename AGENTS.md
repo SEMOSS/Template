@@ -10,7 +10,7 @@ Concise reference for building SEMOSS MCP tools. For working code examples, see 
 
 Run through these at the start of every session, in order:
 
-1. **MCP servers configured?** — Read `.mcp.json`. If it still contains any of the placeholders (`<base_url>`, `<api_module_url>`, `<accessKey>`, `<secretKey>`), follow [First-Time Setup](#first-time-setup-agent-instructions) before doing anything else. Once connected, call `Semoss_Platform_Instructions: get_agent_platform_instructions` to load up-to-date platform guidance for the session.
+1. **MCP servers configured?** — Read `.mcp.json`. If it still contains `<access_token>` or `<secret_token>` placeholders, **stop and ask the user for their access key and secret key before doing anything else.** Update all three server entries in `.mcp.json` so the `--header` arg reads `Authorization:Bearer <accessKey>:<secretKey>`. Ask the user to reload their VS Code window (**Cmd+Shift+P → "Developer: Reload Window"**) so the MCP servers connect. **Do not start building until MCPs are live.** Once connected, immediately call `Semoss_Platform_Instructions: get_agent_platform_instructions` — it contains up-to-date Pixel commands, API patterns, and platform guidance that should inform how you build the app.
 
 2. **Frontend deps installed?** — Check whether `client/node_modules/` exists. If not, run `pnpm i` inside `client/`.
 
@@ -31,7 +31,7 @@ This project ships a `.mcp.json` at the repo root. When connected, agents have a
 | `Semoss_database_helper` | Search for available databases by name, fetch and simplify a database schema (also saves it to `schema/schema.json` in the app assets), and run SQL queries or multi-statement scripts directly against any connected database. |
 
 **When vibe coding:** Use these servers actively — they replace most of what you'd otherwise ask the user to do in the UI.
-- Before writing any Pixel command or reactor logic, call `get_agent_platform_instructions` to get current platform guidance.
+- **Call `get_agent_platform_instructions` before writing any code** — not just before Pixel commands. It has platform-specific patterns that affect how you build the entire app.
 - Before writing a reactor that queries a database, use `Semoss_database_helper` to search for the database and inspect its schema.
 - After `pnpm build`, publish with `Semoss_project_manager` rather than asking the user to click through the app editor.
 
@@ -111,15 +111,51 @@ cd client && pnpm build
 ```
 
 ### Live deploy (sync script)
+
+**Remote (workshop) deploy:**
 ```bash
 cd client && pnpm build && cd ..
 python scripts/claude/semoss_asset_sync.py delete portals/assets --yes
 python scripts/claude/semoss_asset_sync.py bulk-upload portals
 ```
+First deploy only: skip the `delete` step — the remote path doesn't exist yet.
 
-**First deploy only:** skip the `delete` step — the remote path doesn't exist yet.
+**Local deploy — DIFFERENT workflow:**
+```bash
+cd client && pnpm build && cd ..
+python scripts/claude/semoss_asset_sync.py publish
+```
+For local SEMOSS, `portals/` IS the project's asset folder on disk (same filesystem). The `delete` and `bulk-upload` commands physically delete your local files. **Never run delete/bulk-upload against local — use build + publish only.**
 
-The sync script handles backup, upload, and publish. Don't try to replicate it with MCP tools directly.
+**To include Python tools in the deploy** (both local and remote), add `py/mcp_driver.py` to the bulk-upload when targeting remote:
+```bash
+python scripts/claude/semoss_asset_sync.py bulk-upload portals py/mcp_driver.py
+```
+For local, `py/mcp_driver.py` is already on disk — just publish.
+
+**`semoss_config/config.json`** drives which server and project the sync script targets — update `project_id` and `base_url` when switching environments. This is separate from `client/.env.local`.
+
+**Creating a new project — prefer MCP:**
+```python
+mcp__Semoss_project_manager__create_project(project_name="App Name", description="...", project_type="CODE", mcp="false")
+```
+Then manually update `semoss_config/config.json` and `client/.env.local` with the returned `project_id`. Fallback: `python scripts/claude/semoss_asset_sync.py create-project "App Name"` (auto-updates config).
+
+**Publishing — prefer MCP:**
+```python
+mcp__Semoss_project_manager__publish_project(project_id="<id>")
+```
+When using MCP to publish, pass `--no-publish` to `bulk-upload` so the sync script skips its own publish step.
+
+**Local app URL format:** `http://localhost:9090/SemossWeb/packages/client/dist/#/{project_id}`
+
+**Workshop app URL format:** `https://workshop.cfg.deloitte.com/cfg-ai-dev/SemossWeb/packages/client/dist/#/app/{project_id}/view`
+
+**`ai-server-sdk` version:** Must be ≥ 0.0.30. Earlier versions fail with CSRF errors against newer SEMOSS instances.
+
+**`.vscode/mcp.json` has JSONC comments** — the sync script can't parse it with `json.loads()`. Keep a `.mcp.json` (Claude Code format, `mcpServers` key) alongside it; the script checks `.mcp.json` first.
+
+The sync script handles backup and upload. Use the `Semoss_project_manager` MCP for creating projects and publishing — it's the preferred path over the sync script's built-in create/publish.
 
 > **IMPORTANT — Always ask before deploying.** The user has multiple environments (remote and local) with different credentials. After `pnpm build` succeeds, **stop and ask the user** "Deploy to remote or local?" before running any sync/upload/publish command. Never assume based on what's in `.mcp.json` or `semoss_config/config.json`.
 

@@ -595,7 +595,7 @@ def bulk_upload_to_semoss(
 
 
 COMMAND_NAMES = frozenset(
-    {"upload", "bulk-upload", "delete", "publish", "sync-from-remote"}
+    {"upload", "bulk-upload", "delete", "publish", "sync-from-remote", "create-project"}
 )
 
 
@@ -645,6 +645,12 @@ def build_parser() -> argparse.ArgumentParser:
         "publish",
         help="Publish the linked SEMOSS project without uploading anything (use after chained bulk-upload --no-publish).",
     )
+
+    create_parser = subparsers.add_parser(
+        "create-project",
+        help="Create a new SEMOSS project and update semoss_config/config.json with its ID.",
+    )
+    create_parser.add_argument("name", help="Display name for the new project.")
 
     sync_parser = subparsers.add_parser("sync-from-remote", help="Download a remote SEMOSS asset folder into the local workspace.")
     sync_parser.add_argument("remote_folder", help="Remote folder path, relative to version/assets or as a full version/assets path.")
@@ -855,6 +861,24 @@ def bulk_upload_command(
     )
 
 
+def create_project_command(name: str) -> int:
+    semoss_config, _, server_connection = build_semoss_context()
+    result = pixel_output(server_connection.run_pixel(
+        f'CreateProject(project=[{json.dumps(name)}], portal=[true], projectType=["CODE"])',
+        full_response=True,
+    ))
+    project_id = result.get("project_id")
+    if not project_id:
+        raise SystemExit(f"CreateProject did not return a project_id: {result}")
+
+    semoss_config["project_id"] = project_id
+    SEMOSS_CONFIG_PATH.write_text(json.dumps(semoss_config, indent=2) + "\n", encoding="utf-8")
+
+    print(f"Created project: {result.get('project_display_name')} ({project_id})")
+    print(f"Updated {SEMOSS_CONFIG_PATH.relative_to(WORKSPACE_ROOT)} with new project_id.")
+    return 0
+
+
 def publish_command() -> int:
     _, project_id, server_connection = build_semoss_context()
     print(f"Publishing project {project_id}...")
@@ -865,6 +889,9 @@ def publish_command() -> int:
 
 def main() -> int:
     args = parse_args()
+
+    if args.command == "create-project":
+        return create_project_command(args.name)
 
     if args.command == "sync-from-remote":
         return sync_semoss_folder_to_local(args.remote_folder, args.local_dir, args.overwrite)
