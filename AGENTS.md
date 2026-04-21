@@ -10,7 +10,16 @@ Concise reference for building SEMOSS MCP tools. For working code examples, see 
 
 Run through these at the start of every session, in order:
 
-1. **MCP servers configured?** — Read `.mcp.json`. If it still contains `<access_token>` or `<secret_token>` placeholders, **stop and ask the user for their access key and secret key before doing anything else.** Update all three server entries in `.mcp.json` so the `--header` arg reads `Authorization:Bearer <accessKey>:<secretKey>`. Ask the user to reload their VS Code window (**Cmd+Shift+P → "Developer: Reload Window"**) so the MCP servers connect. **Do not start building until MCPs are live.** Once connected, immediately call `Semoss_Platform_Instructions: get_agent_platform_instructions` — it contains up-to-date Pixel commands, API patterns, and platform guidance that should inform how you build the app.
+1. **MCP servers configured?** — Read `.mcp.json`. If it still contains `<access_token>` or `<secret_token>` placeholders, **stop and ask the user for their access key and secret key before doing anything else.** Credentials are always `accessKey:secretKey` — update the `--header` arg to `Authorization:Bearer <accessKey>:<secretKey>` in all three server entries. Ask the user to reload their VS Code window (**Cmd+Shift+P → "Developer: Reload Window"**) so the MCP servers connect.
+
+   **Do not start building until MCPs are live.** Once connected, immediately call `Semoss_Platform_Instructions: get_agent_platform_instructions` — it contains up-to-date Pixel commands, API patterns, and platform guidance that should inform how you build the app.
+
+   **If the MCP still fails after credentials are set:** The MCP servers are themselves SEMOSS apps and must be deployed on the target environment. A connection failure may mean those apps aren't on that environment (not just a credentials problem). In that case:
+   - For **Platform Instructions**: fall back to the reliable workshop endpoint: `https://workshop.cfg.deloitte.com/cfg-ai-dev/Monolith/api/ext/mcp/67aa0dcf-04f5-460f-9075-bad8eeedad7e/comms` with workshop credentials. Only change the app ID in the URL if the user explicitly provides a different one.
+   - For **Project Manager**: if unavailable, fall back to the sync script's `create-project` command (see Build & Deploy).
+   - For **Database Helper**: same approach as Platform Instructions, but if unavailable it's less critical — proceed and note the limitation to the user.
+
+   **Do not change MCP app IDs in `.mcp.json` unless the user explicitly tells you to.**
 
 2. **Frontend deps installed?** — Check whether `client/node_modules/` exists. If not, run `pnpm i` inside `client/`.
 
@@ -125,7 +134,9 @@ First deploy only: skip the `delete` step — the remote path doesn't exist yet.
 cd client && pnpm build && cd ..
 python scripts/claude/semoss_asset_sync.py publish
 ```
-For local SEMOSS, `portals/` IS the project's asset folder on disk (same filesystem). The `delete` and `bulk-upload` commands physically delete your local files. **Never run delete/bulk-upload against local — use build + publish only.**
+For the **original Blank Canvas project** (`portals/` IS the project's asset folder on disk), `delete` and `bulk-upload` physically delete your local files. Use build + publish only for that project.
+
+For a **new project created on local** (different project ID), `portals/` is NOT that project's folder on disk — `bulk-upload` is safe. Use it the same way as remote (first deploy: skip delete; subsequent: delete then upload).
 
 **To include Python tools in the deploy** (both local and remote), add `py/mcp_driver.py` to the bulk-upload when targeting remote:
 ```bash
@@ -135,11 +146,21 @@ For local, `py/mcp_driver.py` is already on disk — just publish.
 
 **`semoss_config/config.json`** drives which server and project the sync script targets — update `project_id` and `base_url` when switching environments. This is separate from `client/.env.local`.
 
+**Deploying to multiple environments requires a separate build for each.** Both `APP` (project ID) and `MODULE` (API path) are baked into the Vite production bundle via `import.meta.env`. A build for local (`APP=<local-id>`, `MODULE=/Monolith`) will not work on workshop, and vice versa. Each environment's deploy sequence is: update `.env.local` → `pnpm build` → upload/publish.
+
 **Creating a new project — prefer MCP:**
 ```python
 mcp__Semoss_project_manager__create_project(project_name="App Name", description="...", project_type="CODE", mcp="false")
 ```
-Then manually update `semoss_config/config.json` and `client/.env.local` with the returned `project_id`. Fallback: `python scripts/claude/semoss_asset_sync.py create-project "App Name"` (auto-updates config).
+Then manually update `semoss_config/config.json` and `client/.env.local` with the returned `project_id`.
+
+> **Before creating:** Tell the user which environment the project will be created on (derived from the base URL in `.mcp.json` / `semoss_config/config.json`) and confirm that's correct. Creating on the wrong environment is hard to undo.
+
+> **The Project Manager MCP may not be deployed on every SEMOSS instance.** If it fails to connect after credentials are set, fall back to the sync script — the MCP apps must be explicitly deployed on each environment to be available there.
+
+> **After changing `.mcp.json` (e.g. switching from workshop to local credentials/URLs), the VS Code window must be reloaded before calling any MCP tools.** Without a reload, Claude Code reuses the old connection and will create/publish on the wrong environment. Reload first: **Cmd+Shift+P → "Developer: Reload Window"**. The sync script reads `.mcp.json` directly each run and does not need a reload.
+
+Fallback if Project Manager MCP is unavailable: `python scripts/claude/semoss_asset_sync.py create-project "App Name"` (auto-updates config, uses credentials from `.mcp.json`).
 
 **Publishing — prefer MCP:**
 ```python
