@@ -1,3 +1,17 @@
+# -----------------------------------------------------------------------------
+# DISABLED WORKFLOW (kept for reference)
+#
+# This is the default unit-test workflow intended to run on GitHub-hosted
+# `ubuntu-latest` runners. It has been disabled by renaming the file to end in
+# `.yml.disabled` so GitHub Actions will not discover or execute it. The active
+# workflow used by this repo is `unit-test.yml`, which targets the SEMOSS
+# self-hosted CodeBuild runner (`codebuild-semoss-github-runner-...`).
+#
+# To restore this default workflow (e.g., if migrating back to GitHub-hosted
+# runners), rename this file back to `unit-test-default.yml` and remove or
+# rename the self-hosted variant.
+# -----------------------------------------------------------------------------
+
 name: Run Unit Tests
 
 on:
@@ -21,8 +35,8 @@ on:
 jobs:
   test:
     name: Run Test Suite
-    runs-on: codebuild-semoss-github-runner-${{ github.run_id }}-${{ github.run_attempt }}
-    container: public.ecr.aws/docker/library/maven:3.9.9-amazoncorretto-21-debian
+    runs-on: ubuntu-latest
+    container: maven:3.9.9-amazoncorretto-21-debian
     env:
       SNAPSHOT: ${{ inputs.snapshot || '5.3.0-SNAPSHOT' }}
       CLEAN_INSTALL: ${{ inputs.clean_install || 'false' }}
@@ -30,29 +44,15 @@ jobs:
     steps:
       - name: Checkout code
         uses: actions/checkout@v4
-
-      # Computes a cache key from the root pom.xml. This project is a single-module
-      # Maven project, so hashing the root pom.xml alone is sufficient.
-      #
-      # For a multi-module Maven project, hash every pom.xml in the tree instead:
-      #   run: echo "hash=$(find . -name pom.xml -not -path '*/target/*' -print0 \
-      #     | sort -z | xargs -0 sha256sum | sha256sum | cut -d' ' -f1)" >> "$GITHUB_OUTPUT"
-      #
-      # Note: we compute the hash in a shell step instead of using the built-in
-      # hashFiles() expression because hashFiles() fails on this self-hosted
-      # CodeBuild runner due to a workspace-path resolution issue.
-      - name: Compute pom.xml hash
-        id: pom-hash
-        run: echo "hash=$(sha256sum pom.xml | cut -d' ' -f1)" >> "$GITHUB_OUTPUT"
-
+        
       - name: Cache Maven packages
         id: cache-maven
         uses: actions/cache@v4
         with:
           path: /root/.m2/repository
-          key: ${{ runner.os }}-maven-${{ steps.pom-hash.outputs.hash }}-${{ env.SNAPSHOT }}
+          key: ${{ runner.os }}-maven-${{ hashFiles('**/pom.xml') }}-${{ env.SNAPSHOT }}
           restore-keys: |
-            ${{ runner.os }}-maven-${{ steps.pom-hash.outputs.hash }}-
+            ${{ runner.os }}-maven-${{ hashFiles('**/pom.xml') }}-
             ${{ runner.os }}-maven-
 
       - name: Maven Install
