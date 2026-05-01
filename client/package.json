@@ -2,7 +2,8 @@
 	"private": true,
 	"scripts": {
 		"build": "vite build",
-		"dev": "vite"
+		"dev": "vite",
+		"fix": "pnpm --dir .. fix"
 	},
 	"dependencies": {
 		"@radix-ui/react-label": "^2.1.8",

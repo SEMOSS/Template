@@ -1,0 +1,88 @@
+name: Pre-commit
+
+on:
+  pull_request:
+  workflow_dispatch:
+
+jobs:
+  pre-commit:
+    runs-on: codebuild-semoss-github-runner-${{ github.run_id }}-${{ github.run_attempt }}
+    container: public.ecr.aws/docker/library/python:3.12-bookworm
+    steps:
+    - uses: actions/checkout@v4
+
+    - name: Install pnpm
+      uses: pnpm/action-setup@v4
+      with:
+        version: 10
+
+    - name: Set up Node.js
+      uses: actions/setup-node@v4
+      with:
+        node-version: '24'
+        cache: 'pnpm'
+        cache-dependency-path: 'client/pnpm-lock.yaml'
+
+    - name: Install dependencies and run frontend linting
+      run: |
+        if [ -d "client" ]; then
+          pnpm install
+          pnpm exec biome format --write && pnpm exec biome lint
+        else
+          echo "No client directory found, skipping frontend linting"
+        fi
+
+    # Python 3.12 is provided by the container
+    - name: Compute cache keys
+      id: keys
+      run: |
+        echo "pre-commit=$(sha256sum .pre-commit-config.yaml | cut -d' ' -f1)" >> "$GITHUB_OUTPUT"
+
+    - name: Cache pre-commit hook environments
+      uses: actions/cache@v4
+      with:
+        path: ~/.cache/pre-commit
+        key: pre-commit-py3.12-${{ steps.keys.outputs.pre-commit }}
+        restore-keys: |
+          pre-commit-py3.12-
+
+    - name: Cache uv downloads
+      uses: actions/cache@v4
+      with:
+        path: |
+          ~/.cache/uv
+          ~/.local/share/uv
+        key: uv-py3.12-${{ runner.os }}
+        restore-keys: |
+          uv-py3.12-
+
+    - name: Cache OpenJDK 17
+      id: cache-jdk
+      uses: actions/cache@v4
+      with:
+        path: /usr/lib/jvm/java-17-openjdk-amd64
+        key: jdk-17-bookworm-${{ runner.os }}
+
+    - name: Install OpenJDK 17 headless (required by pretty-format-java hook)
+      if: steps.cache-jdk.outputs.cache-hit != 'true'
+      run: |
+        apt-get update
+        apt-get install -y --no-install-recommends openjdk-17-jre-headless
+
+    - name: Set up Java environment
+      run: |
+        echo "JAVA_HOME=/usr/lib/jvm/java-17-openjdk-amd64" >> "$GITHUB_ENV"
+        echo "/usr/lib/jvm/java-17-openjdk-amd64/bin" >> "$GITHUB_PATH"
+        java -version
+
+    - name: Install uv
+      run: |
+        if ! command -v uv >/dev/null 2>&1; then
+          curl -LsSf https://astral.sh/uv/install.sh | sh
+        fi
+        echo "$HOME/.local/bin" >> "$GITHUB_PATH"
+
+    - name: Run pre-commit
+      run: |
+        uv tool install pre-commit
+        uv tool run pre-commit run --all-files --show-diff-on-failure
