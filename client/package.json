@@ -8,20 +8,20 @@
 	"dependencies": {
 		"@radix-ui/react-label": "^2.1.8",
 		"@radix-ui/react-slot": "^1.2.4",
-		"@semoss/sdk": "^1.0.0-beta.38",
-		"@tailwindcss/postcss": "^4.2.2",
-		"@tailwindcss/vite": "^4.2.2",
-		"autoprefixer": "^10.4.27",
+		"@semoss/sdk": "^1.0.0-beta.40",
+		"@tailwindcss/postcss": "^4.2.4",
+		"@tailwindcss/vite": "^4.2.4",
+		"autoprefixer": "^10.5.0",
 		"class-variance-authority": "^0.7.1",
 		"clsx": "^2.1.1",
-		"lucide-react": "^1.8.0",
-		"postcss": "^8.5.9",
+		"lucide-react": "^1.14.0",
+		"postcss": "^8.5.14",
 		"react": "^18.3.1",
 		"react-dom": "^18.3.1",
-		"react-router-dom": "^7.14.0",
+		"react-router-dom": "^7.15.0",
 		"sonner": "^2.0.7",
 		"tailwind-merge": "^3.5.0",
-		"tailwindcss": "^4.2.2",
+		"tailwindcss": "^4.2.4",
 		"tailwindcss-animate": "^1.0.7"
 	},
 	"devDependencies": {
@@ -29,7 +29,7 @@
 		"@types/react": "^18.3.28",
 		"@types/react-dom": "^18.3.7",
 		"@vitejs/plugin-react": "^6.0.1",
-		"typescript": "^6.0.2",
-		"vite": "^8.0.8"
+		"typescript": "^6.0.3",
+		"vite": "^8.0.10"
 	}
 }
