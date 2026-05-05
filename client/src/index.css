@@ -7,7 +7,7 @@
  * To customize the theme, edit the CSS variables below. shadcn/ui components
  * reference these variables for consistent theming across the app.
  *
- * To add new shadcn/ui components: npx shadcn@latest add <component-name>
+ * To add new shadcn/ui components: pnpm dlx shadcn@latest add <component-name>
  */
 
 @import "tailwindcss";
