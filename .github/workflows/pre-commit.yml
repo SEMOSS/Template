@@ -73,6 +73,9 @@ jobs:
       run: |
         echo "JAVA_HOME=/usr/lib/jvm/java-17-openjdk-amd64" >> "$GITHUB_ENV"
         echo "/usr/lib/jvm/java-17-openjdk-amd64/bin" >> "$GITHUB_PATH"
+
+    - name: Verify Java installation
+      run: |
         java -version
 
     - name: Install uv
