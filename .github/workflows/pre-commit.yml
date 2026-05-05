@@ -60,7 +60,9 @@ jobs:
       id: cache-jdk
       uses: actions/cache@v4
       with:
-        path: /usr/lib/jvm/java-17-openjdk-amd64
+        path: |
+          /usr/lib/jvm/java-17-openjdk-amd64
+          /etc/java-17-openjdk
         key: jdk-17-bookworm-${{ runner.os }}
 
     - name: Install OpenJDK 17 headless (required by pretty-format-java hook)
