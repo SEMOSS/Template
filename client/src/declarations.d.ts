@@ -14,6 +14,12 @@ interface ImportMeta {
 	readonly env: ImportMetaEnv;
 }
 
+// Allow importing CSS files as modules
+declare module "*.css" {
+	const content: string;
+	export default content;
+}
+
 // Allow importing image files as modules
 declare module "*.jpg" {
 	const value: string;
