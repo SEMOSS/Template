@@ -1,0 +1,19 @@
+{
+	"private": true,
+	"scripts": {
+		"fix": "biome format --write && biome lint && pre-commit run --all-files || pre-commit run --all-files",
+		"dev": "pnpm --dir client dev"
+	},
+	"devDependencies": {
+		"@biomejs/biome": "2.4.11",
+		"http-server": "^14.1.1",
+		"husky": "^9.1.7",
+		"lint-staged": "^16.4.0"
+	},
+	"lint-staged": {
+		"**/*.{js,jsx,ts,tsx,json,html,css}": [
+			"biome format --write",
+			"biome lint"
+		]
+	}
+}

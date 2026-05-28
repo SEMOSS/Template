@@ -12,12 +12,20 @@
   <groupId>SemossTemplate</groupId>
   <artifactId>SemossTemplate</artifactId>
   <version>${ci.version}</version>
+  <!-- Version property used by both this project and the SEMOSS dependency -->
   <properties>
     <ci.version>0.0.1-SNAPSHOT</ci.version>
   </properties>
   <build>
+    <!-- Main source lives in java/src/ instead of the Maven default src/main/java -->
     <sourceDirectory>java/src</sourceDirectory>
+    <!-- Test source lives in test/ instead of the Maven default src/test/java -->
+    <testSourceDirectory>test</testSourceDirectory>
+    <!-- Compiled classes go to classes/ so SEMOSS can load them at runtime -->
     <outputDirectory>classes</outputDirectory>
+    <!-- Compiled test classes go to test-classes/ -->
+    <testOutputDirectory>test-classes</testOutputDirectory>
+    <!-- Include non-Java files from java/ (e.g. project.properties) as classpath resources -->
     <resources>
       <resource>
         <directory>java</directory>
@@ -26,6 +34,13 @@
         </excludes>
       </resource>
     </resources>
+    <!-- Test resources (e.g. log4j2-test.xml) live in test/resources/ -->
+    <testResources>
+      <testResource>
+        <directory>test/resources</directory>
+      </testResource>
+    </testResources>
+    <!-- Compile with Java 21 source/target -->
     <plugins>
       <plugin>
         <artifactId>maven-compiler-plugin</artifactId>
@@ -37,7 +52,9 @@
       </plugin>
     </plugins>
   </build>
+  <!-- Maven repositories: Central, SEMOSS 3rd-party, and Sonatype for snapshots -->
   <repositories>
+    <!-- Maven Central — primary public repository -->
     <repository>
       <id>central</id>
       <name>Maven Repository Switchboard</name>
@@ -47,6 +64,7 @@
         <enabled>false</enabled>
       </snapshots>
     </repository>
+    <!-- SEMOSS Nexus — hosts the semoss artifact and other internal JARs -->
     <repository>
       <id>3rdPartyJARs</id>
       <name>Maven repository</name>
@@ -58,13 +76,72 @@
         <enabled>true</enabled>
       </snapshots>
     </repository>
+    <!-- Sonatype OSS — public releases from open-source projects -->
+    <repository>
+      <id>public</id>
+      <name>Sonatype's Maven repository</name>
+      <url>https://oss.sonatype.org/content/groups/public</url>
+      <releases>
+        <enabled>true</enabled>
+      </releases>
+      <snapshots>
+        <enabled>false</enabled>
+      </snapshots>
+    </repository>
+    <!-- Sonatype Snapshots — for SNAPSHOT builds that update on every check -->
+    <repository>
+      <id>sonatype-snapshots</id>
+      <name>Sonatype Snapshots</name>
+      <url>https://central.sonatype.com/repository/maven-snapshots</url>
+      <snapshots>
+        <enabled>true</enabled>
+        <updatePolicy>always</updatePolicy>
+      </snapshots>
+    </repository>
   </repositories>
   <dependencies>
+    <!-- SEMOSS core — provided by the server at runtime, not bundled into output -->
     <dependency>
       <groupId>org.semoss</groupId>
       <artifactId>semoss</artifactId>
       <version>${ci.version}</version>
       <scope>provided</scope>
+    </dependency>
+    <!-- ===== Test dependencies (only used during mvn test, not shipped) ===== -->
+    <!-- https://mvnrepository.com/artifact/org.junit.jupiter/junit-jupiter-api
+         JUnit Jupiter — test framework for writing and running tests -->
+    <dependency>
+      <groupId>org.junit.jupiter</groupId>
+      <artifactId>junit-jupiter</artifactId>
+      <version>6.0.0</version>
+      <scope>test</scope>
+    </dependency>
+    <!-- https://mvnrepository.com/artifact/org.junit.platform/junit-platform-suite
+         JUnit Platform Suite — allows grouping tests into suites (see ReactorTestSuite) -->
+    <dependency>
+      <groupId>org.junit.platform</groupId>
+      <artifactId>junit-platform-suite</artifactId>
+      <version>6.0.0</version>
+      <scope>test</scope>
+    </dependency>
+    <!-- https://mvnrepository.com/artifact/org.mockito/mockito-core
+         Mockito — mocking framework for isolating reactor logic in tests.
+         byte-buddy and objenesis are excluded because SEMOSS already provides them. -->
+    <dependency>
+      <groupId>org.mockito</groupId>
+      <artifactId>mockito-core</artifactId>
+      <version>5.18.0</version>
+      <scope>test</scope>
+      <exclusions>
+        <exclusion>
+          <groupId>net.bytebuddy</groupId>
+          <artifactId>byte-buddy</artifactId>
+        </exclusion>
+        <exclusion>
+          <groupId>org.objenesis</groupId>
+          <artifactId>objenesis</artifactId>
+        </exclusion>
+      </exclusions>
     </dependency>
   </dependencies>
 </project>
