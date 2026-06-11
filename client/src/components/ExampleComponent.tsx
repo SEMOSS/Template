@@ -12,7 +12,8 @@
 //
 // Replace this component with your own UI. Keep the patterns:
 //   - Use `tool.parameters` to read inputs from Playground
-//   - Use `actions.run()` or `actions.runMCPTool()` to call backend tools
+//   - Use `actions.run()` to call backend tools (Java reactors and Python via RunMCPTool).
+//     Avoid `actions.runMCPTool()` — it's deprecated and auto-sends to Playground.
 //   - Use `actions.sendMCPResponseToPlayground()` to return results to the chat
 
 import { useInsight } from "@semoss/sdk/react";

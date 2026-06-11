@@ -1,0 +1,17 @@
+# Capture list of staged files
+STAGED_FILES=$(git diff --name-only --cached)
+
+# Lint FE code
+echo "Formatting and linting FE code..."
+pnpm exec lint-staged
+
+# Format BE code
+echo "Formatting BE code..."
+if [ -n "$STAGED_FILES" ]; then
+    if ! pre-commit run --files $STAGED_FILES; then
+        git add $STAGED_FILES
+        pre-commit run --files $STAGED_FILES
+    fi
+fi
+
+# You may want to consider also running `pre-commit autoupdate` periodically to keep hooks updated.

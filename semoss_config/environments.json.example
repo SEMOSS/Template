@@ -1,0 +1,27 @@
+{
+  "model_id": "",
+  "database_id": "",
+  "envs": {
+    "local": {
+      "label": "Local backend",
+      "base_url": "http://localhost:9090/",
+      "api_module_url": "/Monolith",
+      "web_module_url": "/SemossWeb",
+      "app_id": ""
+    },
+    "preprod": {
+      "label": "Pre-production",
+      "base_url": "https://preprod.your-instance.example.com/",
+      "api_module_url": "/Monolith",
+      "web_module_url": "/SemossWeb",
+      "app_id": ""
+    },
+    "prod": {
+      "label": "Production",
+      "base_url": "https://your-instance.example.com/",
+      "api_module_url": "/Monolith",
+      "web_module_url": "/SemossWeb",
+      "app_id": ""
+    }
+  }
+}
