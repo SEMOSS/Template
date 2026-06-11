@@ -1,65 +1,31 @@
 # SEMOSS App Template
 
-Starting point for building apps and MCP tools on the SEMOSS platform. Includes a React frontend, Java reactors, and Python tool support.
+The canonical, agent-first starting point for building apps and MCP tools on the SEMOSS
+platform — a React frontend, Java reactors, and Python tools, wired for coding agents.
 
-## Structure
+## Read this first
 
-```
-assets/
-├── client/          React + Vite + Tailwind v4 + shadcn/ui (frontend source)
-├── java/            Java reactors (backend logic, compiled by SEMOSS)
-├── py/              Python tools (simple transforms, API calls)
-├── mcp/             Auto-generated MCP manifests (do not edit)
-├── portals/         Built frontend output (do not edit directly)
-├── classes/         Compiled Java .class files (do not edit)
-├── target/          Maven build artifacts (do not edit)
-├── pom.xml          Maven config for Java reactors
-├── AGENTS.md        LLM agent reference for this codebase
-└── README.md        This file
-```
+This template is optimized for Claude. The single source of truth — architecture, SDK
+usage, deploy flow, conventions, and the full skills index — lives in
+**[CLAUDE.md](CLAUDE.md)**. Agents and humans alike should start there; this README is
+just a front door.
 
-## Getting Started
+## Layout at a glance
 
-1. **Create an app** in the SEMOSS UI → App page → "Create New App" → choose pro-code. Note the app ID from the URL.
+| Path | What |
+|------|------|
+| `client/` | React + Vite + Tailwind v4 + shadcn/ui frontend → builds to `portals/` |
+| `java/src/reactors/` | Java reactors (complex logic, DB access, LLM calls) |
+| `py/mcp_driver.py` | Python MCP tools |
+| `mcp/` | Tool manifests (`py_mcp.json`, `pixel_mcp.json`) — hand-edited |
+| `semoss_config/` | Per-environment endpoints + credentials (gitignored; copy the `.example`s) |
+| `scripts/claude/` | `semoss_asset_sync.py` deploy script |
+| `.claude/skills/` | Task-specific guidance, loaded on demand |
+| `portals/`, `classes/`, `target/` | Generated — don't edit |
 
-2. **Clone this template** into your app's `assets` folder:
-   ```
-   cd workspace/Semoss/project/[YourApp]_[app-id]/app_root/version/
-   mv assets old-assets
-   git clone <repo-url> assets
-   ```
+## Task-specific guidance
 
-3. **Install dependencies:**
-   ```
-   cd assets/client
-   pnpm i
-   ```
-
-4. **Set your app ID** in `client/.env.local`:
-   ```
-   APP="your-app-id"
-   ```
-
-5. **Develop:**
-   ```
-   cd client
-   pnpm dev     # Local dev server with hot reload
-   pnpm build   # Production build → portals/
-   ```
-
-6. **Publish:** In the SEMOSS UI, open the editor → click "Publish files" to make changes visible to users.
-
-## Key Concepts
-
-- **Frontend** (`client/`): React app using `@semoss/sdk` to communicate with SEMOSS. Builds to `portals/`. See `client/README.md`.
-- **Java Reactors** (`java/`): Backend logic compiled by SEMOSS into `classes/`. Click "Recompile reactors" in the SEMOSS UI after changes. See `java/README.md`.
-- **Python Tools** (`py/`): Add MCP tools in `py/mcp_driver.py` with `@mcp_metadata` decorator. Simple tools can use Playground's default UI (no React needed) by omitting `resourceURI`.
-- **MCP Manifests** (`mcp/`): Auto-generated. Run `MakePythonMCP()` or `MakePixelMCP(...)` to regenerate. Never edit manually.
-- **Publishing**: The SEMOSS UI snapshots `portals/` to a public location. Build first, then publish.
-
-## More Info
-
-- `client/README.md` — Frontend setup, commands, shadcn/ui
-- `java/README.md` — Java reactor development
-- `AGENTS.md` — Conventions and rules for LLM agents working in this codebase
-
+Deeper playbooks live as skills under `.claude/skills/` and load automatically when a task
+calls for them — databases, models, vectors, deploy, MCP manifests, the `ai-repo` CLI,
+platform backend, a worked example app, and testing/CI setup. See the Skills table in
+[CLAUDE.md](CLAUDE.md) for the index.
