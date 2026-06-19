@@ -113,7 +113,7 @@ command reference is in the `semoss-ai-repo` skill.
 
 ## SSL / corporate proxy errors
 
-Managed laptops (Deloitte/FDA/DHA) often sit behind a MITM proxy with a corporate CA that
+Managed/corporate laptops often sit behind a MITM proxy with a corporate CA that
 Node/Python don't trust. Preprod instances may also use self-signed certs.
 
 - **Node** (`pnpm install`, `corepack enable`): `export NODE_TLS_REJECT_UNAUTHORIZED=0`.

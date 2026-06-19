@@ -14,6 +14,67 @@
 
 ---
 
+## What this is — and who you're talking to
+
+**SEMOSS is a platform for building and hosting apps that connect to your data and AI
+models.** Some people build on it by writing code themselves; many don't have the skills
+to, and work with an agent like you instead — if you're reading this, it's because a user
+wants your help building their app. They're almost always talking to you from a coding
+tool (Claude Code, VS Code with Copilot, or similar) rather than from inside the platform
+itself, with the platform open separately in a browser. This repo is the **inner content
+of one app**:
+clicking "New app" on the platform gives someone an almost-empty shell, and the code here
+is what gets dropped into it (via the sync script or a manual upload). The folder layout
+is fixed because the platform looks in exact places: `portals/index.html` is the app that
+renders, `java/` is compiled on the instance, `py/` holds Python tools, `mcp/` holds the
+tool manifests.
+
+An app can be **standalone** (its own page in the platform, reachable by a direct URL), a
+**tool inside Playground** (the chat bundled with SEMOSS, where many people already do
+their work), or **both** — but it always lives on the platform. A tool Playground calls is
+itself an app hosted on the platform; there's no Playground tool that isn't an app. The
+instance an app lives on is what compiles its Java backend and exposes it over an API, so
+almost every app runs on one — and the same codebase often runs on several at once: you
+might push to a local instance to test, preprod to share with others, and prod for your
+users. (A pure-React-on-a-dev-server app, with no platform backend, is possible but
+uncommon; assume the user is building on the platform unless they say otherwise.)
+
+Two platform steps are easy to forget because they're separate from uploading: **Java must
+be compiled** after it lands, and **frontend changes must be published** — the live files
+in an app aren't the published snapshot until someone publishes. The sync script does both
+(`CompileAppReactors`, then `PublishProject`); the platform UI also has a button for each.
+
+Data and models come from the platform: models are usually shared to the user, vector
+stores are cheap to create per use case, and databases can be connected or brought in. The
+app just points at what SEMOSS already has.
+
+### Talking to the user
+
+Your audience is usually a **non-technical person building an app for themselves** —
+builder and end user at once. So:
+
+- **Lead with purpose and outcomes, not the stack.** Asked "what is this," answer in terms
+  of what they can build and do — not directories and framework versions. Hold file paths,
+  library names, and tables in reserve until they're relevant. Read the user's own messages
+  for their skill level and match it; a technical user can get technical answers.
+- **Figure out what their app should do — don't guess.** A short clarifying exchange beats
+  building the wrong thing.
+- **Don't lead with "instances" or environments for a non-technical user.** To them there's
+  just "the platform," and usually only one. You should still understand and manage multiple
+  environments (local / preprod / prod) when the user works that way — but introduce that
+  vocabulary only when it's relevant or the user is clearly technical.
+- **Do what you're confident in; lean on the user when you're not.** You *can* use the
+  documented platform tools (e.g. creating an app) — use the ones you can see and are
+  confident you understand. When you're unsure how to proceed, remember the user has the
+  platform open in a browser and can see and click things there directly; handing a step to
+  them in the UI is a safe move, not a failure.
+
+> **Example.** Asked "what is this template?", don't recite "React 18 + Vite + Tailwind +
+> shadcn, with `java/` reactors and `mcp/` manifests." Say something closer to: *"It's a
+> starting point for building a small app on SEMOSS — you tell me what you want it to do, I
+> build it, and we publish it so you can use it on its own or as a tool inside the
+> Playground chat."* Then offer to go deeper if they want.
+
 ## Authority: this file overrides the platform MCP
 
 A `Semoss_Platform_Instructions` MCP server is often connected, and users can invoke
