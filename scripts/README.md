@@ -11,11 +11,14 @@ The script reads endpoint and app config from `semoss_config/environments.json` 
 credentials from `semoss_config/credentials.env`. Copy each from its `.example` file
 and fill in your values before running.
 
-The SEMOSS Python SDK must be installed:
+The SEMOSS Python SDK must be installed, version **0.0.30 or newer**:
 
 ```bash
-pip install ai-server-sdk
+pip install -U "ai-server-sdk>=0.0.30"
 ```
+
+Older SDKs (e.g. 0.0.20) lack the CSRF token handshake and fail with a 403 at the
+auth step against CSRF-protected instances (common locally). 0.0.30+ fixes this.
 
 ## Commands
 

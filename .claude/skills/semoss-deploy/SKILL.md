@@ -74,6 +74,14 @@ python scripts/claude/semoss_asset_sync.py --env <name> bulk-upload portals py j
 - **Skip Java compile:** `--no-compile` (frontend-only change).
 - **Self-signed certs (preprod):** `--no-verify-ssl`.
 
+**403 at the auth step?** If the script fails with a 403 whose traceback ends in
+`make_new_insight` → `runPixel` (often with a `whoami` that returns 200 and a
+"null principal" warning), the cause is an outdated **ai-server-sdk** — versions before
+0.0.30 don't do the CSRF token handshake that CSRF-protected instances (common locally)
+require. The "null principal" warning is a red herring; auth is fine. Fix:
+`pip install -U "ai-server-sdk>=0.0.30"`. The script now guards against this with a clear
+error, but a stale SDK in the active environment is the thing to check first.
+
 Vite emits new content hashes every build, so stale bundles can orphan. To nuke a remote
 subtree before re-uploading:
 

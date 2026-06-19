@@ -20,7 +20,7 @@ java/project.properties
 
 # cache
 *.tsbuildinfo
-py/__pycache__/
+**/__pycache__/
 .classpath
 .project
 .settings/

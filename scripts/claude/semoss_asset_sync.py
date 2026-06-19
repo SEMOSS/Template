@@ -38,6 +38,11 @@ CREDENTIALS_ENV_PATH = WORKSPACE_ROOT / "semoss_config" / "credentials.env"
 DEFAULT_HOST = "https://your-instance.example.com"
 DEFAULT_API_MODULE_URL = "/Monolith"
 DEFAULT_WEB_MODULE_URL = "/SemossWeb"
+
+# ai-server-sdk added the CSRF token handshake in 0.0.30. Older versions authenticate
+# (whoami returns 200) but get a 403 on the first runPixel against CSRF-protected
+# instances — a confusing failure we guard against explicitly below.
+MIN_AI_SERVER_VERSION = (0, 0, 30)
 SERVER_NAME = "Semoss_project_manager"
 BACKUP_ROOT = WORKSPACE_ROOT / "temp" / "semoss_backups"
 
@@ -147,14 +152,42 @@ def build_server_connection(endpoint: str, access_token: str, secret: str, verif
             requests.Session.request = patched_request
 
     try:
+        import ai_server
         from ai_server import ServerClient
     except ImportError as exc:
         raise RuntimeError(
             "Unable to import ServerClient from ai_server. "
-            "Make sure the SEMOSS Python SDK is installed in this environment."
+            "Make sure the SEMOSS Python SDK is installed in this environment "
+            '(pip install -U "ai-server-sdk>=0.0.30").'
         ) from exc
 
+    _check_ai_server_version(ai_server)
+
     return ServerClient(base=endpoint, access_key=access_token, secret_key=secret)
+
+
+def _check_ai_server_version(ai_server) -> None:
+    """Warn loudly if ai-server-sdk is too old to do the CSRF handshake.
+
+    Versions before MIN_AI_SERVER_VERSION authenticate fine but 403 on the first
+    runPixel against CSRF-protected instances. We surface that here instead of
+    letting it fail later with an opaque 403.
+    """
+    raw = getattr(ai_server, "__version__", None)
+    if not raw:
+        return  # Can't determine version — don't block.
+    try:
+        parsed = tuple(int(part) for part in str(raw).split(".")[:3])
+    except ValueError:
+        return  # Unparseable (e.g. a dev build) — don't block.
+    if parsed < MIN_AI_SERVER_VERSION:
+        minimum = ".".join(str(p) for p in MIN_AI_SERVER_VERSION)
+        raise RuntimeError(
+            f"ai-server-sdk {raw} is too old. Versions before {minimum} lack the CSRF "
+            "token handshake and fail with a 403 at the auth step (whoami succeeds, then "
+            f"runPixel returns 403) against CSRF-protected instances. Upgrade with: "
+            f'pip install -U "ai-server-sdk>={minimum}"'
+        )
 
 
 def normalize_remote_asset_path(remote_path: str) -> str:
