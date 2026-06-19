@@ -11,6 +11,7 @@
 import { Env } from "@semoss/sdk";
 import { InsightProvider } from "@semoss/sdk/react";
 import { Toaster } from "sonner";
+import { AuthProvider } from "./contexts";
 import { Router } from "./pages";
 
 Env.update({
@@ -25,8 +26,11 @@ export const App = () => {
 		// InsightProvider must wrap the entire app — it starts a SEMOSS Insight session
 		// and exposes the `useInsight()` hook for running Pixel commands, calling MCP tools,
 		// and sending results back to Playground.
+		// AuthProvider adds login/logout state (useAuth) on top of the SDK session.
 		<InsightProvider>
-			<Router />
+			<AuthProvider>
+				<Router />
+			</AuthProvider>
 			<Toaster />
 		</InsightProvider>
 	);

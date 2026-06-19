@@ -65,6 +65,17 @@ Everything goes through `actions.run()`:
 - **`actions.runMCPTool()`** — Deprecated SDK method. Calls Python tools but **also immediately sends the response to Playground**, which is usually unintended. Do not use it.
 - **`RunMCPTool()`** — Normal Pixel reactor called via `actions.run()`. No auto-send. This is the correct way to call Python tools.
 
+## Auth
+
+The template ships native username/password auth, layered cleanly on top of the SDK:
+
+- **`AuthProvider` / `useAuth()`** (`client/src/contexts/AuthContext.tsx`) — wraps the SDK auth surface. `useAuth()` exposes `login(username, password)`, `logout()`, `userLoginName`, and `isUserLoginLoading`. `AuthProvider` sits inside `InsightProvider` in `App.tsx`. **It is auth-only by design** — it does *not* wrap `runPixel`/`sendMCPResponseToPlayground`; call those via `useInsight()`/`actions.run()` as documented above.
+- **`LoginPage`** (`pages/LoginPage.tsx`) — the login form, mounted at the `login` route *outside* the auth gate.
+- **`AuthorizedLayout`** (`pages/layouts/AuthorizedLayout.tsx`) — route gate. Redirects logged-out users to `LoginPage`, stashing their intended path in location state so they're returned after login. Wrap protected routes with it in `Router.tsx`.
+- Auth flows directly off the SDK: `useInsight().isAuthorized` is the source of truth; `actions.login({type:"native",...})` / `actions.logout()` do the work; `getSystemConfig()` yields the display name.
+
+No logout button or nav bar ships by default — see the `semoss-user-menu` skill to add one.
+
 ## Multi-environment workflow
 
 You will often target several backends (local, preprod, prod). **The agent owns
@@ -179,6 +190,7 @@ Load these from `.claude/skills/` when the task calls for it:
 | `semoss-platform-backend` | Deep platform/Pixel work: engine discovery, asset APIs, workspace/room control plane. |
 | `semoss-example-app` | A worked end-to-end example (the weather/temperature tools) to learn the full pattern. |
 | `semoss-testing-ci` | Adding JUnit/Mockito reactor tests, pre-commit hooks, or GitHub Actions CI (not shipped by default). |
+| `semoss-user-menu` | Adding a top nav bar / user profile dropdown / logout button on top of the shipped auth (not shipped by default). |
 
 ## File pointers
 
@@ -186,6 +198,10 @@ Load these from `.claude/skills/` when the task calls for it:
 |------|-------|
 | React entry | `client/src/index.tsx`, `client/src/App.tsx` |
 | Routes | `client/src/pages/Router.tsx` |
+| Auth context / hook | `client/src/contexts/AuthContext.tsx` (`AuthProvider`, `useAuth`) |
+| Login page | `client/src/pages/LoginPage.tsx` |
+| Auth route gate | `client/src/pages/layouts/AuthorizedLayout.tsx` |
+| Route path constants | `client/src/routes.constants.ts` |
 | Components | `client/src/components/` |
 | Example MCP UI | `client/src/components/ExampleComponent.tsx` (**template — replace**) |
 | Tailwind v4 theme | `client/src/index.css` |
