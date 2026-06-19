@@ -16,8 +16,8 @@ import { Router } from "./pages";
 
 Env.update({
 	MODULE: import.meta.env.MODULE || "",
-	ACCESS_KEY: import.meta.env.VITE_ACCESS_KEY || "", // only used in local dev
-	SECRET_KEY: import.meta.env.VITE_SECRET_KEY || "", // only used in local dev
+	ACCESS_KEY: import.meta.env.ACCESS_KEY || "", // only used in local dev
+	SECRET_KEY: import.meta.env.SECRET_KEY || "", // only used in local dev
 	APP: import.meta.env.APP || "",
 });
 
