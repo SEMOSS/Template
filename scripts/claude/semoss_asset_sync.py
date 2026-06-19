@@ -721,8 +721,21 @@ def build_semoss_context(env_name: str, verify_ssl: bool = True) -> tuple[dict[s
             f"app_id is not set in semoss_config/environments.json (env: {env_name})."
         )
 
+    api_endpoint = build_api_endpoint(semoss_config)
+
+    # Pre-flight echo: make the target unambiguous before any write. A wrong-backend
+    # or wrong-keys mistake otherwise looks identical to success until it surfaces
+    # several steps later.
+    print(
+        "Connecting to SEMOSS:\n"
+        f"  env:      {env_name}\n"
+        f"  base_url: {semoss_config.get('base_url')}\n"
+        f"  endpoint: {api_endpoint}\n"
+        f"  project:  {project_id}"
+    )
+
     server_connection = build_server_connection(
-        endpoint=build_api_endpoint(semoss_config),
+        endpoint=api_endpoint,
         access_token=access_token,
         secret=secret,
         verify_ssl=verify_ssl,

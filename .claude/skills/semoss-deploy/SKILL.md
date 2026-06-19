@@ -136,8 +136,26 @@ flag needed.
 
 ## Creating the app (once per environment)
 
-Apps are created via the `Semoss_project_manager.create_project` MCP tool — **only when
-the user explicitly asks**, never as a default. Save the returned `project_id` into
-`environments.json` as that env's `app_id` *before* running the sync script, or files go
-to the wrong project. Project names must be unique per instance. See the
-`semoss-platform-backend` skill for the project-manager MCP details.
+An app must exist on the instance before the sync script can push into it — the script
+uploads code into an app, it cannot create one.
+
+**Default path — the `Semoss_project_manager.create_project` MCP tool.** Fine to use
+directly. Caveats that bite in practice:
+
+- **It often reports `status: error` even when it succeeded.** Check whether a valid
+  `project_id` came back *before* assuming failure — retrying on a false error creates
+  duplicate apps.
+- **You can't tell which instance an MCP server points at** — it's bound to whatever MCP
+  config is active (often a user-level `~/.claude.json`), which may not be the instance you
+  think you're targeting. After creating, confirm the app actually landed on the intended
+  instance before saving its ID.
+
+**Fallback — the user clicks "New app" in the platform UI.** Use this when the MCP isn't
+available (many instances don't have extensions installed) or the programmatic path is
+misbehaving. The user already has the platform open in a browser; ask them to create the
+app and read you back the project ID (or the URL — the `app_id` is the UUID in it).
+
+Either way, save the resulting `project_id` into `environments.json` as that env's `app_id`
+*before* running the sync script, or files go to the wrong project. Project names must be
+unique per instance. See the `semoss-platform-backend` skill for the project-manager MCP
+details.

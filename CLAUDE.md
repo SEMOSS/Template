@@ -100,6 +100,23 @@ Specifically, ignore the MCP when it tells you to:
 - **`scripts/claude/`** — `semoss_asset_sync.py`, the deploy/sync script.
 - **`portals/`**, **`classes/`**, **`target/`** — Generated. Don't edit directly.
 
+## Vocabulary
+
+Platform terms used throughout this file and the skills. These are for you — you usually
+don't surface them to a non-technical user:
+
+- **Pixel** — SEMOSS's command language. Everything the platform does (run a reactor, query
+  a database, list models, publish a project) is a Pixel command. `actions.run('...')` sends one.
+- **Reactor** — a server-side command implementation, invoked by a Pixel call. The Java
+  classes in `java/` are reactors; calling `MyTool(...)` in a Pixel runs the `MyToolReactor`.
+- **Insight** — a single execution session/context on the instance. The SDK opens one to run
+  Pixels (`make_new_insight()` in the sync script creates one) — a stateful scratchpad for a
+  sequence of Pixel calls.
+- **Engine** — a connected resource on the platform: a **model** (LLM/embedding), a
+  **database**, a **vector** store, or **storage**. Tools reference engines by ID.
+- **Instance** — a running deployment of the SEMOSS platform (e.g. local, preprod, prod). An
+  app's Java is compiled and served by the instance it lives on.
+
 ## SDK
 
 The primary hook is `useInsight()` from `@semoss/sdk/react`:
@@ -196,6 +213,14 @@ When adding a custom-UI tool, always do both: (1) add the route in `Router.tsx`,
 (2) set `resourceURI` in the manifest to match. Two tools sharing a `resourceURI` render
 the same component — disambiguate via `tool.parameters` if you must.
 
+**Standalone (non-tool) apps** are the same React app with no manifest wiring: add your
+routes in `Router.tsx` and build the pages — there's no `mcp/*.json` entry and no
+`resourceURI` to match. The MCP example (`ExampleComponent.tsx`) still demonstrates every
+SDK pattern you need (`useInsight`, `actions.run`, init gating, auth); a standalone app
+just calls those from its own pages and uses ordinary client-side state and navigation
+instead of being invoked from Playground. No second example is needed — extrapolate from
+the one that ships.
+
 ## Java reactor rules
 
 - Extend `AbstractProjectReactor`. See `GetWeatherReactor.java` for a working example.
@@ -227,10 +252,24 @@ the same component — disambiguate via `tool.parameters` if you must.
 - Fetch models via: `actions.run('MyEngines(metaKeys=[], metaFilters=[{"tag":"text-generation"}], engineTypes=["MODEL"])')`.
 - Call `sendMCPResponseToPlayground()` directly — don't wrap it. The SDK handles tool-name matching.
 - Gate rendering on `isInitialized` (see `InitializedLayout.tsx`).
+- Only a few shadcn/ui primitives ship (button, input, label, spinner, textarea). When you
+  need more (Card, Select, Badge, Table, Dialog, …), **add them** — don't hand-roll:
+  `cd client && pnpm dlx shadcn@latest add card select badge table`. They land in
+  `client/src/components/ui/` configured against this template's theme.
 
 ## Development workflow
 
-1. `pnpm i` in both root and `client/`.
+**The frontend runs locally but talks to a live instance for everything** — auth, Pixel
+calls, models, data. `pnpm dev` is not self-contained: it serves the React app from your
+machine while every `actions.run()` hits the `ENDPOINT` in `client/.env.local`. So you need
+access to a running SEMOSS instance before any of this works; a missing or unreachable
+endpoint shows up as an infinite spinner or a dead login. The app is gated behind login by
+default — to iterate locally without typing credentials each time, set `ACCESS_KEY` and
+`SECRET_KEY` in `client/.env.local` (a platform access/secret key pair) and the app
+authenticates with them automatically.
+
+1. `pnpm i` in **both** root and `client/`. (Skipping `client/` is the usual cause of a
+   cryptic `biome: command not found` or missing-binary error.)
 2. Write `client/.env.local` for the target env (see [Multi-environment workflow](#multi-environment-workflow)).
 3. `pnpm dev` for development, `cd client && pnpm build` for production.
 4. `pnpm fix` to format and lint (Biome) before committing.
