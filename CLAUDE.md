@@ -188,7 +188,6 @@ Load these from `.claude/skills/` when the task calls for it:
 | `semoss-mcp-manifest` | Writing or editing `mcp/*.json`, wiring `resourceURI`, execution modes. |
 | `semoss-ai-repo` | Submitting an app to the review pipeline with the `ai-repo` CLI. |
 | `semoss-platform-backend` | Deep platform/Pixel work: engine discovery, asset APIs, workspace/room control plane. |
-| `semoss-example-app` | A worked end-to-end example (the weather/temperature tools) to learn the full pattern. |
 | `semoss-testing-ci` | Adding JUnit/Mockito reactor tests, pre-commit hooks, or GitHub Actions CI (not shipped by default). |
 | `semoss-user-menu` | Adding a top nav bar / user profile dropdown / logout button on top of the shipped auth (not shipped by default). |
 

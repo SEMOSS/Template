@@ -19,6 +19,7 @@ java/project.properties
 .history/
 
 # cache
+*.tsbuildinfo
 py/__pycache__/
 .classpath
 .project

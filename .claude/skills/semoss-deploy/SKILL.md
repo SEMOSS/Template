@@ -32,13 +32,15 @@ created on that instance. "app" and "project" are synonyms on SEMOSS.
 
 ### Deriving instance URLs
 
-Set `base_url` to the hostname. For `api_module_url`/`web_module_url`, include any path
-prefix that sits before `/Monolith` or `/SemossWeb`:
+Put **everything before `/Monolith` or `/SemossWeb` into `base_url`** — including any
+deployment path prefix like `/prod`. `api_module_url` and `web_module_url` are then always
+just `/Monolith` and `/SemossWeb`. The script composes the API URL as
+`base_url + api_module_url + /api`, so the prefix has to live in `base_url`.
 
 | Instance URL | `base_url` | `api_module_url` | `web_module_url` |
 |---|---|---|---|
 | `https://host.com/SemossWeb/...` | `https://host.com/` | `/Monolith` | `/SemossWeb` |
-| `https://host.com/prod/SemossWeb/...` | `https://host.com/` | `/prod/Monolith` | `/prod/SemossWeb` |
+| `https://host.com/prod/SemossWeb/...` | `https://host.com/prod/` | `/Monolith` | `/SemossWeb` |
 
 ## Before every build: write `client/.env.local`
 
@@ -80,7 +82,9 @@ python scripts/claude/semoss_asset_sync.py --env <name> delete portals/assets --
 ```
 
 Other commands: `upload <file>` (single file), `publish` (publish without uploading),
-`sync-from-remote <folder>` (download remote → local).
+`sync-from-remote <folder>` (download remote → local). Run the script with `--help` (or
+`<command> --help`) for the full flag list — the bullets above are the ones that matter in
+practice.
 
 ## Tier 1 — Universal (manual UI zip)
 
