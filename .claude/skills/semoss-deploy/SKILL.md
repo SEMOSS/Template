@@ -74,6 +74,15 @@ python scripts/claude/semoss_asset_sync.py --env <name> bulk-upload portals py j
 - **Skip Java compile:** `--no-compile` (frontend-only change).
 - **Self-signed certs (preprod):** `--no-verify-ssl`.
 
+> **⚠ bulk-upload overwrites live data files.** It replaces remote files at the same path
+> with the local copy, so if your app persists data under a directory you re-upload (e.g. a
+> JSON state file committed inside `java/`), the next `bulk-upload … java` clobbers the
+> live data with the repo's seed copy — silent data loss. Keep persisted app data in a
+> directory you never bulk-upload (a top-level `data/`, written via
+> `AssetUtility.getProjectAssetsFolder(projectId)` — see the Java reactor rules in
+> `CLAUDE.md`), and only upload code dirs (`portals py java mcp`). For a one-off code fix
+> against an app that stores data, prefer single-file `upload` over `bulk-upload`.
+
 **403 at the auth step?** If the script fails with a 403 whose traceback ends in
 `make_new_insight` → `runPixel` (often with a `whoami` that returns 200 and a
 "null principal" warning), the cause is an outdated **ai-server-sdk** — versions before

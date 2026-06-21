@@ -35,9 +35,9 @@ const router = createHashRouter([
 						index: true,
 						Component: HomePage,
 					},
-					// To add a new protected page:
+					// To add a new protected page (use a bare path segment, no leading slash):
 					// {
-					//     path: '/your-route',
+					//     path: 'your-route',
 					//     Component: YourPage,
 					// },
 				],

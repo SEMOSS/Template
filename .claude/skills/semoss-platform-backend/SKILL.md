@@ -64,6 +64,12 @@ Setting the tag (confirm with the user before applying any tag):
   Python tools already in `mcp/py_mcp.json` surface immediately; Java reactors need an
   entry added to `mcp/pixel_mcp.json` first (see `semoss-mcp-manifest`), then redeploy.
 
+Tagging is **only** available through the `Semoss_project_manager` MCP (`create_project`'s
+`mcp=True`, or `attach_tag`/`remove_tag`) — there is no Pixel command or sync-script path.
+So when that MCP server isn't connected to the instance, you can't tag programmatically:
+hand the user into the platform UI to set the `MCP` tag on their app. Treat that hand-off
+as the expected fallback, not a failure.
+
 Other tags (`draft`, `approved`, etc.) are user-defined with no platform side effects.
 
 ## Databases

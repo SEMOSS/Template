@@ -154,6 +154,20 @@ The template ships native username/password auth, layered cleanly on top of the 
 
 No logout button or nav bar ships by default — see the `semoss-user-menu` skill to add one.
 
+**Previewing locally past the login gate.** The login page ships on purpose — don't remove
+it to make iteration easier. When you need to render the UI locally to verify your work
+(common for standalone/in-memory apps), get past the gate one of these ways, cheapest
+first:
+
+1. **Key pair** — set `ACCESS_KEY`/`SECRET_KEY` in `client/.env.local`; the app
+   authenticates with them automatically, no form (see [Development workflow](#development-workflow)).
+2. **Existing session** — if you already have the same instance open and logged in in your
+   browser, the SDK shares that auth cookie, so the app is often already authorized with no
+   login needed.
+3. **Last resort** — temporarily short-circuit the gate in `AuthorizedLayout` (e.g. render
+   children unconditionally) to inspect the UI. This is a scratch change for local
+   verification only — never commit or deploy it.
+
 ## Multi-environment workflow
 
 You will often target several backends (local, preprod, prod). **The agent owns
@@ -221,6 +235,10 @@ just calls those from its own pages and uses ordinary client-side state and navi
 instead of being invoked from Playground. No second example is needed — extrapolate from
 the one that ships.
 
+**Frontend-only app with no backend?** Delete `java/`, `py/`, and `mcp/` outright. Left in
+place, the example weather reactor and temperature tools linger — and a `bulk-upload … java
+mcp` would deploy them as stray, unwanted tools in the user's app.
+
 ## Java reactor rules
 
 - Extend `AbstractProjectReactor`. See `GetWeatherReactor.java` for a working example.
@@ -231,7 +249,9 @@ the one that ships.
 - Implement `getDescriptionForKey()` and `getReactorDescription()` for manifest generation.
 - `IModelEngine.ask()` returns response objects, not strings — use reflection to call `getResponse()`, never `toString()`.
 - Resolve a model engine by ID: `IModelEngine modelEngine = Utility.getModel(modelId);` (import `prerna.util.Utility`) — returns `null` if not found.
-- File paths: use `this.insight.getInsightFolder()`.
+- **Base-class fields** available in every reactor: `projectId`, `user`, and `projectProperties` (set by `AbstractProjectReactor.preExecute()`), plus `insight`, `store`, `curRow`, and `keyValue` inherited from `AbstractReactor`. Read params with `this.keyValue.get("name")` after `organizeKeys()`.
+- **Persisting app data** (the canonical recipe for a stateful app): write under the app's asset folder via `Utility.normalizePath(AssetUtility.getProjectAssetsFolder(projectId) + "/data/yourfile.json")` (import `prerna.util.AssetUtility`), then do ordinary Java file I/O. `ProjectProperties.java` already uses exactly this pattern. Use `this.insight.getInsightFolder()` only for ephemeral, insight-scoped files — not durable app state. **Keep persisted data in a directory you never bulk-upload (e.g. a top-level `data/`)** — re-uploading a synced dir overwrites remote files with the repo's seed copy and silently destroys live data (see the `semoss-deploy` skill).
+- **Available libraries:** the instance provides the platform classpath, so common libs — `com.google.gson.Gson` (+ `TypeToken`), log4j, the `prerna.util.*` helpers — are usable without declaring dependencies. You won't get confirmation a less-common lib is on the classpath until it compiles on deploy.
 
 ## Python MCP tool rules
 
@@ -247,7 +267,8 @@ the one that ships.
 ## React UI rules
 
 - Use `tool.parameters` for prepopulated values (**not** `tool.inputs`).
-- Use `tool.tool_response` / `tool.executedParameters` to display past execution results.
+- **`tool` is the invocation signal:** it's `null` when the page is opened standalone and non-null only during a Playground tool call. Branch on it so one page serves both modes. (`tool: MCPToolRequest | null`.)
+- **Branch on `tool.tool_response` for ask/form tools** — a re-opened tool gets its prior result back, so render a result state, not a fresh empty form. `tool.executedParameters` holds the params actually used. `ExampleComponent.tsx` shows all three entry states (standalone / fresh invocation / past execution) — copy that structure.
 - Handle responses that may be objects, strings, or double-encoded strings.
 - Fetch models via: `actions.run('MyEngines(metaKeys=[], metaFilters=[{"tag":"text-generation"}], engineTypes=["MODEL"])')`.
 - Call `sendMCPResponseToPlayground()` directly — don't wrap it. The SDK handles tool-name matching.

@@ -52,9 +52,15 @@ Top level is `{ "_meta": {...}, "tools": [...] }`. Each tool entry:
 - `name` / `title` — tool identity. For Java, this is the reactor name **without** the
   `Reactor` suffix (`GetWeatherReactor` → `GetWeather`).
 - `description` — what the LLM reads to decide when to call the tool. Keep it precise.
-- `inputSchema` — JSON Schema. Each property's key must **exactly** match what the React
-  UI reads from `tool.parameters` and what the Java `keysToGet` / Python parameter name
-  expects. Typos here fail silently (the field just stays empty).
+- `inputSchema` — JSON Schema. What its keys must match depends on the UI mode, and this
+  trips people up:
+  - **Default UI (no `resourceURI`):** the platform builds the reactor/tool call straight
+    from the form, so each property key must **exactly** match the Java `keysToGet` entry /
+    Python parameter name. Typos fail silently (the field just stays empty).
+  - **Custom UI (`resourceURI` set):** the schema only describes what the LLM prepopulates
+    into `tool.parameters`; **your React code** assembles the actual `actions.run(...)`
+    call. So the keys must match what your component reads from `tool.parameters` — which
+    you then map to reactor keys yourself, and the two needn't be identical.
 - `_type: "python"` — present on Python entries; omit on Java/Pixel entries.
 
 ## `_meta` fields
@@ -62,7 +68,10 @@ Top level is `{ "_meta": {...}, "tools": [...] }`. Each tool entry:
 - **`SMSS_FUNCTION_NAME`** — the backend function/reactor to dispatch to.
 - **`SMSS_MCP_EXECUTION`** — how Playground runs the tool:
   - `"auto"` — runs directly, no user interaction. Best for fast, side-effect-free
-    transforms (the temperature converters use this).
+    transforms (the temperature converters use this). `auto` is **compatible with a
+    `resourceURI`**: the tool still fires automatically on invocation, and the user can
+    open its custom UI afterward to review or re-run — `auto` controls the *initial* run,
+    not whether a UI exists.
   - `"ask"` — opens the custom UI for the user to review/edit/supply input first. Use
     when human review matters or the UI drives data entry.
   - `"disabled"` — declared but not callable; useful for staging.
@@ -90,6 +99,11 @@ the wrong UI.
 
 Two tools sharing a `resourceURI` render the same component — disambiguate by inspecting
 `tool.parameters`, or (cleaner) give each tool its own route.
+
+**`resourceURI` is static — it can't carry a dynamic route segment.** You can't point a tool
+at `/#/cases/:id` to open a specific record. Route to a parameterless page (`/#/case`) and
+pass the identifier through `inputSchema` → `tool.parameters`, then read it in the component
+and fetch accordingly. The route stays fixed; the data varies by parameter.
 
 ## Regenerator reactors (troubleshooting only)
 
