@@ -1,0 +1,170 @@
+---
+name: semoss-deploy
+description: Use when publishing, uploading, or updating a SEMOSS app — choosing among the three deploy tiers (manual UI zip, the semoss_asset_sync.py iterate flow, or the ai-repo submit pipeline), switching between named environments (local/preprod/prod), writing client/.env.local before a build, or handling SSL/proxy errors during upload. Do not use for the ai-repo CLI command reference specifically (see semoss-ai-repo) or for editing tool manifests (see semoss-mcp-manifest).
+---
+
+# Deploying a SEMOSS App
+
+Three deploy tiers, picked by capability. The agent owns environment switching — the
+user just names the target (e.g. "deploy to preprod").
+
+| Tier | Mechanism | When | Requires |
+|------|-----------|------|----------|
+| **Universal** | Manual UI zip drag-and-drop | Always works, no tooling | `zip` (or Windows `tar.exe`) |
+| **Iterate** | `scripts/claude/semoss_asset_sync.py` | Updating an app against a configured instance | Python 3.10+ + creds |
+| **Submit** | `ai-repo` CLI | Submitting an app to the review pipeline | the CLI + login (see `semoss-ai-repo`) |
+
+The deploy lifecycle is always: **create the app once → write `client/.env.local` →
+build → upload (auto-compiles Java + auto-publishes).**
+
+## Multi-environment config
+
+You will often target several backends. Config lives in `semoss_config/` (gitignored;
+copy from the `.example` files):
+
+- **`environments.json`** — named envs under `envs.<name>`, each with `base_url`,
+  `api_module_url`, `web_module_url`, `app_id`. Plus top-level `model_id`, `database_id`.
+- **`credentials.env`** — one access/secret pair per env, prefixed by the **uppercased**
+  env name: `LOCAL_ACCESS_KEY`/`LOCAL_SECRET_KEY`, `PREPROD_*`, `PROD_*`.
+
+`app_id` differs per environment for the same logical app — it's set after the app is
+created on that instance. "app" and "project" are synonyms on SEMOSS.
+
+### Deriving instance URLs
+
+Put **everything before `/Monolith` or `/SemossWeb` into `base_url`** — including any
+deployment path prefix like `/prod`. `api_module_url` and `web_module_url` are then always
+just `/Monolith` and `/SemossWeb`. The script composes the API URL as
+`base_url + api_module_url + /api`, so the prefix has to live in `base_url`.
+
+| Instance URL | `base_url` | `api_module_url` | `web_module_url` |
+|---|---|---|---|
+| `https://host.com/SemossWeb/...` | `https://host.com/` | `/Monolith` | `/SemossWeb` |
+| `https://host.com/prod/SemossWeb/...` | `https://host.com/prod/` | `/Monolith` | `/SemossWeb` |
+
+## Before every build: write `client/.env.local`
+
+`vite.config.ts` bakes three env vars into the bundle at build time. Write them for the
+target env before building:
+
+```
+APP=<envs.<name>.app_id>
+ENDPOINT=<envs.<name>.base_url>
+MODULE=<envs.<name>.api_module_url>
+```
+
+`client/.env` is a committed dummy placeholder — never edit it. `.env.local` overrides
+it and is gitignored.
+
+## Tier 2 — Iterate (semoss_asset_sync.py)
+
+The default loop while developing against a live instance. One command uploads all asset
+directories and auto-publishes:
+
+```bash
+cd client && pnpm build && cd ..
+python scripts/claude/semoss_asset_sync.py --env <name> bulk-upload portals py java mcp
+```
+
+- `--env <name>` selects the entry in `environments.json` + `credentials.env`.
+- `bulk-upload` browses-and-deletes existing files at the same remote paths, uploads,
+  runs `CompileAppReactors` (so `.java` changes recompile), then `PublishProject`.
+- Passing dirs the app doesn't use is harmless (empty = no-op).
+- **First deploy:** add `--no-delete-existing` (nothing to delete yet, faster).
+- **Skip Java compile:** `--no-compile` (frontend-only change).
+- **Self-signed certs (preprod):** `--no-verify-ssl`.
+
+> **⚠ bulk-upload overwrites live data files.** It replaces remote files at the same path
+> with the local copy, so if your app persists data under a directory you re-upload (e.g. a
+> JSON state file committed inside `java/`), the next `bulk-upload … java` clobbers the
+> live data with the repo's seed copy — silent data loss. Keep persisted app data in a
+> directory you never bulk-upload (a top-level `data/`, written via
+> `AssetUtility.getProjectAssetsFolder(projectId)` — see the Java reactor rules in
+> `CLAUDE.md`), and only upload code dirs (`portals py java mcp`). For a one-off code fix
+> against an app that stores data, prefer single-file `upload` over `bulk-upload`.
+
+**403 at the auth step?** If the script fails with a 403 whose traceback ends in
+`make_new_insight` → `runPixel` (often with a `whoami` that returns 200 and a
+"null principal" warning), the cause is an outdated **ai-server-sdk** — versions before
+0.0.30 don't do the CSRF token handshake that CSRF-protected instances (common locally)
+require. The "null principal" warning is a red herring; auth is fine. Fix:
+`pip install -U "ai-server-sdk>=0.0.30"`. The script now guards against this with a clear
+error, but a stale SDK in the active environment is the thing to check first.
+
+Vite emits new content hashes every build, so stale bundles can orphan. To nuke a remote
+subtree before re-uploading:
+
+```bash
+python scripts/claude/semoss_asset_sync.py --env <name> delete portals/assets --yes
+```
+
+Other commands: `upload <file>` (single file), `publish` (publish without uploading),
+`sync-from-remote <folder>` (download remote → local). Run the script with `--help` (or
+`<command> --help`) for the full flag list — the bullets above are the ones that matter in
+practice.
+
+## Tier 1 — Universal (manual UI zip)
+
+When Python isn't available. The editor **only accepts zip files**, so bundle first:
+
+```bash
+zip -r bundle.zip portals py java mcp
+```
+
+Then open the editor at
+`<base_url><web_module_url>/packages/client/dist/#/app/<app_id>/edit`, drag the zip in,
+**check the "unzip" checkbox**, and click **"Compile and publish the app."**
+
+**Windows zip gotchas:**
+- The Bash tool's Git Bash ships `zip.exe`, so `zip -r` works there too.
+- **Don't** use `tar -a -c -f bundle.zip` — Git Bash's GNU tar writes a tar with a
+  `.zip` extension; SEMOSS rejects it ("zip END header not found"). If you must use tar,
+  call the native BSD one by absolute path: `C:\Windows\System32\tar.exe -a -c -f ...`.
+- **Don't** use PowerShell `Compress-Archive` — backslash path separators break the
+  server-side unzip ("Unable to unzip file. X not a directory").
+
+## Tier 3 — Submit (ai-repo CLI)
+
+For submitting an app into the review pipeline. Build first, then publish a version. Full
+command reference is in the `semoss-ai-repo` skill.
+
+## SSL / corporate proxy errors
+
+Managed/corporate laptops often sit behind a MITM proxy with a corporate CA that
+Node/Python don't trust. Preprod instances may also use self-signed certs.
+
+- **Node** (`pnpm install`, `corepack enable`): `export NODE_TLS_REJECT_UNAUTHORIZED=0`.
+  Don't go hunting for the corp CA path — this is the practical fix.
+- **Python sync script:** pass `--no-verify-ssl` (already wired).
+- **MCP servers** (`.mcp.json`): set `"NODE_TLS_REJECT_UNAUTHORIZED": "0"` in each
+  server's `env` field — `.mcp.json.example` already includes it. Symptom of the proxy
+  issue here is usually "MCP tools just don't show up" rather than a loud error.
+
+Local-only commands (`pnpm build`, `pnpm dev`, `pnpm fix`) make no outbound calls — no
+flag needed.
+
+## Creating the app (once per environment)
+
+An app must exist on the instance before the sync script can push into it — the script
+uploads code into an app, it cannot create one.
+
+**Default path — the `Semoss_project_manager.create_project` MCP tool.** Fine to use
+directly. Caveats that bite in practice:
+
+- **It often reports `status: error` even when it succeeded.** Check whether a valid
+  `project_id` came back *before* assuming failure — retrying on a false error creates
+  duplicate apps.
+- **You can't tell which instance an MCP server points at** — it's bound to whatever MCP
+  config is active (often a user-level `~/.claude.json`), which may not be the instance you
+  think you're targeting. After creating, confirm the app actually landed on the intended
+  instance before saving its ID.
+
+**Fallback — the user clicks "New app" in the platform UI.** Use this when the MCP isn't
+available (many instances don't have extensions installed) or the programmatic path is
+misbehaving. The user already has the platform open in a browser; ask them to create the
+app and read you back the project ID (or the URL — the `app_id` is the UUID in it).
+
+Either way, save the resulting `project_id` into `environments.json` as that env's `app_id`
+*before* running the sync script, or files go to the wrong project. Project names must be
+unique per instance. See the `semoss-platform-backend` skill for the project-manager MCP
+details.

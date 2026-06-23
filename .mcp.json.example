@@ -1,0 +1,46 @@
+{
+  "mcpServers": {
+    "Semoss_Platform_Instructions": {
+      "type": "stdio",
+      "command": "npx",
+      "args": [
+        "-y",
+        "mcp-remote",
+        "https://your-instance.example.com/Monolith/api/ext/mcp/<platform-instructions-id>/comms",
+        "--header",
+        "Authorization:Bearer <access-key>:<secret-key>"
+      ],
+      "env": {
+        "NODE_TLS_REJECT_UNAUTHORIZED": "0"
+      }
+    },
+    "Semoss_project_manager": {
+      "type": "stdio",
+      "command": "npx",
+      "args": [
+        "-y",
+        "mcp-remote",
+        "https://your-instance.example.com/Monolith/api/ext/mcp/<project-manager-id>/comms",
+        "--header",
+        "Authorization:Bearer <access-key>:<secret-key>"
+      ],
+      "env": {
+        "NODE_TLS_REJECT_UNAUTHORIZED": "0"
+      }
+    },
+    "Semoss_database_helper": {
+      "type": "stdio",
+      "command": "npx",
+      "args": [
+        "-y",
+        "mcp-remote",
+        "https://your-instance.example.com/Monolith/api/ext/mcp/<database-helper-id>/comms",
+        "--header",
+        "Authorization:Bearer <access-key>:<secret-key>"
+      ],
+      "env": {
+        "NODE_TLS_REJECT_UNAUTHORIZED": "0"
+      }
+    }
+  }
+}

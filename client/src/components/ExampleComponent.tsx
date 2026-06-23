@@ -12,7 +12,8 @@
 //
 // Replace this component with your own UI. Keep the patterns:
 //   - Use `tool.parameters` to read inputs from Playground
-//   - Use `actions.run()` or `actions.runMCPTool()` to call backend tools
+//   - Use `actions.run()` to call backend tools (Java reactors and Python via RunMCPTool).
+//     Avoid `actions.runMCPTool()` — it's deprecated and auto-sends to Playground.
 //   - Use `actions.sendMCPResponseToPlayground()` to return results to the chat
 
 import { useInsight } from "@semoss/sdk/react";
@@ -66,10 +67,21 @@ export const ExampleComponent = () => {
 		setHasSentToChat(true);
 	};
 
-	// When launched as an MCP tool from Playground, `tool` is populated.
-	// tool.parameters  -> inputs the LLM decided to pass (e.g. { city: "Boston" })
-	// tool.tool_response -> if viewing a past execution, this has the previous result
-	// tool.executedParameters -> the actual params that were used (source of truth)
+	// This UI has three entry states. The effect below handles all of them:
+	//
+	//   | State            | Detected by                       | What to do                                          |
+	//   |------------------|-----------------------------------|-----------------------------------------------------|
+	//   | Opened standalone| `tool` falsy                      | empty form; don't read tool.parameters              |
+	//   | Fresh invocation | `tool` set, no `tool.tool_response`| prefill from tool.parameters, optionally auto-run   |
+	//   | Past execution   | `tool.tool_response` truthy       | restore result; prefill from executedParameters     |
+	//
+	// Field reference:
+	//   tool.parameters         -> inputs the LLM decided to pass (e.g. { city: "Boston" })
+	//   tool.tool_response      -> previous result, when viewing a past execution
+	//   tool.executedParameters -> the params actually used last time (source of truth)
+	//
+	// Auto-running on prefill is good UX for cheap/idempotent actions (like weather);
+	// wait for a button click when the action is expensive or destructive.
 	useEffect(() => {
 		if (tool) {
 			if (tool.tool_response) {

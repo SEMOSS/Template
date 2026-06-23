@@ -11,12 +11,13 @@
 import { Env } from "@semoss/sdk";
 import { InsightProvider } from "@semoss/sdk/react";
 import { Toaster } from "sonner";
+import { AuthProvider } from "./contexts";
 import { Router } from "./pages";
 
 Env.update({
 	MODULE: import.meta.env.MODULE || "",
-	ACCESS_KEY: import.meta.env.VITE_ACCESS_KEY || "", // only used in local dev
-	SECRET_KEY: import.meta.env.VITE_SECRET_KEY || "", // only used in local dev
+	ACCESS_KEY: import.meta.env.ACCESS_KEY || "", // only used in local dev
+	SECRET_KEY: import.meta.env.SECRET_KEY || "", // only used in local dev
 	APP: import.meta.env.APP || "",
 });
 
@@ -25,8 +26,11 @@ export const App = () => {
 		// InsightProvider must wrap the entire app — it starts a SEMOSS Insight session
 		// and exposes the `useInsight()` hook for running Pixel commands, calling MCP tools,
 		// and sending results back to Playground.
+		// AuthProvider adds login/logout state (useAuth) on top of the SDK session.
 		<InsightProvider>
-			<Router />
+			<AuthProvider>
+				<Router />
+			</AuthProvider>
 			<Toaster />
 		</InsightProvider>
 	);

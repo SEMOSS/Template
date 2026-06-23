@@ -19,7 +19,13 @@ java/project.properties
 .history/
 
 # cache
-py/__pycache__/
+*.tsbuildinfo
+**/__pycache__/
 .classpath
 .project
 .settings/
+
+# SEMOSS environment config & credentials (commit only the .example files)
+.mcp.json
+semoss_config/environments.json
+semoss_config/credentials.env

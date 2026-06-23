@@ -3,8 +3,8 @@
 # These are simple tools that use the default Playground UI (no custom React UI needed).
 # When an MCP tool has no resourceURI, Playground auto-generates a basic form for it.
 #
-# After adding or changing tools here, run MakePythonMCP() in the SEMOSS Playground
-# to regenerate mcp/py_mcp.json.
+# After adding or changing tools here, hand-edit mcp/py_mcp.json to match (copy an
+# existing entry). RunMCPTool reads that manifest to dispatch, so an entry is required.
 
 import json
 

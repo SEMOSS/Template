@@ -1,0 +1,11 @@
+{
+	"private": true,
+	"scripts": {
+		"fix": "biome check --write",
+		"dev": "pnpm --dir client dev"
+	},
+	"devDependencies": {
+		"@biomejs/biome": "2.4.16",
+		"http-server": "^14.1.1"
+	}
+}

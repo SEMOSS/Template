@@ -12,12 +12,16 @@
   <groupId>SemossTemplate</groupId>
   <artifactId>SemossTemplate</artifactId>
   <version>${ci.version}</version>
+  <!-- Version property used by both this project and the SEMOSS dependency -->
   <properties>
     <ci.version>0.0.1-SNAPSHOT</ci.version>
   </properties>
   <build>
+    <!-- Main source lives in java/src/ instead of the Maven default src/main/java -->
     <sourceDirectory>java/src</sourceDirectory>
+    <!-- Compiled classes go to classes/ so SEMOSS can load them at runtime -->
     <outputDirectory>classes</outputDirectory>
+    <!-- Include non-Java files from java/ (e.g. project.properties) as classpath resources -->
     <resources>
       <resource>
         <directory>java</directory>
@@ -26,6 +30,7 @@
         </excludes>
       </resource>
     </resources>
+    <!-- Compile with Java 21 source/target -->
     <plugins>
       <plugin>
         <artifactId>maven-compiler-plugin</artifactId>
@@ -37,7 +42,9 @@
       </plugin>
     </plugins>
   </build>
+  <!-- Maven repositories: Central, SEMOSS 3rd-party, and Sonatype for snapshots -->
   <repositories>
+    <!-- Maven Central — primary public repository -->
     <repository>
       <id>central</id>
       <name>Maven Repository Switchboard</name>
@@ -47,6 +54,7 @@
         <enabled>false</enabled>
       </snapshots>
     </repository>
+    <!-- SEMOSS Nexus — hosts the semoss artifact and other internal JARs -->
     <repository>
       <id>3rdPartyJARs</id>
       <name>Maven repository</name>
@@ -58,8 +66,31 @@
         <enabled>true</enabled>
       </snapshots>
     </repository>
+    <!-- Sonatype OSS — public releases from open-source projects -->
+    <repository>
+      <id>public</id>
+      <name>Sonatype's Maven repository</name>
+      <url>https://oss.sonatype.org/content/groups/public</url>
+      <releases>
+        <enabled>true</enabled>
+      </releases>
+      <snapshots>
+        <enabled>false</enabled>
+      </snapshots>
+    </repository>
+    <!-- Sonatype Snapshots — for SNAPSHOT builds that update on every check -->
+    <repository>
+      <id>sonatype-snapshots</id>
+      <name>Sonatype Snapshots</name>
+      <url>https://central.sonatype.com/repository/maven-snapshots</url>
+      <snapshots>
+        <enabled>true</enabled>
+        <updatePolicy>always</updatePolicy>
+      </snapshots>
+    </repository>
   </repositories>
   <dependencies>
+    <!-- SEMOSS core — provided by the server at runtime, not bundled into output -->
     <dependency>
       <groupId>org.semoss</groupId>
       <artifactId>semoss</artifactId>

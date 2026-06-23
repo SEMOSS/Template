@@ -17,6 +17,8 @@ export default defineConfig(({ mode }) => {
 		ENDPOINT: string;
 		MODULE: string;
 		APP: string;
+		ACCESS_KEY: string;
+		SECRET_KEY: string;
 	};
 
 	return {
@@ -32,6 +34,8 @@ export default defineConfig(({ mode }) => {
 			"import.meta.env.ENDPOINT": JSON.stringify(env.ENDPOINT),
 			"import.meta.env.MODULE": JSON.stringify(env.MODULE),
 			"import.meta.env.APP": JSON.stringify(env.APP),
+			"import.meta.env.ACCESS_KEY": JSON.stringify(env.ACCESS_KEY || ""),
+			"import.meta.env.SECRET_KEY": JSON.stringify(env.SECRET_KEY || ""),
 		},
 		server: {
 			// Proxies /Monolith requests to the SEMOSS backend during local dev
