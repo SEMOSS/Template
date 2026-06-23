@@ -1,5 +1,5 @@
 {
-	"$schema": "https://biomejs.dev/schemas/2.4.16/schema.json",
+	"$schema": "https://biomejs.dev/schemas/2.5.1/schema.json",
 	"vcs": {
 		"enabled": true,
 		"clientKind": "git",
@@ -13,7 +13,7 @@
 	"linter": {
 		"enabled": true,
 		"rules": {
-			"recommended": true,
+			"preset": "recommended",
 			"complexity": {
 				"noUselessFragments": "error"
 			},
@@ -52,6 +52,7 @@
 	"files": {
 		"includes": [
 			"client/**/*",
+			"!client/src/assets/**/*",
 			"!node_modules/**/*",
 			"**/*.{js,ts,mjs,cjs,jsx,tsx,json,css,scss,md,mdx,html,yaml}",
 			"!.history/*"
