@@ -24,17 +24,21 @@ ROOT = Path(__file__).resolve().parents[1]
 
 
 def replace_in(path: str, pattern: str, replacement: str, *, count: int = 1) -> None:
+    """Apply one substitution. Returns silently on a no-op so the summary stays per-file."""
     file_path = ROOT / path
     if not file_path.exists():
-        print(f"  skipped (missing): {path}")
+        missing.add(path)
         return
     text = file_path.read_text(encoding="utf-8")
     new_text, n = re.subn(pattern, replacement, text, count=count)
     if n == 0:
-        print(f"  unchanged (already renamed?): {path}")
         return
     file_path.write_text(new_text, encoding="utf-8")
-    print(f"  updated: {path}")
+    updated.add(path)
+
+
+updated: set[str] = set()
+missing: set[str] = set()
 
 
 def main() -> int:
@@ -68,6 +72,12 @@ def main() -> int:
     replace_in("sql/README.md", r"(Database `)app(`)", rf"\g<1>{snake}\g<2>")
     replace_in("sql/README.md", r"catalog name `app`", f"catalog name `{snake}`")
     replace_in("sql/README.md", r"-d app -f", f"-d {snake} -f")
+    for path in sorted(updated):
+        print(f"  updated: {path}")
+    for path in sorted(missing - updated):
+        print(f"  skipped (missing): {path}")
+    if not updated:
+        print("  nothing changed (already renamed?)")
     print(
         "\nNext: create the app on the platform and put its id in semoss_config/environments.json\n"
         "(see the semoss-deploy skill), then update AGENTS.md and README.md for this app."

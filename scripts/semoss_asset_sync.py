@@ -21,6 +21,7 @@ from __future__ import annotations
 
 import argparse
 import json
+import os
 import subprocess
 import sys
 from datetime import datetime
@@ -739,6 +740,7 @@ def build_parser() -> argparse.ArgumentParser:
         help="Paths to upload. Default: portals java mcp, plus py if it exists.",
     )
     deploy_parser.add_argument("--no-build", action="store_true", help="Skip `pnpm --dir client build` (reuse portals/).")
+    deploy_parser.add_argument("--no-typecheck", action="store_true", help="Skip `pnpm typecheck` before building.")
     deploy_parser.add_argument("--no-clean", action="store_true", help="Don't delete orphaned remote files.")
     deploy_parser.add_argument("--no-compile", action="store_true", help="Skip CompileAppReactors (frontend-only change).")
     deploy_parser.add_argument("--no-publish", action="store_true", help="Skip PublishProject.")
@@ -1072,10 +1074,17 @@ def set_project_database_id(database_id: str) -> None:
     print(f"Set databaseId in java/project.properties to '{database_id}'.")
 
 
-def configure_for_env(env_name: str) -> dict[str, str]:
+def configure_for_env(env_name: str, *, require_database: bool = False) -> dict[str, str]:
     config = load_env_config(env_name)
     if not config["app_id"]:
         raise SystemExit(f"Environment '{env_name}' has no app_id in semoss_config/environments.json.")
+    if require_database and not config["database_id"] and (WORKSPACE_ROOT / "sql" / "init.sql").exists():
+        # An app that ships a database scaffold would deploy a blank databaseId and only fail
+        # later, at runtime, with "No database configured". Fail here instead.
+        raise SystemExit(
+            f"Environment '{env_name}' has no database_id in semoss_config/environments.json, but this "
+            "app has a database (sql/init.sql). Set it, or delete sql/ if the app has no database."
+        )
     write_client_env_local(config)
     if not config["database_id"]:
         print(
@@ -1095,6 +1104,7 @@ def deploy_command(
     raw_paths: list[str],
     *,
     no_build: bool,
+    no_typecheck: bool = False,
     no_clean: bool,
     no_compile: bool,
     no_publish: bool,
@@ -1107,8 +1117,15 @@ def deploy_command(
         PROJECT_PROPERTIES_PATH.read_text(encoding="utf-8") if PROJECT_PROPERTIES_PATH.exists() else None
     )
     try:
-        configure_for_env(env_name)
+        configure_for_env(env_name, require_database=True)
         if not no_build:
+            if not no_typecheck:
+                # vite build doesn't typecheck, so a type error would otherwise deploy.
+                print("Typechecking client...")
+                check = subprocess.run(["pnpm", "typecheck"], cwd=WORKSPACE_ROOT)
+                if check.returncode != 0:
+                    print("ERROR: typecheck failed; nothing was uploaded (--no-typecheck skips this).")
+                    return check.returncode
             print("Building client...")
             build = subprocess.run(["pnpm", "--dir", "client", "build"], cwd=WORKSPACE_ROOT)
             if build.returncode != 0:
@@ -1159,6 +1176,7 @@ def main() -> int:
         return deploy_command(
             args.paths,
             no_build=args.no_build,
+            no_typecheck=args.no_typecheck,
             no_clean=args.no_clean,
             no_compile=args.no_compile,
             no_publish=args.no_publish,
@@ -1196,5 +1214,25 @@ def main() -> int:
     )
 
 
+def run() -> int:
+    """Run main(), turning an unexpected failure into one readable line.
+
+    Set SEMOSS_SYNC_DEBUG=1 for the full traceback.
+    """
+    try:
+        return main()
+    except KeyboardInterrupt:
+        return 130
+    except Exception as exc:  # noqa: BLE001 - last-resort reporting
+        if os.environ.get("SEMOSS_SYNC_DEBUG"):
+            raise
+        print(f"ERROR: {type(exc).__name__}: {exc}")
+        print(
+            "Common causes: wrong app_id or API keys, or the keys' user is not an owner of the app "
+            "(a key pair acts as the user who created it). Set SEMOSS_SYNC_DEBUG=1 for the traceback."
+        )
+        return 1
+
+
 if __name__ == "__main__":
-    raise SystemExit(main())
+    raise SystemExit(run())

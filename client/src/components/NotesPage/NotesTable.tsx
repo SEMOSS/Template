@@ -1,12 +1,13 @@
 import { useInsight } from "@semoss/sdk/react";
 import { useCallback } from "react";
 import { Link } from "react-router-dom";
-import { Chip, DataTable } from "@/components";
-import type {
-	DataTableColumnDef,
-	DataTableGetDataParams,
-	DataTableServerResult,
-} from "@/components/base/data-table.types";
+import {
+	Chip,
+	DataTable,
+	type DataTableColumnDef,
+	type DataTableGetDataParams,
+	type DataTableServerResult,
+} from "@/components";
 import { Button } from "@/components/ui/button";
 import { formatDate, formatDateTime } from "@/lib/date";
 import { runPixelQuery } from "@/lib/pixel-query";
