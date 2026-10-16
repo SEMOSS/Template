@@ -1,13 +1,18 @@
-import { LogOut } from "lucide-react";
+import { ChevronDown, LogOut, User } from "lucide-react";
 import { toast } from "sonner";
+import { Button } from "@/components/ui/button";
 import {
 	DropdownMenu,
 	DropdownMenuContent,
 	DropdownMenuItem,
+	DropdownMenuLabel,
+	DropdownMenuSeparator,
 	DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
 import { useAuth } from "@/contexts";
 
+// A plain account menu: the user's name and a Logout item. Add items (profile, settings, ...)
+// as more DropdownMenuItems.
 export const UserProfileMenu = () => {
 	const { logout, userLoginName } = useAuth();
 
@@ -24,18 +29,30 @@ export const UserProfileMenu = () => {
 	return (
 		<DropdownMenu>
 			<DropdownMenuTrigger asChild>
-				<button
-					type="button"
-					title="View user menu"
-					className="flex items-center gap-1.5 rounded-full border border-primary-foreground/20 bg-primary-foreground/10 px-3 py-1 text-primary-foreground text-xs transition-colors hover:bg-primary-foreground/15"
+				<Button
+					variant="ghost"
+					size="sm"
+					title="Account menu"
+					className="text-primary-foreground hover:bg-primary-foreground/10 hover:text-primary-foreground"
 				>
-					<span className="size-1.5 rounded-full bg-success" />
-					{userLoginName ?? "Account"}
-				</button>
+					<User />
+					<span className="max-w-40 truncate">
+						{userLoginName ?? "Account"}
+					</span>
+					<ChevronDown className="opacity-70" />
+				</Button>
 			</DropdownMenuTrigger>
-			<DropdownMenuContent align="end" className="w-40">
+			<DropdownMenuContent align="end" className="w-48">
+				{userLoginName && (
+					<>
+						<DropdownMenuLabel className="truncate font-normal text-muted-foreground text-xs">
+							Signed in as {userLoginName}
+						</DropdownMenuLabel>
+						<DropdownMenuSeparator />
+					</>
+				)}
 				<DropdownMenuItem onClick={handleLogout}>
-					<LogOut className="mr-2 h-4 w-4" />
+					<LogOut />
 					Logout
 				</DropdownMenuItem>
 			</DropdownMenuContent>
