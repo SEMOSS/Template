@@ -2,8 +2,8 @@
 //
 // Wraps the SEMOSS SDK's auth surface in a small context so any component can
 // log in/out and read the current user. Deliberately auth-only — it does NOT
-// wrap runPixel or sendMCPResponseToPlayground. Call those via the canonical
-// `useInsight()` / `actions.run()` path instead (see CLAUDE.md).
+// wrap runPixel or sendMCPResponseToRoom. Call the backend via runPixelQuery /
+// usePixelQuery (see AGENTS.md), and keep app data (e.g. an app-user profile) out of here.
 //
 // Provider lives in App.tsx (inside InsightProvider). Consume with useAuth().
 
@@ -17,7 +17,7 @@ import {
 	useEffect,
 	useState,
 } from "react";
-import { useLoadingState } from "@/hooks";
+import { clearAllLocalStorageState, useLoadingState } from "@/hooks";
 
 interface AuthContextType {
 	/** Attempt a native login. Resolves true on success, false on failure. */
@@ -83,6 +83,8 @@ export const AuthProvider = ({ children }: PropsWithChildren) => {
 		try {
 			await actions.logout();
 			setUserLoginName(null);
+			// Persisted UI state (useLocalStorageState) belongs to the user who just left.
+			clearAllLocalStorageState();
 			return true;
 		} catch {
 			return false;

@@ -23,8 +23,13 @@ public class ProjectProperties {
 
   private static ProjectProperties INSTANCE = null;
 
-  // TODO: Add a field for each property you want to expose, e.g.:
-  //   private String engineId;
+  // ID of the app's primary database engine on THIS instance (empty/absent for apps with no
+  // database). It differs per instance, so set it for the target environment before every
+  // deploy - java/ is uploaded with it. The cached value only refreshes on recompile.
+  private String databaseId;
+
+  // TODO: Add a field for each additional property you want to expose, e.g.:
+  //   private String modelId;
 
   private ProjectProperties() {}
 
@@ -56,8 +61,9 @@ public class ProjectProperties {
       Properties projectProperties = new Properties();
       projectProperties.load(fileIn);
 
-      // TODO: Read properties and assign to fields, e.g.:
-      //   newInstance.engineId = projectProperties.getProperty("engineId");
+      newInstance.databaseId = projectProperties.getProperty("databaseId");
+      // TODO: Read additional properties and assign to fields, e.g.:
+      //   newInstance.modelId = projectProperties.getProperty("modelId");
 
       INSTANCE = newInstance;
     } catch (IOException e) {
@@ -66,7 +72,10 @@ public class ProjectProperties {
     }
   }
 
-  // TODO: Add getters for each property, e.g.:
-  //   public String getEngineId() { return engineId; }
+  public String getDatabaseId() {
+    return databaseId;
+  }
 
+  // TODO: Add getters for each additional property, e.g.:
+  //   public String getModelId() { return modelId; }
 }

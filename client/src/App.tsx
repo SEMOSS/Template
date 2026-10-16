@@ -31,7 +31,7 @@ export const App = () => {
 			<AuthProvider>
 				<Router />
 			</AuthProvider>
-			<Toaster />
+			<Toaster richColors closeButton position="top-right" />
 		</InsightProvider>
 	);
 };
