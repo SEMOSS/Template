@@ -2,6 +2,7 @@
 	"private": true,
 	"scripts": {
 		"fix": "biome check --write",
+		"typecheck": "pnpm --dir client exec tsc --noEmit",
 		"dev": "pnpm --dir client dev"
 	},
 	"devDependencies": {
