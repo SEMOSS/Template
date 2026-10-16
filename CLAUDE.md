@@ -299,8 +299,8 @@ client/src/
   surface: `login(username, password)`, `logout()` (also clears persisted UI state),
   `userLoginName`, `isUserLoginLoading`. It is **auth-only by design**. `AuthorizedLayout`
   redirects logged-out users to `LoginPage`, stashing their target in location state. App-level
-  authorization (an app-user table) is not built in: add a reactor-side check in an overridden
-  `preExecute()` and a gate in `AuthorizedLayout`, rather than growing `AuthContext`.
+  authorization (an allow-list of users) is not built in: see the `semoss-app-users` skill rather
+  than growing `AuthContext`.
 
 **Previewing locally past the login gate.** The login page ships on purpose — don't remove
 it. To render the UI locally, cheapest first: (1) set `ACCESS_KEY`/`SECRET_KEY` in
@@ -428,6 +428,7 @@ Load from `.claude/skills/` when the task calls for it:
 | `semoss-model` | Calling an LLM / embedding model, or listing models the user can access. |
 | `semoss-vector` | Querying a vector store, RAG retrieval, or managing embedded documents. |
 | `semoss-deploy` | Publishing or updating an app — deploy tiers, multi-env, failures. |
+| `semoss-app-users` | Restricting the app to an allow-list of users (app-user table, server-side check, no-access page). |
 | `semoss-playground-tool` | Making the app (or part of it) a tool inside Playground chat; Python tools. |
 | `semoss-mcp-manifest` | Writing or editing `mcp/*.json`, wiring `resourceURI`, execution modes. |
 | `semoss-ai-repo` | Submitting an app to the review pipeline with the `ai-repo` CLI. |
