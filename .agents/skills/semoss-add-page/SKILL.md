@@ -5,10 +5,6 @@ description: Use when adding or changing a frontend page, route, nav item, data 
 
 # Adding a page or feature
 
-**Copy the closest existing page first** (AGENTS.md has the table): paged table → `NotesPage` +
-`NotesTable`; detail page → `NoteDetailPage`; form → `AddNotePage` + `NoteForm` + `useAddNote`;
-nested routes → the `notes` tree in `Router.tsx`. All paths are under `client/src/`.
-
 ## Steps
 
 1. **Route constant** in `routes.constants.ts` (bare segment, no leading slash).
@@ -47,7 +43,7 @@ argument.
 
 - **A page's or card's own load failed** → inline `AlertBlurb` (`color="danger"`, title says what
   failed, body is `state.errorMessage`). Empty / not found → `warning`.
-- **Form submit failed** → pass `errorMessage` into the form (`useAddNote` pattern);
+- **Form submit failed** → pass `errorMessage` into the form (the form's save hook);
   `toast.success` on success.
 - **Background / non-blocking failure** (lookups, summary data feeding several cards, logout)
   → `toast.error(message)`.

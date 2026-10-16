@@ -36,6 +36,45 @@ public final class NoteService {
   }
 
   public Map<String, Object> add(String title, String body, String dueDate) {
+    String cleanTitle = cleanTitle(title);
+    String cleanDueDate = cleanDueDate(dueDate);
+    String noteId = UUID.randomUUID().toString();
+    try {
+      repository.add(noteId, cleanTitle, body, cleanDueDate);
+    } catch (SQLException e) {
+      throw new AppException(ErrorCode.INTERNAL_ERROR, e.getMessage());
+    }
+    return Map.of("success", true, "noteId", noteId);
+  }
+
+  public Map<String, Object> update(String noteId, String title, String body, String dueDate, String isDone) {
+    if (noteId == null || noteId.isBlank()) throw new AppException(ErrorCode.INVALID_INPUT, "Note id is required.");
+    if (!"true".equalsIgnoreCase(isDone) && !"false".equalsIgnoreCase(isDone)) {
+      throw new AppException(ErrorCode.INVALID_INPUT, "Done status must be true or false.");
+    }
+    try {
+      if (!repository.update(noteId, cleanTitle(title), body, cleanDueDate(dueDate), Boolean.parseBoolean(isDone))) {
+        throw new AppException(ErrorCode.NOT_FOUND, "No note found with id '" + noteId + "'.");
+      }
+    } catch (SQLException e) {
+      throw new AppException(ErrorCode.INTERNAL_ERROR, e.getMessage());
+    }
+    return Map.of("success", true, "noteId", noteId);
+  }
+
+  public Map<String, Object> delete(String noteId) {
+    if (noteId == null || noteId.isBlank()) throw new AppException(ErrorCode.INVALID_INPUT, "Note id is required.");
+    try {
+      if (!repository.delete(noteId)) {
+        throw new AppException(ErrorCode.NOT_FOUND, "No note found with id '" + noteId + "'.");
+      }
+    } catch (SQLException e) {
+      throw new AppException(ErrorCode.INTERNAL_ERROR, e.getMessage());
+    }
+    return Map.of("success", true);
+  }
+
+  private static String cleanTitle(String title) {
     String cleanTitle = title == null ? "" : title.trim();
     if (cleanTitle.isEmpty()) {
       throw new AppException(ErrorCode.INVALID_INPUT, "Title is required.");
@@ -44,6 +83,10 @@ public final class NoteService {
       throw new AppException(
           ErrorCode.INVALID_INPUT, "Title must be at most " + MAX_TITLE_LENGTH + " characters.");
     }
+    return cleanTitle;
+  }
+
+  private static String cleanDueDate(String dueDate) {
     String cleanDueDate = dueDate == null || dueDate.isBlank() ? null : dueDate.trim();
     if (cleanDueDate != null) {
       try {
@@ -53,14 +96,6 @@ public final class NoteService {
       }
     }
 
-    String noteId = UUID.randomUUID().toString();
-    try {
-      repository.add(noteId, cleanTitle, body, cleanDueDate);
-    } catch (SQLException e) {
-      // Map constraint violations (SQLState 23505 unique, 23503 foreign key) to
-      // INVALID_INPUT with a user-readable message; anything else is unexpected.
-      throw new AppException(ErrorCode.INTERNAL_ERROR, e.getMessage());
-    }
-    return Map.of("success", true, "noteId", noteId);
+    return cleanDueDate;
   }
 }

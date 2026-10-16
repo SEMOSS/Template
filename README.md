@@ -18,15 +18,12 @@ just a front door. Setting up a new copy? Follow [ONBOARDING.md](ONBOARDING.md).
 | `client/` | React + Vite + Tailwind v4 + shadcn/ui frontend (app shell, `DataTable`, shared hooks) → builds to `portals/` |
 | `java/src/reactors/` | Java reactors: Pixel entry points; `base/AbstractProjectReactor` is the base class |
 | `java/src/{service,database,domain,util}/` | Validation and orchestration, all SQL (`PagedQuery`), records, shared helpers |
-| `sql/` | `init.sql` (schema + seed) and `compose.yaml` (local Postgres) |
+| `sql/` | Optional `compose.yaml` for local Postgres |
 | `mcp/` | Tool manifests (empty unless the app is a Playground tool) |
 | `semoss_config/` | Per-environment endpoints + credentials (gitignored; copy the `.example`s) |
 | `scripts/` | `semoss_asset_sync.py` (deploy) and `init_app.py` (one-time rename) |
 | `.agents/skills/` | Task-specific guidance, loaded on demand |
 | `portals/`, `classes/`, `target/` | Generated — don't edit |
-
-The *notes* feature is a worked example of every pattern; copy it, then delete it (see
-[AGENTS.md](AGENTS.md#deleting-the-example)).
 
 ## Task-specific guidance
 

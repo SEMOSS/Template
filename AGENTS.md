@@ -14,12 +14,11 @@
 > a task matches. `.mcp.json.example` lists the platform MCP servers in Claude Code's format;
 > copy the entries into your tool's MCP config.
 
-> **It is a template, so it ships with a worked example.** The *notes* feature
-> (`reactors/notes`, `service/notes`, `database/notes`, `sql/init.sql`, `NotesPage` and
-> friends) shows every pattern end to end. Copy it for new features, and
-> [delete it](#deleting-the-example) when you no longer need it.
-
 ---
+
+## First app-building conversation
+
+Ask the user whether they want to keep the bundled Notes example as a reference or remove it. If they choose removal, run `pnpm remove:notes-example` from this app root before building their app. Do not ask again once they have answered.
 
 ## What this is — and who you're talking to
 
@@ -98,9 +97,8 @@ tells you to:
 Platform terms used throughout (for you; usually don't surface them to a non-technical user):
 
 - **Pixel** — SEMOSS's command language. Everything the platform does is a Pixel command.
-  The frontend sends one as a string, e.g. `` `GetNote(noteId=${JSON.stringify(id)});` ``.
-- **Reactor** — a server-side command implementation. The Java class `GetNoteReactor` is
-  invoked by the Pixel `GetNote(...)`. Drop the `Reactor` suffix when calling.
+  The frontend sends one as a string, using `JSON.stringify` for values.
+- **Reactor** — a server-side command implementation. A Java class ending in `Reactor` is invoked by its Pixel name. Drop the `Reactor` suffix when calling.
 - **Insight** — a single execution session on the instance. The SDK opens one to run Pixels;
   `useInsight()` gives you its `insightId`.
 - **Engine** — a connected resource on the platform: a **model** (LLM/embedding), a
@@ -131,11 +129,6 @@ closest existing feature and mirroring it, not by designing something new.
 
 | To build… | Copy this |
 |-----------|-----------|
-| A paged, sortable, filterable table (backend + UI) | `GetNotesReactor` → `NoteService.page` → `NoteRepository.page` (uses `PagedQuery`) → `types/note.types.ts` → `NotesTable.tsx` |
-| A read-one / detail endpoint | `GetNoteReactor` → `NoteService.get` (throws `NOT_FOUND`) → `NoteRepository.findById` → `NoteDetailPage.tsx` |
-| A write endpoint + form | `AddNoteReactor` → `NoteService.add` → `NoteRepository.add` → `NoteForm.tsx` + `useAddNote` + `AddNotePage.tsx` |
-| A detail/add page nested under a list page | the `notes` route tree in `Router.tsx` (breadcrumbs come from route `handle`) |
-| A one-shot read inside a component | `usePixelQuery` (see `NoteDetailPage.tsx`) |
 | Showing a date or time in the UI | `formatDate` / `formatDateTime` in `lib/date.ts` |
 | Returning a date from Java | `PagedQuery.Column.date` / `.instant`, or `util.DateFormats` |
 
@@ -152,7 +145,7 @@ Step-by-step versions are in the `semoss-add-reactor` and `semoss-add-page` skil
 | `java/src/database/<area>/` | Repositories: all SQL. `database/PagedQuery` is the shared sort/filter/paginate adapter. |
 | `java/src/domain/<area>/` | Optional records/enums with `toMap()`. |
 | `java/src/util/` | `AppException`, `ErrorCode`, `DateFormats`, `ProjectProperties`, `Constants`, `HelperMethods`. |
-| `sql/` | Optional example: `init.sql` (schema + seed data) and `compose.yaml` (local Postgres). Keep, change, or delete it; the app only needs a database engine on the platform. |
+| `sql/` | Optional local Postgres Compose file; manage your own schema as needed. |
 | `mcp/` | Tool manifests; empty by default (Playground tools only). |
 | `semoss_config/` | Per-environment endpoints + credentials (gitignored; copy the `.example`s). |
 | `scripts/` | `semoss_asset_sync.py` (deploy) and `init_app.py` (one-time rename). |
@@ -219,8 +212,7 @@ column surfaces as `INTERNAL_ERROR`.
 ### Database
 
 The app needs one relational database engine on the platform (`databaseId`); how you create and
-manage its schema is up to you. The example keeps schema and seed data in `sql/init.sql` (running it
-**drops and recreates every table**). After any schema change, however you make it, run **Update schema** in the SEMOSS database editor (or the
+manage its schema is up to you. Create and register the schema your app needs. After any schema change, however you make it, run **Update schema** in the SEMOSS database editor (or the
 `refresh_database_ontology` MCP tool, if it's bound to the same instance as your database; use the
 UI for a local one); SEMOSS query metadata doesn't follow DDL on its own and
 stale metadata breaks joins. The `semoss-database` skill covers querying and the MCP helpers.
@@ -337,7 +329,7 @@ short-circuit the gate in `AuthorizedLayout` — scratch only, never commit or d
   that are always needed together into one call. Type each result with an interface in
   `types/<name>.types.ts` that mirrors the reactor's output exactly.
 - **Surfacing errors:** inline `AlertBlurb` (`danger` = failure, `warning` = empty/not found)
-  for a page's or card's own load; an `errorMessage` prop for form submits (`useAddNote`);
+  for a page's or card's own load; an `errorMessage` prop for form submits;
   `toast.error` for background or non-blocking failures. No Retry buttons.
 
 ### State
@@ -416,16 +408,6 @@ output**: an error there means the backend is stale even though the upload "succ
 | **Submit** | `ai-repo` CLI | Submitting to the review pipeline | the CLI + login |
 
 Full detail, flags, and failure modes: `semoss-deploy` skill.
-
-## Deleting the example
-
-When the notes example is no longer needed, delete: `java/src/{reactors,service,database}/notes`,
-`client/src/components/NotesPage`, `client/src/pages/{NotesPage,NoteDetailPage,AddNotePage}.tsx`,
-`client/src/hooks/useAddNote.ts` (and its barrel export), `client/src/types/note.types.ts`, the
-notes route group in `Router.tsx` and nav item in `nav-items.ts`, the `ROUTE_PATH_NOTES` /
-`ROUTE_PATH_ADD_NOTE` constants, the `note` table in `sql/init.sql`, and `HomePage`'s link to it.
-For a **frontend-only app with no backend**, delete `java/`, `mcp/`, `sql/` and
-`semoss_config`'s `database_id` use outright; left in place, `deploy` uploads them.
 
 ## Skills
 

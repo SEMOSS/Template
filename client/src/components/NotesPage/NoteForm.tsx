@@ -12,26 +12,32 @@ export interface NoteFormValues {
 	title: string;
 	body: string;
 	dueDate: string;
+	isDone: boolean;
 }
 
 export interface NoteFormProps {
 	isSubmitting: boolean;
 	errorMessage: string;
 	onSubmit: (values: NoteFormValues) => void;
+	initialValues?: NoteFormValues;
+	isEditing?: boolean;
 }
 
 export const NoteForm = ({
 	isSubmitting,
 	errorMessage,
 	onSubmit,
+	initialValues,
+	isEditing = false,
 }: NoteFormProps) => {
-	const [title, setTitle] = useState("");
-	const [body, setBody] = useState("");
-	const [dueDate, setDueDate] = useState("");
+	const [title, setTitle] = useState(initialValues?.title ?? "");
+	const [body, setBody] = useState(initialValues?.body ?? "");
+	const [dueDate, setDueDate] = useState(initialValues?.dueDate ?? "");
+	const [isDone, setIsDone] = useState(initialValues?.isDone ?? false);
 
 	const handleSubmit = (event: FormEvent<HTMLFormElement>) => {
 		event.preventDefault();
-		onSubmit({ title, body, dueDate });
+		onSubmit({ title, body, dueDate, isDone });
 	};
 
 	return (
@@ -68,6 +74,17 @@ export const NoteForm = ({
 				/>
 			</div>
 
+			{isEditing && (
+				<label className="flex items-center gap-2 text-sm">
+					<input
+						type="checkbox"
+						checked={isDone}
+						onChange={(event) => setIsDone(event.target.checked)}
+					/>
+					Done
+				</label>
+			)}
+
 			{errorMessage && (
 				<div role="alert">
 					<AlertBlurb
@@ -85,7 +102,11 @@ export const NoteForm = ({
 					<Link to={`/${ROUTE_PATH_NOTES}`}>Cancel</Link>
 				</Button>
 				<Button type="submit" disabled={isSubmitting}>
-					{isSubmitting ? "Adding Note..." : "Add Note"}
+					{isSubmitting
+						? "Saving Note..."
+						: isEditing
+							? "Save Note"
+							: "Add Note"}
 				</Button>
 			</div>
 		</form>

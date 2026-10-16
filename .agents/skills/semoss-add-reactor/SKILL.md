@@ -1,20 +1,13 @@
 ---
 name: semoss-add-reactor
-description: Use when adding or changing a backend endpoint end to end - a new Java reactor with its repository, service, database query, frontend type, and call site. Covers the reactor/service/repository layering, AbstractProjectReactor, PagedQuery for sortable/filterable/paginated lists, AppException error handling, dates, schema changes in sql/init.sql, and compiling on the instance. Do not use for pure frontend work (semoss-add-page) or deploy mechanics (semoss-deploy).
+description: Use when adding or changing a backend endpoint end to end - a new Java reactor with its repository, service, database query, frontend type, and call site. Covers the reactor/service/repository layering, AbstractProjectReactor, PagedQuery for sortable/filterable/paginated lists, AppException error handling, dates, schema changes, and compiling on the instance. Do not use for pure frontend work (semoss-add-page) or deploy mechanics (semoss-deploy).
 ---
 
 # Adding a backend endpoint
 
-**Copy the closest existing feature first** (AGENTS.md has the table). Paged list:
-`GetNotesReactor` → `NoteService.page` → `NoteRepository.page`. Detail with a not-found case:
-`GetNoteReactor` → `NoteService.get`. Write: `AddNoteReactor` → `NoteService.add` →
-`NoteRepository.add`. Everything lives under `java/src/`.
-
 ## Steps
 
-1. **Schema (only if needed).** Change it however your project manages its database; in the example
-   that's `sql/init.sql` (it drops and recreates every table, so
-   rerunning wipes data; tell the user). After running it, **Update schema** in the SEMOSS
+1. **Schema (only if needed).** Apply the schema change using the app's database workflow. After running it, **Update schema** in the SEMOSS
    database editor (or the `refresh_database_ontology` MCP tool, only if it's bound to the same
    instance as your database; use the UI for a local one), otherwise joins fail on stale
    metadata even though the tables exist. Dates: `DATE` for a calendar date,
@@ -45,13 +38,12 @@ description: Use when adding or changing a backend endpoint end to end - a new J
 6. **Frontend type** in `client/src/types/<name>.types.ts` mirroring the output exactly (rows +
    `totalCount` for paged reactors). Type date fields as `IsoDate` / `IsoDateTime`.
 7. **Call it** from the client with `runPixelQuery` / `usePixelQuery` (see `semoss-add-page`).
-   The Pixel is the reactor name without `Reactor`: `GetNote(noteId=${JSON.stringify(id)});`.
+   The Pixel is the reactor name without `Reactor`; encode string arguments with `JSON.stringify`.
    Wrap every string or array argument in `JSON.stringify`.
 8. **Manifest (almost never).** `mcp/pixel_mcp.json` is only for exposing a reactor to
    Playground chat (`semoss-playground-tool`). The app itself doesn't need an entry.
 9. **Try it without the UI.** From a Pixel console or script, set the app context first, otherwise
-   the reactor isn't found ("Cannot find reactor for keyword = GetNotes"):
-   `SetContext("<app id>");` then `GetNotes(limit=10, offset=0);`.
+   the reactor is not found: call `SetContext("<app id>");` before its Pixel command.
 10. **Deploy and read the compile output** (`semoss-deploy`). A compile error means the backend
    is stale even if the upload succeeded.
 
@@ -83,7 +75,7 @@ the frontend will branch on it.
 
 - `id` must be a declared `Column` field; unknown ids are silently ignored.
 - A **list** value is an exact `IN` match; a text **scalar** is `LIKE %v%`; a number/boolean
-  scalar is `==`. To fetch one row by id, send `{id: "noteId", value: [noteId]}`.
+  scalar is `==`. To fetch one row by id, send a list value for the ID field.
 - A non-numeric string against a number column becomes `INTERNAL_ERROR`.
 - `limit` is clamped to 1..500; an unknown (non-blank) `sortField` is `INVALID_INPUT`; nulls sort
   first on `desc`.

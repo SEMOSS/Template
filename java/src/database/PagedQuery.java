@@ -31,6 +31,7 @@ public final class PagedQuery {
   public static final String LIMIT = "limit";
   public static final String OFFSET = "offset";
   public static final String FILTERS = "filters";
+  private static final String SOURCE_ALIAS = "paged_source";
 
   private enum Kind {
     TEXT,
@@ -116,7 +117,7 @@ public final class PagedQuery {
       Request request) {
     SelectQueryStruct query = derivedQuery(engine, sourceQuery);
     for (Column column : columns) {
-      query.addSelector(new QueryColumnSelector("rows__" + column.field(), column.field()));
+      query.addSelector(new QueryColumnSelector(SOURCE_ALIAS + "__" + column.field(), column.field()));
     }
     query.addSelector(new QueryOpaqueSelector("COUNT(*) OVER()", "totalCount"));
     addFilters(query, columns, request.filters());
@@ -131,9 +132,9 @@ public final class PagedQuery {
       throw new AppException(ErrorCode.INVALID_INPUT, "Unknown sort field: " + request.sortField());
     }
     String direction = "desc".equalsIgnoreCase(request.sortDirection()) ? "DESC" : "ASC";
-    query.addOrderBy(new QueryColumnOrderBySelector("rows__" + requestedSort.field(), direction));
+    query.addOrderBy(new QueryColumnOrderBySelector(SOURCE_ALIAS + "__" + requestedSort.field(), direction));
     if (!requestedSort.equals(defaultSort)) {
-      query.addOrderBy(new QueryColumnOrderBySelector("rows__" + defaultSort.field(), "ASC"));
+      query.addOrderBy(new QueryColumnOrderBySelector(SOURCE_ALIAS + "__" + defaultSort.field(), "ASC"));
     }
     query.setLimit(request.limit());
     query.setOffSet(request.offset());
@@ -176,7 +177,7 @@ public final class PagedQuery {
     interpreter.setQueryStruct(sourceQuery);
     SelectQueryStruct query = new SelectQueryStruct();
     query.setCustomFrom(interpreter.composeQuery());
-    query.setCustomFromAliasName("rows");
+    query.setCustomFromAliasName(SOURCE_ALIAS);
     return query;
   }
 
@@ -189,7 +190,7 @@ public final class PagedQuery {
       Column column = allowed.get(field);
       Object value = filter.get("value");
       if (column == null || value == null) continue;
-      String selector = "rows__" + field;
+      String selector = SOURCE_ALIAS + "__" + field;
       if (column.kind() == Kind.DATE || column.kind() == Kind.INSTANT) {
         addDateFilter(query, column, selector, value);
         continue;

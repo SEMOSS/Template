@@ -1,9 +1,9 @@
 import { NoteForm } from "@/components/NotesPage/NoteForm";
-import { useAddNote } from "@/hooks";
+import { useSaveNote } from "@/hooks";
 
-// Example form page. Copy it (with NoteForm and useAddNote) for a new write flow.
+// Example form page. Copy it (with NoteForm and useSaveNote) for a new write flow.
 export const AddNotePage = () => {
-	const { save, isSubmitting, errorMessage } = useAddNote();
+	const { save, isSubmitting, errorMessage } = useSaveNote();
 
 	return (
 		<div className="mx-auto flex w-full max-w-2xl flex-col gap-6">

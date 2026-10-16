@@ -25,11 +25,11 @@ public final class NoteRepository {
   // instant -> ISO-8601 UTC).
   private static final List<PagedQuery.Column> NOTE_COLUMNS =
       List.of(
-          PagedQuery.Column.instant("createdAt", "note__created_at"),
-          PagedQuery.Column.text("noteId", "note__note_id"),
-          PagedQuery.Column.text("title", "note__title"),
-          PagedQuery.Column.date("dueDate", "note__due_date"),
-          PagedQuery.Column.bool("isDone", "note__is_done"));
+          PagedQuery.Column.instant("createdAt", "NOTE__CREATED_AT"),
+          PagedQuery.Column.text("noteId", "NOTE__NOTE_ID"),
+          PagedQuery.Column.text("title", "NOTE__TITLE"),
+          PagedQuery.Column.date("dueDate", "NOTE__DUE_DATE"),
+          PagedQuery.Column.bool("isDone", "NOTE__IS_DONE"));
 
   private final IRDBMSEngine engine;
   private final Connection connection;
@@ -48,8 +48,8 @@ public final class NoteRepository {
   // DateFormats - never return a raw SEMOSS date value.
   public Map<String, Object> findById(String noteId) {
     SelectQueryStruct query = PagedQuery.select(NOTE_COLUMNS);
-    query.addSelector(new QueryColumnSelector("note__body", "body"));
-    query.addExplicitFilter(SimpleQueryFilter.makeColToValFilter("note__note_id", "==", noteId));
+    query.addSelector(new QueryColumnSelector("NOTE__BODY", "body"));
+    query.addExplicitFilter(SimpleQueryFilter.makeColToValFilter("NOTE__NOTE_ID", "==", noteId));
     query.setLimit(1);
     List<Map<String, Object>> rows = QueryExecutionUtility.flushRsToMap(engine, query);
     if (rows.isEmpty()) {
@@ -76,6 +76,27 @@ public final class NoteRepository {
         statement.setString(4, dueDate);
       }
       statement.executeUpdate();
+    }
+  }
+
+  public boolean update(String noteId, String title, String body, String dueDate, boolean isDone)
+      throws SQLException {
+    String sql = "UPDATE note SET title = ?, body = ?, due_date = CAST(? AS DATE), is_done = ? WHERE note_id = ?";
+    try (PreparedStatement statement = connection.prepareStatement(sql)) {
+      statement.setString(1, title);
+      statement.setString(2, body);
+      if (dueDate == null) statement.setNull(3, Types.VARCHAR);
+      else statement.setString(3, dueDate);
+      statement.setBoolean(4, isDone);
+      statement.setString(5, noteId);
+      return statement.executeUpdate() > 0;
+    }
+  }
+
+  public boolean delete(String noteId) throws SQLException {
+    try (PreparedStatement statement = connection.prepareStatement("DELETE FROM note WHERE note_id = ?")) {
+      statement.setString(1, noteId);
+      return statement.executeUpdate() > 0;
     }
   }
 }

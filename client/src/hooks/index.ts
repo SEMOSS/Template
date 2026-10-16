@@ -1,6 +1,6 @@
 // Barrel export for custom hooks. Import from "@/hooks".
 
-export * from "./useAddNote";
+export * from "./useSaveNote";
 export * from "./useDebouncedValue";
 export * from "./useLoadingState";
 export * from "./useLocalStorageState";

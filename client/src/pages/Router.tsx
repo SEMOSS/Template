@@ -53,6 +53,7 @@ const router = createHashRouter([
 									crumbs: () => [{ label: "Home" }],
 								} satisfies RouteHandle,
 							},
+							// NOTES_EXAMPLE_START
 							{
 								handle: {
 									crumbs: () => [{ label: "Examples" }],
@@ -97,6 +98,7 @@ const router = createHashRouter([
 									},
 								],
 							},
+							// NOTES_EXAMPLE_END
 							// To add a protected page (bare path segment, no leading slash).
 							// Group related pages under a pathless route whose handle gives
 							// the breadcrumb a group label (mirror nav-items.ts). A page with no

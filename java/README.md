@@ -18,7 +18,4 @@ java/
 └── project.properties.example
 ```
 
-The layering is `reactor → service → repository`. The notes feature is the worked example:
-`GetNotesReactor` (paged list), `GetNoteReactor` (detail), `AddNoteReactor` (write), all going
-through `NoteService` and `NoteRepository`. Copy it for a new feature, then delete it when
-you no longer need it.
+The layering is `reactor → service → repository`. Add feature-specific classes under the matching folders.

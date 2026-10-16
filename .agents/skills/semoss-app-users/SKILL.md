@@ -13,7 +13,7 @@ Files in `reference/` (copy, adapt names):
 
 | File | Goes to |
 |---|---|
-| `app_user.sql` | `sql/init.sql` (then rerun it and **Update schema**) |
+| `app_user.sql` | Your app's schema script (then **Update schema**) |
 | `AppUserRepository.java` | `java/src/database/users/` |
 | `AbstractProjectReactor.patch.md` | edit `java/src/reactors/base/AbstractProjectReactor.java` as described |
 | `GetAppUserReactor.java` | `java/src/reactors/users/` |
@@ -21,7 +21,7 @@ Files in `reference/` (copy, adapt names):
 
 ## Steps
 
-1. Add the table and seed yourself (`user_id` = your SEMOSS username). Rerun `init.sql`, then
+1. Add the table and seed yourself (`user_id` = your SEMOSS username). Apply the schema change, then
    **Update schema** in the database editor.
 2. Add the repository, patch the base reactor, add `GetAppUserReactor`. Every other reactor now
    returns `PERMISSION_DENIED` for a user with no active `app_user` row; only
@@ -29,7 +29,7 @@ Files in `reference/` (copy, adapt names):
 3. In `AppLayout.tsx`, wrap the shell's contents in `<AppUserGate>` so a no-access user sees the
    message instead of the sidebar and nav (put the gate inside `AuthorizedLayout`, outside
    `MainNavigation` if you want to hide the top bar too).
-4. Optional admin screens: copy the notes list/add pattern for an `app_user` management page
+4. Optional admin screens: build an `app_user` management page
    (a paged list, an add/update reactor with `INVALID_INPUT` for duplicate ids via SQLState
    23505). Don't let an admin deactivate their own account.
 5. Deploy, and read the compile output.
@@ -41,5 +41,5 @@ Files in `reference/` (copy, adapt names):
 - Reactors that run **before** the user exists (the bootstrap/first-admin case) need
   `requireActiveAppUser()` overridden. Don't ship a "grant me access" button or reactor: it
   defeats the gate.
-- Seed data in `init.sql` is committed: don't put real people's emails in a template-derived repo
+- Seed data in committed SQL files is committed: don't put real people's emails in a template-derived repo
   you share.

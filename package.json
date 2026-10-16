@@ -2,6 +2,7 @@
 	"private": true,
 	"scripts": {
 		"fix": "biome check --write",
+		"remove:notes-example": "python3 scripts/remove_notes_example.py",
 		"typecheck": "pnpm --dir client exec tsc --noEmit",
 		"dev": "pnpm --dir client dev"
 	},

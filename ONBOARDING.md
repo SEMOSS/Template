@@ -79,33 +79,9 @@ with an ownership error at the first upload.
 frontend to auto-authenticate, and combining them triggers a known bug in the SDK's CSRF handling.
 These keys belong only in `semoss_config/credentials.env`.
 
-## 5. Set up a database (skip if the app has none)
+## 5. Connect a database if your app needs one
 
-The `sql/` folder is just a convenient example (a schema script and a local Postgres via Docker). If the
-user already has a database or prefers their own way of managing one, use that: the app only needs the
-database connected to SEMOSS and its ID in `environments.json`. If the app has no database, delete `sql/`, `java/src/{service,database}/notes`,
-`java/src/reactors/notes` and the notes pages and routes (see "Deleting the example" in
-`AGENTS.md`), then go to step 6.
-
-1. Get Postgres at `localhost:5432`: `docker compose -f sql/compose.yaml up -d` (database named
-   after the app, user `admin`, password `password`), or a native install with a database of that
-   name. (If neither Docker nor `psql` is available, install Postgres, e.g. `brew install postgresql@16`
-   or Postgres.app, and use the SEMOSS workbench in step 5 instead of `psql`.)
-2. Connect it to SEMOSS: open `http://localhost:9090/SemossWeb/packages/client/dist/#/database/new`,
-   choose **Postgres**, catalog name = the database name, host `localhost`, port `5432`, and the
-   username and password.
-3. Ask for the resulting **Database ID** and set `envs.local.database_id` in
-   `semoss_config/environments.json`. (`deploy` and `configure` write it into
-   `java/project.properties` for you.)
-4. Timestamps are stored as UTC: in `Semoss/db/<name>__<database id>.smss` add the line
-   `DATABASE_ZONEID<TAB>UTC` (tab-separated like the other properties) and restart SEMOSS.
-   See "Dates" in `AGENTS.md`.
-5. Load the schema: open
-   `http://localhost:9090/SemossWeb/packages/client/dist/#/database/<database id>/workbench` and
-   submit `sql/init.sql` as a multi-statement commit query. **This drops and recreates every
-   table**, so only do it on a database whose data they're happy to lose.
-6. In the database's schema editor choose **Update schema**, select all tables, and save.
-   `init.sql` alone doesn't update SEMOSS's query metadata.
+Connect the user's database in SEMOSS and put its ID in `semoss_config/environments.json`. Create and register only the schema the app needs. An app with no database can leave `database_id` empty.
 
 ## 6. Deploy for the first time
 
