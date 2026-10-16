@@ -17,14 +17,11 @@ export const InitializedLayout = () => {
 	const { isInitialized, error } = useInsight();
 
 	return (
-		<div className="flex flex-col h-screen">
+		<div className="flex h-screen flex-col">
 			{isInitialized ? (
-				<div className="p-4 overflow-auto h-full">
-					{/* Outlet renders whichever child route matched in Router.tsx */}
-					<Outlet />
-				</div>
+				<Outlet />
 			) : error ? (
-				<ErrorPage />
+				<ErrorPage error={error} />
 			) : (
 				<LoadingScreen />
 			)}
