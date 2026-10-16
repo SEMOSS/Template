@@ -12,7 +12,8 @@ rules** and **MCP manifests** sections of [CLAUDE.md](../CLAUDE.md) and the
 ```
 java/
 ├── src/
-│   ├── reactors/   AbstractProjectReactor (base) + your reactors
-│   └── util/       Constants, HelperMethods, ProjectProperties
-└── project.properties
+│   ├── reactors/   base/AbstractProjectReactor + your reactors
+│   └── util/       AppException, ErrorCode, ProjectProperties, Constants, HelperMethods
+├── project.properties          (gitignored; copy from the .example)
+└── project.properties.example
 ```

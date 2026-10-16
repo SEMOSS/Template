@@ -1,0 +1,8 @@
+# Copy this file to java/project.properties and fill in your values.
+# Never commit project.properties - it is gitignored.
+#
+# This file is uploaded with the java/ directory, so it must hold the values for the
+# instance you are deploying TO. Leave databaseId empty for an app with no database.
+
+# ID of the app's primary relational database on the target instance.
+databaseId=

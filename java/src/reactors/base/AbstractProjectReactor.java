@@ -1,15 +1,20 @@
 package reactors.base;
 
+import java.sql.Connection;
+import java.sql.SQLException;
 import java.util.List;
 import java.util.Map;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import prerna.auth.User;
+import prerna.engine.api.IEngine;
+import prerna.engine.api.IRDBMSEngine;
 import prerna.reactor.AbstractReactor;
 import prerna.sablecc2.om.GenRowStruct;
 import prerna.sablecc2.om.PixelDataType;
 import prerna.sablecc2.om.PixelOperationType;
 import prerna.sablecc2.om.nounmeta.NounMetadata;
+import prerna.util.Utility;
 import util.AppException;
 import util.ErrorCode;
 import util.ProjectProperties;
@@ -40,7 +45,14 @@ public abstract class AbstractProjectReactor extends AbstractReactor {
   protected String projectId; // The SEMOSS project/app ID
   protected ProjectProperties projectProperties; // Values from java/project.properties
 
-  // TODO: Initialize additional protected variables (engines, external services,
+  // The app's primary database (databaseId in java/project.properties), or null if none
+  // is configured. Use requireDatabase() when a reactor can't work without it.
+  protected IRDBMSEngine database;
+  // Opened once in preExecute() and released after doExecute() runs (see execute()).
+  // Use this for raw JDBC instead of opening your own connection. Null if no database.
+  protected Connection connection;
+
+  // TODO: Initialize additional protected variables (other engines, external services,
   // etc.)
 
   protected NounMetadata result = null;
@@ -62,6 +74,8 @@ public abstract class AbstractProjectReactor extends AbstractReactor {
               ? (AppException) e
               : new AppException(ErrorCode.INTERNAL_ERROR, e.getMessage());
       return new NounMetadata(appException.toMap(), PixelDataType.MAP, PixelOperationType.ERROR);
+    } finally {
+      releaseConnection(connection);
     }
   }
 
@@ -78,11 +92,59 @@ public abstract class AbstractProjectReactor extends AbstractReactor {
     // Load properties from java/project.properties (e.g. engine IDs, config values)
     projectProperties = ProjectProperties.getInstance(projectId);
 
-    // TODO: Initialize additional resources (engines, external services, etc.)
+    openDatabase();
+
+    // TODO: Initialize additional resources (other engines, external services, etc.)
 
     // Get the authenticated user and parse input parameters
     user = this.insight.getUser();
     organizeKeys(); // Populates this.keyValue from the Pixel command arguments
+  }
+
+  // Resolves the database engine from databaseId and opens a connection. Skipped when the
+  // app has no databaseId configured; fails loudly if one is set but doesn't resolve.
+  private void openDatabase() {
+    String databaseId = projectProperties == null ? null : projectProperties.getDatabaseId();
+    if (databaseId == null || databaseId.isBlank()) {
+      return;
+    }
+    IEngine engine = Utility.getEngine(databaseId);
+    if (!(engine instanceof IRDBMSEngine)) {
+      throw new IllegalStateException(
+          "Unable to find a relational database engine with id '"
+              + databaseId
+              + "' - check databaseId in java/project.properties");
+    }
+    database = (IRDBMSEngine) engine;
+    try {
+      connection = database.getConnection();
+    } catch (SQLException e) {
+      throw new AppException(ErrorCode.INTERNAL_ERROR, "Error connecting to the database");
+    }
+  }
+
+  // Call from a reactor/service that can't work without a database.
+  protected IRDBMSEngine requireDatabase() {
+    if (database == null) {
+      throw new IllegalStateException(
+          "No database configured - set databaseId in java/project.properties");
+    }
+    return database;
+  }
+
+  // Without USE_CONNECTION_POOLING set, getConnection() returns the engine's one shared
+  // connection, not an independent one - closing it would kill every other in-flight
+  // reactor call using it too (intermittent "I/O error" failures under concurrent
+  // requests). This only closes when the engine pools connections.
+  private void releaseConnection(Connection toRelease) {
+    if (toRelease == null || database == null || !database.isConnectionPooling()) {
+      return;
+    }
+    try {
+      toRelease.close();
+    } catch (SQLException e) {
+      LOGGER.warn("Failed to close database connection", e);
+    }
   }
 
   // Helper to extract a Map parameter from the Pixel command.
