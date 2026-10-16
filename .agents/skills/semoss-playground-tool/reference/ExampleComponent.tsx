@@ -4,7 +4,7 @@
 // This component shows how to:
 //   1. Call a Java reactor from the frontend using actions.run()
 //   2. Read MCP parameters sent from Playground (via `tool.parameters`)
-//   3. Send results back to Playground with actions.sendMCPResponseToPlayground()
+//   3. Send results back to Playground with actions.sendMCPResponseToRoom()
 //   4. Handle loading, error, and "already sent" states
 //   5. Restore past execution results (via `tool.tool_response`)
 //
@@ -15,7 +15,7 @@
 //   - Use `tool.parameters` to read inputs from Playground
 //   - Use `actions.run()` to call backend tools (Java reactors and Python via RunMCPTool).
 //     Avoid `actions.runMCPTool()` — it's deprecated and auto-sends to Playground.
-//   - Use `actions.sendMCPResponseToPlayground()` to return results to the chat
+//   - Use `actions.sendMCPResponseToRoom()` to return results to the chat
 
 import { useInsight } from "@semoss/sdk/react";
 import { useCallback, useEffect, useState } from "react";
@@ -64,7 +64,7 @@ export const ExampleComponent = () => {
 	// Send the result back to the Playground chat.
 	// The SDK handles matching this response to the correct MCP tool invocation.
 	const handleSendToChat = () => {
-		actions.sendMCPResponseToPlayground(forecast, "success", { city });
+		actions.sendMCPResponseToRoom(forecast, "success", { city });
 		setHasSentToChat(true);
 	};
 

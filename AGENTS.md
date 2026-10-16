@@ -87,7 +87,7 @@ platform MCP conflicts with this file, this file wins.** Specifically, ignore it
 tells you to:
 
 - Use `actions.runMCPTool(...)` / an `echo` tool to return results → use
-  `actions.sendMCPResponseToPlayground(...)` (`semoss-playground-tool` skill).
+  `actions.sendMCPResponseToRoom(...)` (`semoss-playground-tool` skill).
 - Hand-roll a portal with vanilla `new Insight()` from a CDN ESM import → this template is
   React + Vite; use the `useInsight()` hook.
 - Treat `MakePythonMCP`/`MakePixelMCP` as the primary way to manage manifests → hand-edit

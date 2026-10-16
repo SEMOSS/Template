@@ -1,6 +1,6 @@
 ---
 name: semoss-playground-tool
-description: Use when the app should also (or only) run as a tool inside Playground chat - exposing a Java reactor or Python function as an MCP tool, rendering a custom UI inside the Playground iframe, reading tool.parameters, returning results with sendMCPResponseToPlayground, or adding Python tools (py/mcp_driver.py). Ships working reference files for the weather example. Not needed for a standalone app (the default). For the manifest schema see semoss-mcp-manifest.
+description: Use when the app should also (or only) run as a tool inside Playground chat - exposing a Java reactor or Python function as an MCP tool, rendering a custom UI inside the Playground iframe, reading tool.parameters, returning results with sendMCPResponseToRoom, or adding Python tools (py/mcp_driver.py). Ships working reference files for the weather example. Not needed for a standalone app (the default). For the manifest schema see semoss-mcp-manifest.
 ---
 
 # Playground tools
@@ -40,7 +40,7 @@ Working examples are in `reference/` next to this file (copy, don't import):
   - `tool.tool_response`: the result of a past execution; a re-opened ask/form tool gets it back,
     so render a result state, not an empty form.
   - `tool.executedParameters`: the params actually used last time.
-- `actions.sendMCPResponseToPlayground(response, status, executedParams)` returns results to the
+- `actions.sendMCPResponseToRoom(response, status, executedParams)` returns results to the
   chat (3 args). This is the correct way to return a tool result. Call it directly; don't wrap it.
   Handle responses that may be objects, strings, or double-encoded strings.
 - `actions.runMCPTool()` is deprecated: it also auto-sends to Playground. Don't use it. (The

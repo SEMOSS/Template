@@ -2,7 +2,7 @@
 //
 // Wraps the SEMOSS SDK's auth surface in a small context so any component can
 // log in/out and read the current user. Deliberately auth-only — it does NOT
-// wrap runPixel or sendMCPResponseToPlayground. Call the backend via runPixelQuery /
+// wrap runPixel or sendMCPResponseToRoom. Call the backend via runPixelQuery /
 // usePixelQuery (see AGENTS.md), and keep app data (e.g. an app-user profile) out of here.
 //
 // Provider lives in App.tsx (inside InsightProvider). Consume with useAuth().

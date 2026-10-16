@@ -11,7 +11,7 @@ genuinely useful; their **frontend** guidance is out of date.
 
 > **Authority:** where these MCPs conflict with `AGENTS.md`, `AGENTS.md` wins. In
 > particular, **ignore** any MCP advice to: use `actions.runMCPTool()` / an `echo` tool
-> to return results (use `actions.sendMCPResponseToPlayground()`); hand-roll a portal with
+> to return results (use `actions.sendMCPResponseToRoom()`); hand-roll a portal with
 > vanilla `new Insight()` from a CDN import (this template is React + Vite, use
 > `useInsight()`); or treat `MakePythonMCP`/`MakePixelMCP` as the primary manifest path
 > (hand-edit manifests — see `semoss-mcp-manifest`).
