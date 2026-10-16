@@ -1,4 +1,4 @@
-package reactors;
+package reactors.base;
 
 import java.util.List;
 import java.util.Map;
@@ -10,6 +10,8 @@ import prerna.sablecc2.om.GenRowStruct;
 import prerna.sablecc2.om.PixelDataType;
 import prerna.sablecc2.om.PixelOperationType;
 import prerna.sablecc2.om.nounmeta.NounMetadata;
+import util.AppException;
+import util.ErrorCode;
 import util.ProjectProperties;
 
 // Base class for all reactors in this project.
@@ -21,7 +23,7 @@ import util.ProjectProperties;
 //   - Common helper methods (e.g. getMap for map-type parameters)
 //
 // To create a new reactor:
-//   1. Create a new class in this folder extending AbstractProjectReactor
+//   1. Create a new class under reactors/<area>/ extending AbstractProjectReactor
 //   2. Define keysToGet (parameter names) and keyRequired (1=required, 0=optional) in the
 // constructor
 //   3. Implement doExecute() with your business logic
@@ -44,8 +46,10 @@ public abstract class AbstractProjectReactor extends AbstractReactor {
   protected NounMetadata result = null;
 
   // Runs preExecute() for setup, then doExecute() for business logic.
-  // If anything throws, the error is logged and returned as an error response
-  // instead of crashing the reactor.
+  // If anything throws, the error is logged and returned as an ERROR pixel whose output
+  // is { code, message }. Throw an AppException for a specific, expected outcome (e.g.
+  // NOT_FOUND); any other exception is wrapped as ErrorCode.INTERNAL_ERROR. Don't build
+  // errors with NounMetadata.getErrorNounMessage - the frontend expects { code, message }.
   @Override
   public NounMetadata execute() {
     try {
@@ -53,7 +57,11 @@ public abstract class AbstractProjectReactor extends AbstractReactor {
       return doExecute();
     } catch (Exception e) {
       LOGGER.error(String.format("Reactor %s threw an error", this.getClass().getSimpleName()), e);
-      return new NounMetadata(e.getMessage(), PixelDataType.CONST_STRING, PixelOperationType.ERROR);
+      AppException appException =
+          e instanceof AppException
+              ? (AppException) e
+              : new AppException(ErrorCode.INTERNAL_ERROR, e.getMessage());
+      return new NounMetadata(appException.toMap(), PixelDataType.MAP, PixelOperationType.ERROR);
     }
   }
 
@@ -96,6 +104,24 @@ public abstract class AbstractProjectReactor extends AbstractReactor {
     }
 
     return null;
+  }
+
+  // Helper to extract an array parameter (e.g. filters=[{...}, {...}]). Each top-level
+  // array element arrives as its own noun in the GenRowStruct, not as a single VECTOR
+  // noun wrapping a Java List, so this reads every noun via getAllValues(). Returns null
+  // if the parameter wasn't passed.
+  protected List<Object> getList(String paramName) {
+    GenRowStruct listGrs = this.store.getGenRowStruct(paramName);
+    if (listGrs != null && !listGrs.isEmpty()) {
+      return listGrs.getAllValues();
+    }
+    return null;
+  }
+
+  // Name of the logged-in user. getUsername() alone is null for non-native logins (e.g.
+  // SSO), so this falls back to name/email via getResolvedUsername().
+  protected String getCurrentUsername() {
+    return user.getAccessToken(user.getPrimaryLogin()).getResolvedUsername();
   }
 
   // Implement this in your reactor subclass.

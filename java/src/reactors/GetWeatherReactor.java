@@ -2,6 +2,7 @@ package reactors;
 
 import prerna.sablecc2.om.PixelDataType;
 import prerna.sablecc2.om.nounmeta.NounMetadata;
+import reactors.base.AbstractProjectReactor;
 
 // GetWeather reactor: returns a hardcoded forecast for a given city.
 //

@@ -245,7 +245,7 @@ mcp` would deploy them as stray, unwanted tools in the user's app.
 - `organizeKeys()` is called automatically by `preExecute()` — don't call it again in `doExecute()`.
 - Define params via `keysToGet` and `keyRequired` arrays (`1` = required, `0` = optional).
 - Return `new NounMetadata(responseMap, PixelDataType.MAP)` — SEMOSS handles serialization.
-- Return errors via `NounMetadata.getErrorNounMessage("description")`.
+- Report errors by throwing `new AppException(ErrorCode.X, "user-readable message")` (`util/`). `AbstractProjectReactor.execute()` returns it as an ERROR pixel with `{code, message}`; any other exception becomes `INTERNAL_ERROR`. Don't use `NounMetadata.getErrorNounMessage`. Add an `ErrorCode` only if the frontend will branch on it.
 - Implement `getDescriptionForKey()` and `getReactorDescription()` for manifest generation.
 - `IModelEngine.ask()` returns response objects, not strings — use reflection to call `getResponse()`, never `toString()`.
 - Resolve a model engine by ID: `IModelEngine modelEngine = Utility.getModel(modelId);` (import `prerna.util.Utility`) — returns `null` if not found.
@@ -328,7 +328,7 @@ Load these from `.claude/skills/` when the task calls for it:
 | Vite config | `client/vite.config.ts` |
 | shadcn/ui config | `client/components.json`, `client/tailwind.config.js` |
 | Java reactors | `java/src/reactors/` |
-| Base reactor class | `java/src/reactors/AbstractProjectReactor.java` |
+| Base reactor class | `java/src/reactors/base/AbstractProjectReactor.java` |
 | Example reactor | `java/src/reactors/GetWeatherReactor.java` (**template — replace**) |
 | Python MCP tools | `py/mcp_driver.py` (temperature converters — **template — replace**) |
 | Manifests | `mcp/py_mcp.json`, `mcp/pixel_mcp.json` (hand-edited) |
