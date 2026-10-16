@@ -1,3 +1,4 @@
+# Reference only - copy to py/mcp_driver.py to use (SEMOSS looks for exactly that file).
 # MCP tools for temperature conversion.
 #
 # These are simple tools that use the default Playground UI (no custom React UI needed).

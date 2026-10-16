@@ -1,9 +1,11 @@
-package reactors;
+package reactors.weather;
 
 import prerna.sablecc2.om.PixelDataType;
 import prerna.sablecc2.om.nounmeta.NounMetadata;
 import reactors.base.AbstractProjectReactor;
 
+// Reference only - copy to java/src/reactors/<area>/ to use.
+//
 // GetWeather reactor: returns a hardcoded forecast for a given city.
 //
 // Called from the frontend as:  GetWeather(city=["Boston"])

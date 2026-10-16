@@ -1,3 +1,4 @@
+// Reference only - copy to client/src/components/ (or a page) to use.
 // ExampleComponent.tsx - Demonstrates the full MCP tool UI pattern.
 //
 // This component shows how to:
@@ -7,7 +8,7 @@
 //   4. Handle loading, error, and "already sent" states
 //   5. Restore past execution results (via `tool.tool_response`)
 //
-// The reactor called here is GetWeather (defined in java/src/reactors/GetWeatherReactor.java).
+// The reactor called here is GetWeather (see GetWeatherReactor.java next to this file).
 // When called from Playground as an MCP tool, `tool.parameters` is pre-filled by the LLM.
 //
 // Replace this component with your own UI. Keep the patterns:
@@ -19,10 +20,10 @@
 import { useInsight } from "@semoss/sdk/react";
 import { useCallback, useEffect, useState } from "react";
 import { toast } from "sonner";
-import { Button } from "./ui/button";
-import { Input } from "./ui/input";
-import { Label } from "./ui/label";
-import { Textarea } from "./ui/textarea";
+import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
+import { Label } from "@/components/ui/label";
+import { Textarea } from "@/components/ui/textarea";
 
 export const ExampleComponent = () => {
 	const [city, setCity] = useState("");

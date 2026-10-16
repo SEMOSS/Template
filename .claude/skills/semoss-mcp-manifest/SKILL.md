@@ -10,8 +10,9 @@ Tools surfaced in Playground chat are declared in two manifests:
 - **`mcp/py_mcp.json`** — Python tools from `py/mcp_driver.py`.
 - **`mcp/pixel_mcp.json`** — Java reactors from `java/src/reactors/`.
 
-**Hand-edit these directly.** It is the reliable, default path. The existing entries
-(`GetWeather`, the temperature converters) are working examples to copy.
+**Hand-edit these directly.** It is the reliable, default path. Working entries (`GetWeather`,
+the temperature converters) are in `.claude/skills/semoss-playground-tool/reference/`; copy one.
+The shipped `mcp/pixel_mcp.json` has no tools, and there is no `py_mcp.json` until you add one.
 
 > **When does a manifest entry exist?**
 > - **Python:** *always* needs `mcp/py_mcp.json`. The frontend dispatches Python through
@@ -68,7 +69,7 @@ Top level is `{ "_meta": {...}, "tools": [...] }`. Each tool entry:
 - **`SMSS_FUNCTION_NAME`** — the backend function/reactor to dispatch to.
 - **`SMSS_MCP_EXECUTION`** — how Playground runs the tool:
   - `"auto"` — runs directly, no user interaction. Best for fast, side-effect-free
-    transforms (the temperature converters use this). `auto` is **compatible with a
+    transforms (e.g. a temperature converter). `auto` is **compatible with a
     `resourceURI`**: the tool still fires automatically on invocation, and the user can
     open its custom UI afterward to review or re-run — `auto` controls the *initial* run,
     not whether a UI exists.
