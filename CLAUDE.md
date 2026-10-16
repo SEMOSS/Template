@@ -314,7 +314,9 @@ short-circuit the gate in `AuthorizedLayout` — scratch only, never commit or d
   wrap `runPixel` and throw `PixelQueryError` (`Error` with the reactor's real message and
   `code`). Do **not** use `actions.run()` for reactor calls: it collapses the `{code,
   message}` payload into `"[object Object]"` (fixed upstream in SEMOSS/semoss-ui#3674,
-  pending an SDK release; re-check before changing this rule).
+  pending an SDK release; re-check before changing this rule). The platform's own pixels
+  (`SqlQuery`, `LLM`, `MyEngines`, … in the `semoss-database` / `semoss-model` / `semoss-vector`
+  skills) return a plain-string error, so `actions.run()` is fine for those.
 - `usePixelQuery<T>(pixel | null)` returns `{status: "loading"} | {status: "error",
   errorMessage} | {status: "success", data}`; `null` holds off fetching. Use it for reads in
   components. Imperative calls (submit, button): `runPixelQuery` in `try/catch`.

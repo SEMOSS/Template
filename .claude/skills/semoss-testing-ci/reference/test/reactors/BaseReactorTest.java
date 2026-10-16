@@ -163,7 +163,7 @@ public abstract class BaseReactorTest {
 
     // Helper method to set a parameter value on a reactor.
     // This directly sets the value in the reactor's keyValue map via reflection.
-    protected void setReactorParameter(reactors.AbstractProjectReactor reactor, String key, String value) {
+    protected void setReactorParameter(reactors.base.AbstractProjectReactor reactor, String key, String value) {
         try {
             // Access the protected keyValue map field via reflection
             java.lang.reflect.Field keyValueField = findField(reactor.getClass(), "keyValue");
@@ -201,7 +201,7 @@ public abstract class BaseReactorTest {
 
     // Helper method to set a numeric parameter on a reactor.
     // Converts the number to a string automatically.
-    protected void setReactorParameter(reactors.AbstractProjectReactor reactor, String key, int value) {
+    protected void setReactorParameter(reactors.base.AbstractProjectReactor reactor, String key, int value) {
         setReactorParameter(reactor, key, String.valueOf(value));
     }
 

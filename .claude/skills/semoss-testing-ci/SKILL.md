@@ -29,7 +29,10 @@ matching `pom.xml` / `package.json` edits, then install tooling.
   override hook. All reactor tests extend this.
 - `test/reactors/GetWeatherReactorTest.java` — worked example: valid input, missing param
   (error path), values with spaces, and the description-method assertions. Mirror this
-  shape (Arrange-Act-Assert, `@DisplayName`) for new reactors.
+  shape (Arrange-Act-Assert, `@DisplayName`) for new reactors. It tests `GetWeatherReactor`, which
+  now lives in `.claude/skills/semoss-playground-tool/reference/`: copy that reactor into
+  `java/src/reactors/<area>/` (and import it in the test), or retarget the test at a reactor
+  you have. Failed reactors return an ERROR pixel whose value is `{code, message}`.
 - `test/reactors/ReactorTestSuite.java` — `@Suite` + `@SelectClasses({...})`. Add each new
   test class here so `mvn test -Dtest=ReactorTestSuite` runs them all.
 - `test/resources/log4j2-test.xml` — silences logging during tests.
