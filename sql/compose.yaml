@@ -1,0 +1,20 @@
+# Local Postgres for development: `docker compose -f sql/compose.yaml up -d`.
+# Data persists in the named volume across `down`; use `down -v` to wipe it.
+# The schema is NOT loaded automatically (init.sql drops every table) - see sql/README.md.
+services:
+  db:
+    image: postgres:16
+    restart: always
+    shm_size: 128mb
+    environment:
+      POSTGRES_PASSWORD: password
+      POSTGRES_USER: admin
+      POSTGRES_DB: app
+    ports:
+      - target: 5432
+        published: 5432
+    volumes:
+      - db_data:/var/lib/postgresql/data
+
+volumes:
+  db_data:
