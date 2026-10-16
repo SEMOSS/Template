@@ -4,13 +4,14 @@ import type { IsoDate, IsoDateTime } from "@/types/date.types";
 export interface NoteRow {
 	noteId: string;
 	title: string;
-	dueDate: IsoDate | null;
+	// Null values are omitted from the response, so these are optional as well as nullable.
+	dueDate?: IsoDate | null;
 	isDone: boolean;
 	createdAt: IsoDateTime;
 }
 
 export interface Note extends NoteRow {
-	body: string | null;
+	body?: string | null;
 }
 
 export interface AddNoteOutput {

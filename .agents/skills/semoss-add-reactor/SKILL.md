@@ -80,6 +80,8 @@ the frontend will branch on it.
 - A **list** value is an exact `IN` match; a text **scalar** is `LIKE %v%`; a number/boolean
   scalar is `==`. To fetch one row by id, send `{id: "noteId", value: [noteId]}`.
 - A non-numeric string against a number column becomes `INTERNAL_ERROR`.
+- `limit` is clamped to 1..500; an unknown (non-blank) `sortField` is `INVALID_INPUT`; nulls sort
+  first on `desc`.
 - A `date` column takes one `yyyy-MM-dd`; an `instant` column takes `start/end` ISO-8601 instants.
 
 ## Naming

@@ -85,10 +85,14 @@ public final class PagedQuery {
     }
   }
 
+  /** Largest page a caller can ask for; a limit outside 1..MAX_LIMIT is clamped into it. */
+  public static final int MAX_LIMIT = 500;
+
   public record Request(
       String sortField, String sortDirection, int limit, int offset, List<Object> filters) {
     public Request {
-      limit = Math.max(0, limit);
+      // A limit of 0 would mean "no limit" to the query layer, so it is never passed through.
+      limit = Math.min(Math.max(1, limit), MAX_LIMIT);
       offset = Math.max(0, offset);
     }
   }
@@ -117,11 +121,15 @@ public final class PagedQuery {
     query.addSelector(new QueryOpaqueSelector("COUNT(*) OVER()", "totalCount"));
     addFilters(query, columns, request.filters());
     Column defaultSort = columns.get(0);
+    boolean hasSortField = request.sortField() != null && !request.sortField().isBlank();
     Column requestedSort =
         columns.stream()
             .filter(column -> column.field().equals(request.sortField()))
             .findFirst()
             .orElse(defaultSort);
+    if (hasSortField && !requestedSort.field().equals(request.sortField())) {
+      throw new AppException(ErrorCode.INVALID_INPUT, "Unknown sort field: " + request.sortField());
+    }
     String direction = "desc".equalsIgnoreCase(request.sortDirection()) ? "DESC" : "ASC";
     query.addOrderBy(new QueryColumnOrderBySelector("rows__" + requestedSort.field(), direction));
     if (!requestedSort.equals(defaultSort)) {

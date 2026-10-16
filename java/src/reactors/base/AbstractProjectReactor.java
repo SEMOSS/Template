@@ -98,7 +98,13 @@ public abstract class AbstractProjectReactor extends AbstractReactor {
 
     // Get the authenticated user and parse input parameters
     user = this.insight.getUser();
-    organizeKeys(); // Populates this.keyValue from the Pixel command arguments
+    // Populates this.keyValue from the Pixel command arguments. A missing required
+    // parameter is the caller's mistake, not an internal failure.
+    try {
+      organizeKeys();
+    } catch (IllegalArgumentException e) {
+      throw new AppException(ErrorCode.INVALID_INPUT, e.getMessage());
+    }
   }
 
   // Resolves the database engine from databaseId and opens a connection. Skipped when the

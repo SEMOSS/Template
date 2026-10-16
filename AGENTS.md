@@ -211,7 +211,9 @@ a **list** value is an exact `IN` match for non-date columns, a text **scalar** 
 `LIKE %v%` substring match, and a number/boolean scalar is `==`. A `date` column takes one
 `yyyy-MM-dd`; an `instant` column takes a UTC interval `start/end` of ISO-8601 instants (end
 exclusive), which `DataTable` builds from the day the user picks in their zone. Date columns
-reject list values and malformed input with `INVALID_INPUT`. A non-numeric string on a number
+reject list values and malformed input with `INVALID_INPUT`. `limit` is clamped to 1..500. A blank
+`sortField` uses the default sort; an unknown one is `INVALID_INPUT`. Nulls sort first on `desc`
+(database default). A non-numeric string on a number
 column surfaces as `INTERNAL_ERROR`.
 
 ### Database
