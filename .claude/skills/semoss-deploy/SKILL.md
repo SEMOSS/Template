@@ -14,8 +14,9 @@ user just names the target (e.g. "deploy to preprod").
 | **Iterate** | `scripts/claude/semoss_asset_sync.py` | Updating an app against a configured instance | Python 3.10+ + creds |
 | **Submit** | `ai-repo` CLI | Submitting an app to the review pipeline | the CLI + login (see `semoss-ai-repo`) |
 
-The deploy lifecycle is always: **create the app once → write `client/.env.local` →
-build → upload (auto-compiles Java + auto-publishes).**
+The deploy lifecycle is always: **create the app once → write `client/.env.local` → point
+`java/project.properties` at the target instance's database → build → upload (auto-compiles
+Java + auto-publishes).** The `deploy` command below does every step after "create".
 
 ## Multi-environment config
 
@@ -44,8 +45,8 @@ just `/Monolith` and `/SemossWeb`. The script composes the API URL as
 
 ## Before every build: write `client/.env.local`
 
-`vite.config.ts` bakes three env vars into the bundle at build time. Write them for the
-target env before building:
+`deploy` and `configure` (below) write this for you. By hand: `vite.config.ts` bakes three env
+vars into the bundle at build time, so write them for the target env before building:
 
 ```
 APP=<envs.<name>.app_id>
@@ -58,17 +59,38 @@ it and is gitignored.
 
 ## Tier 2 — Iterate (semoss_asset_sync.py)
 
-The default loop while developing against a live instance. One command uploads all asset
-directories and auto-publishes:
+The default loop while developing against a live instance. One command does everything:
+
+```bash
+python scripts/claude/semoss_asset_sync.py --env <name> deploy
+```
+
+`deploy`: writes `client/.env.local` (keeping other keys), sets `databaseId` in
+`java/project.properties` from the env's `database_id` (a blank id is written as blank, so an app
+that needs a database fails loudly instead of using another env's), builds the client, uploads
+`portals java mcp` (+ `py` if it exists), deletes remote orphans, compiles, publishes, then
+**restores `java/project.properties`** to what it was before. Flags: `--no-build`,
+`--no-clean`, `--no-compile`, `--no-publish`, `--no-delete-existing`. `configure --env <name>`
+does only the first two steps and leaves `project.properties` set (use it before `pnpm dev`).
+
+`java/project.properties` is gitignored and uploaded with `java/`, so it must hold the target
+instance's ids. Nothing else sets it.
+
+The same thing by hand, or for a custom set of paths:
 
 ```bash
 cd client && pnpm build && cd ..
-python scripts/claude/semoss_asset_sync.py --env <name> bulk-upload portals py java mcp
+python scripts/claude/semoss_asset_sync.py --env <name> bulk-upload portals java mcp --clean
 ```
 
 - `--env <name>` selects the entry in `environments.json` + `credentials.env`.
 - `bulk-upload` browses-and-deletes existing files at the same remote paths, uploads,
   runs `CompileAppReactors` (so `.java` changes recompile), then `PublishProject`.
+- **`bulk-upload` never deletes remote-only files by itself.** A Java file you removed or
+  renamed stays on the instance and can break compilation of every reactor ("compile errors in
+  files that aren't in git" is this). `--clean` (always on for `deploy`) deletes remote files under
+  `java/src` and `portals/assets` that aren't in the upload. Read the "Compiling reactors" output
+  after every deploy: an error means the backend is stale even though the upload succeeded.
 - Passing dirs the app doesn't use is harmless (empty = no-op).
 - **First deploy:** add `--no-delete-existing` (nothing to delete yet, faster).
 - **Skip Java compile:** `--no-compile` (frontend-only change).
@@ -76,11 +98,11 @@ python scripts/claude/semoss_asset_sync.py --env <name> bulk-upload portals py j
 
 > **⚠ bulk-upload overwrites live data files.** It replaces remote files at the same path
 > with the local copy, so if your app persists data under a directory you re-upload (e.g. a
-> JSON state file committed inside `java/`), the next `bulk-upload … java` clobbers the
+> JSON state file committed inside `java/`), the next `bulk-upload … java` (or `deploy`) clobbers the
 > live data with the repo's seed copy — silent data loss. Keep persisted app data in a
 > directory you never bulk-upload (a top-level `data/`, written via
 > `AssetUtility.getProjectAssetsFolder(projectId)` — see the Java reactor rules in
-> `CLAUDE.md`), and only upload code dirs (`portals py java mcp`). For a one-off code fix
+> `CLAUDE.md`), and only upload code dirs (`portals py java mcp`; `deploy`'s default). For a one-off code fix
 > against an app that stores data, prefer single-file `upload` over `bulk-upload`.
 
 **403 at the auth step?** If the script fails with a 403 whose traceback ends in
@@ -108,7 +130,7 @@ practice.
 When Python isn't available. The editor **only accepts zip files**, so bundle first:
 
 ```bash
-zip -r bundle.zip portals py java mcp
+zip -r bundle.zip portals java mcp   # plus py if the app has Python tools
 ```
 
 Then open the editor at
