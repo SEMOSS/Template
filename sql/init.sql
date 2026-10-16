@@ -4,7 +4,7 @@
 -- BEGIN/COMMIT). RERUNNING WIPES ALL DATA.
 --
 -- After any schema change, run "Update schema" in the SEMOSS database editor (or the
--- refresh_database_ontology MCP tool). SEMOSS query metadata doesn't follow DDL on its own,
+-- refresh_database_ontology MCP tool, if it targets this same instance). SEMOSS query metadata doesn't follow DDL on its own,
 -- and stale metadata breaks joins even though the tables exist.
 --
 -- Conventions:

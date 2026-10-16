@@ -71,6 +71,10 @@ They need their own app on the instance; never reuse someone else's `app_id`.
    ```
    and set `LOCAL_ACCESS_KEY` / `LOCAL_SECRET_KEY` (uncomment the lines).
 
+A key pair acts as the user who created it, and that user must be an owner of the app (the person
+who created the app is). Reusing someone else's keys, or keys from a user who isn't an owner, fails
+with an ownership error at the first upload.
+
 **Do not** put these keys in `client/.env.local`. Its `ACCESS_KEY`/`SECRET_KEY` fields are for the
 frontend to auto-authenticate, and combining them triggers a known bug in the SDK's CSRF handling.
 These keys belong only in `semoss_config/credentials.env`.
@@ -83,7 +87,8 @@ If the app has no database, delete `sql/`, `java/src/{service,database}/notes`,
 
 1. Get Postgres at `localhost:5432`: `docker compose -f sql/compose.yaml up -d` (database named
    after the app, user `admin`, password `password`), or a native install with a database of that
-   name.
+   name. (If neither Docker nor `psql` is available, install Postgres, e.g. `brew install postgresql@16`
+   or Postgres.app, and use the SEMOSS workbench in step 5 instead of `psql`.)
 2. Connect it to SEMOSS: open `http://localhost:9090/SemossWeb/packages/client/dist/#/database/new`,
    choose **Postgres**, catalog name = the database name, host `localhost`, port `5432`, and the
    username and password.
@@ -96,7 +101,8 @@ If the app has no database, delete `sql/`, `java/src/{service,database}/notes`,
 5. Load the schema: open
    `http://localhost:9090/SemossWeb/packages/client/dist/#/database/<database id>/workbench` and
    submit `sql/init.sql` as a multi-statement commit query. **This drops and recreates every
-   table**, so only do it on a database whose data they're happy to lose.
+   table**, so only do it on a database whose data they're happy to lose. (Scripted alternative:
+   `SqlQuery(database="<id>", query=<init.sql text>, commit=true);`.)
 6. In the database's schema editor choose **Update schema**, select all tables, and save.
    `init.sql` alone doesn't update SEMOSS's query metadata.
 
@@ -109,8 +115,8 @@ python3 scripts/semoss_asset_sync.py --env local deploy --no-delete-existing
 
 `deploy` writes `client/.env.local`, points `java/project.properties` at the env's database,
 builds, uploads, compiles the Java, and publishes. The output should end with
-`Compiled reactors for project '…'` and a published result. Any other message after "Compiling
-reactors" is a Java compile error: fix it before continuing. (`configure` is only needed if
+`Compiled reactors for project '…'` followed by a published result. A Java compile error is printed
+under "Compiling reactors" instead; fix it before continuing. (`configure` is only needed if
 you'll also run `pnpm dev`; `deploy` does its own.)
 
 Give them the app link to bookmark:

@@ -15,7 +15,8 @@ nested routes → the `notes` tree in `Router.tsx`. All paths are under `client/
 2. **Page** `pages/<Name>Page.tsx`: named export, wrapper `<div className="flex flex-col gap-4">`,
    header `<h1 className="font-semibold text-xl">` + `<p className="text-muted-foreground text-sm">`.
 3. **Register it in `pages/Router.tsx`** under `AppLayout`, inside a pathless group route
-   (mirror the nav group), with `handle: { crumbs: () => [{ label, path? }] } satisfies
+   (mirror the nav group; a page that has no group, like Home, goes directly under `AppLayout` with
+   just its own crumb), with `handle: { crumbs: () => [{ label, path? }] } satisfies
    RouteHandle`. A detail page is a **child** of its list route, so the breadcrumb trail builds
    itself from `useMatches()`. Never build crumbs from `pathname`. A route that must render with
    no sidebar/top bar (a Playground tool iframe) goes outside `AppLayout`.

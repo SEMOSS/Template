@@ -220,7 +220,8 @@ column surfaces as `INTERNAL_ERROR`.
 
 Schema and seed data live in `sql/init.sql` (running it **drops and recreates every table**).
 After any schema change run **Update schema** in the SEMOSS database editor (or the
-`refresh_database_ontology` MCP tool); SEMOSS query metadata doesn't follow DDL on its own and
+`refresh_database_ontology` MCP tool, if it's bound to the same instance as your database; use the
+UI for a local one); SEMOSS query metadata doesn't follow DDL on its own and
 stale metadata breaks joins. The `semoss-database` skill covers querying and the MCP helpers.
 Snake_case tables and columns; camelCase aliases and JSON.
 

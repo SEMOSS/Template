@@ -36,8 +36,16 @@ or submit its contents from the SEMOSS database workbench as a multi-statement c
 (explicit `BEGIN`/`COMMIT` blocks aren't supported by SEMOSS's SQL parser).
 
 Then open the database's schema editor, choose **Update schema**, and select all tables (or run
-the `refresh_database_ontology` MCP tool). Without this, SEMOSS's query metadata is stale and
-joins fail.
+the `refresh_database_ontology` MCP tool, which only works if the MCP server is bound to the same
+instance as your database, so use the UI for a local one). Without this, SEMOSS's query metadata
+is stale and joins fail.
+
+**Scripted load (no UI):** `SqlQuery(database="<database id>", query=<the init.sql text, JSON-escaped>, commit=true);`
+runs the file as a multi-statement commit query (see the `semoss-database` skill). Updating the schema
+metadata afterwards still needs the UI step above.
+
+**No Docker or `psql`?** Install Postgres (`brew install postgresql@16` on macOS, or Postgres.app), create
+the database, then use the workbench or the scripted load above instead of `psql`.
 
 ## Changing the schema
 

@@ -99,7 +99,8 @@ const router = createHashRouter([
 							},
 							// To add a protected page (bare path segment, no leading slash).
 							// Group related pages under a pathless route whose handle gives
-							// the breadcrumb a group label (mirror nav-items.ts):
+							// the breadcrumb a group label (mirror nav-items.ts). A page with no
+							// group (like Home above) goes directly here with just its own crumb:
 							// {
 							//     handle: {
 							//         crumbs: () => [{ label: "Group" }],

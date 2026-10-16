@@ -14,7 +14,8 @@ description: Use when adding or changing a backend endpoint end to end - a new J
 
 1. **Schema (only if needed).** Edit `sql/init.sql` (it drops and recreates every table, so
    rerunning wipes data; tell the user). After running it, **Update schema** in the SEMOSS
-   database editor (or the `refresh_database_ontology` MCP tool), otherwise joins fail on stale
+   database editor (or the `refresh_database_ontology` MCP tool, only if it's bound to the same
+   instance as your database; use the UI for a local one), otherwise joins fail on stale
    metadata even though the tables exist. Dates: `DATE` for a calendar date,
    `timestamp -- UTC` for an instant (see Dates below).
 2. **Domain record (optional).** `domain/<area>/` record or enum with `toMap()`. A plain `Map`
@@ -47,7 +48,10 @@ description: Use when adding or changing a backend endpoint end to end - a new J
    Wrap every string or array argument in `JSON.stringify`.
 8. **Manifest (almost never).** `mcp/pixel_mcp.json` is only for exposing a reactor to
    Playground chat (`semoss-playground-tool`). The app itself doesn't need an entry.
-9. **Deploy and read the compile output** (`semoss-deploy`). A compile error means the backend
+9. **Try it without the UI.** From a Pixel console or script, set the app context first, otherwise
+   the reactor isn't found ("Cannot find reactor for keyword = GetNotes"):
+   `SetContext("<app id>");` then `GetNotes(limit=10, offset=0);`.
+10. **Deploy and read the compile output** (`semoss-deploy`). A compile error means the backend
    is stale even if the upload succeeded.
 
 ## Dates
