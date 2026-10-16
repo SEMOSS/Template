@@ -1074,22 +1074,15 @@ def set_project_database_id(database_id: str) -> None:
     print(f"Set databaseId in java/project.properties to '{database_id}'.")
 
 
-def configure_for_env(env_name: str, *, require_database: bool = False) -> dict[str, str]:
+def configure_for_env(env_name: str) -> dict[str, str]:
     config = load_env_config(env_name)
     if not config["app_id"]:
         raise SystemExit(f"Environment '{env_name}' has no app_id in semoss_config/environments.json.")
-    if require_database and not config["database_id"] and (WORKSPACE_ROOT / "sql" / "init.sql").exists():
-        # An app that ships a database scaffold would deploy a blank databaseId and only fail
-        # later, at runtime, with "No database configured". Fail here instead.
-        raise SystemExit(
-            f"Environment '{env_name}' has no database_id in semoss_config/environments.json, but this "
-            "app has a database (sql/init.sql). Set it, or delete sql/ if the app has no database."
-        )
     write_client_env_local(config)
     if not config["database_id"]:
         print(
-            f"WARNING: environment '{env_name}' has no database_id; writing a blank databaseId. "
-            "Set it in semoss_config/environments.json if this app uses a database."
+            f"Note: environment '{env_name}' has no database_id, so databaseId is blank "
+            "(fine if the app has no database; otherwise set it in semoss_config/environments.json)."
         )
     set_project_database_id(config["database_id"])
     return config
@@ -1117,7 +1110,7 @@ def deploy_command(
         PROJECT_PROPERTIES_PATH.read_text(encoding="utf-8") if PROJECT_PROPERTIES_PATH.exists() else None
     )
     try:
-        configure_for_env(env_name, require_database=True)
+        configure_for_env(env_name)
         if not no_build:
             if not no_typecheck:
                 # vite build doesn't typecheck, so a type error would otherwise deploy.

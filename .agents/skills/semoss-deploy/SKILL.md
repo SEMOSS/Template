@@ -67,7 +67,7 @@ python scripts/semoss_asset_sync.py --env <name> deploy
 
 `deploy`: writes `client/.env.local` (keeping other keys), sets `databaseId` in
 `java/project.properties` from the env's `database_id` (a blank id is written as blank, so an app
-that needs a database fails loudly instead of using another env's), builds the client, uploads
+never silently uses another env's database; an app with no database just leaves it blank), builds the client, uploads
 `portals java mcp` (+ `py` if it exists), deletes remote orphans, compiles, publishes, then
 **restores `java/project.properties`** to what it was before. Flags: `--no-build`,
 `--no-clean`, `--no-compile`, `--no-publish`, `--no-delete-existing`. `configure --env <name>`

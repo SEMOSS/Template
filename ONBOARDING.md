@@ -81,7 +81,9 @@ These keys belong only in `semoss_config/credentials.env`.
 
 ## 5. Set up a database (skip if the app has none)
 
-If the app has no database, delete `sql/`, `java/src/{service,database}/notes`,
+The `sql/` folder is just a convenient example (a schema script and a local Postgres via Docker). If the
+user already has a database or prefers their own way of managing one, use that: the app only needs the
+database connected to SEMOSS and its ID in `environments.json`. If the app has no database, delete `sql/`, `java/src/{service,database}/notes`,
 `java/src/reactors/notes` and the notes pages and routes (see "Deleting the example" in
 `AGENTS.md`), then go to step 6.
 

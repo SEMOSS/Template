@@ -12,7 +12,8 @@ description: Use when adding or changing a backend endpoint end to end - a new J
 
 ## Steps
 
-1. **Schema (only if needed).** Edit `sql/init.sql` (it drops and recreates every table, so
+1. **Schema (only if needed).** Change it however your project manages its database; in the example
+   that's `sql/init.sql` (it drops and recreates every table, so
    rerunning wipes data; tell the user). After running it, **Update schema** in the SEMOSS
    database editor (or the `refresh_database_ontology` MCP tool, only if it's bound to the same
    instance as your database; use the UI for a local one), otherwise joins fail on stale

@@ -1,6 +1,8 @@
 # Database
 
-Skip this folder for an app with no database (and delete `sql/`).
+This folder is an optional example of one way to set up a database: a schema/seed script and a local
+Postgres. Use it, change it, or manage your database your own way; the app only needs a database connected
+to SEMOSS and its ID in `environments.json`. For an app with no database, delete `sql/`.
 
 ## Local Postgres
 
@@ -25,7 +27,7 @@ Database `app`, user `admin`, password `password`, on `localhost:5432`. Data per
 
 ## Load the schema and data
 
-`init.sql` is the single source of truth for schema and seed data. **It drops and recreates every
+In this example, `init.sql` holds the schema and seed data. **It drops and recreates every
 table, so running it wipes existing data.** Either:
 
 ```bash

@@ -152,7 +152,7 @@ Step-by-step versions are in the `semoss-add-reactor` and `semoss-add-page` skil
 | `java/src/database/<area>/` | Repositories: all SQL. `database/PagedQuery` is the shared sort/filter/paginate adapter. |
 | `java/src/domain/<area>/` | Optional records/enums with `toMap()`. |
 | `java/src/util/` | `AppException`, `ErrorCode`, `DateFormats`, `ProjectProperties`, `Constants`, `HelperMethods`. |
-| `sql/` | `init.sql` (schema + seed data), `compose.yaml` (local Postgres). Delete for an app with no database. |
+| `sql/` | Optional example: `init.sql` (schema + seed data) and `compose.yaml` (local Postgres). Keep, change, or delete it; the app only needs a database engine on the platform. |
 | `mcp/` | Tool manifests; empty by default (Playground tools only). |
 | `semoss_config/` | Per-environment endpoints + credentials (gitignored; copy the `.example`s). |
 | `scripts/` | `semoss_asset_sync.py` (deploy) and `init_app.py` (one-time rename). |
@@ -218,8 +218,9 @@ column surfaces as `INTERNAL_ERROR`.
 
 ### Database
 
-Schema and seed data live in `sql/init.sql` (running it **drops and recreates every table**).
-After any schema change run **Update schema** in the SEMOSS database editor (or the
+The app needs one relational database engine on the platform (`databaseId`); how you create and
+manage its schema is up to you. The example keeps schema and seed data in `sql/init.sql` (running it
+**drops and recreates every table**). After any schema change, however you make it, run **Update schema** in the SEMOSS database editor (or the
 `refresh_database_ontology` MCP tool, if it's bound to the same instance as your database; use the
 UI for a local one); SEMOSS query metadata doesn't follow DDL on its own and
 stale metadata breaks joins. The `semoss-database` skill covers querying and the MCP helpers.
