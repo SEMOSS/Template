@@ -17,7 +17,7 @@ import {
 	useEffect,
 	useState,
 } from "react";
-import { useLoadingState } from "@/hooks";
+import { clearAllLocalStorageState, useLoadingState } from "@/hooks";
 
 interface AuthContextType {
 	/** Attempt a native login. Resolves true on success, false on failure. */
@@ -83,6 +83,8 @@ export const AuthProvider = ({ children }: PropsWithChildren) => {
 		try {
 			await actions.logout();
 			setUserLoginName(null);
+			// Persisted UI state (useLocalStorageState) belongs to the user who just left.
+			clearAllLocalStorageState();
 			return true;
 		} catch {
 			return false;
