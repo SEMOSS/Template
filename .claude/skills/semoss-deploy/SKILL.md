@@ -23,7 +23,7 @@ You will often target several backends. Config lives in `semoss_config/` (gitign
 copy from the `.example` files):
 
 - **`environments.json`** — named envs under `envs.<name>`, each with `base_url`,
-  `api_module_url`, `web_module_url`, `app_id`. Plus top-level `model_id`, `database_id`.
+  `api_module_url`, `web_module_url`, `app_id`. Plus `database_id` (the database engine id **on that instance**; it differs per env) and a top-level `model_id`.
 - **`credentials.env`** — one access/secret pair per env, prefixed by the **uppercased**
   env name: `LOCAL_ACCESS_KEY`/`LOCAL_SECRET_KEY`, `PREPROD_*`, `PROD_*`.
 

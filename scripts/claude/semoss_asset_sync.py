@@ -4,6 +4,8 @@ Reads project config from semoss_config/environments.json and credentials
 from semoss_config/credentials.env, selected by --env <name>.
 
 Usage:
+    python scripts/claude/semoss_asset_sync.py --env local deploy
+    python scripts/claude/semoss_asset_sync.py --env local configure
     python scripts/semoss_asset_sync.py upload portals/index.html
     python scripts/semoss_asset_sync.py upload portals/index.html --yes --no-publish
     python scripts/semoss_asset_sync.py bulk-upload portals --no-publish
@@ -19,6 +21,7 @@ from __future__ import annotations
 
 import argparse
 import json
+import subprocess
 import sys
 from datetime import datetime
 from pathlib import Path
@@ -80,6 +83,9 @@ def load_env_config(env_name: str) -> dict[str, str]:
     env = envs[env_name]
     return {
         "app_id": str(env.get("app_id") or env.get("project_id") or ""),
+        # The database engine id differs per instance. Falls back to a top-level value for
+        # configs written before it moved into each env.
+        "database_id": str(env.get("database_id") or data.get("database_id") or ""),
         "base_url": str(env.get("base_url") or DEFAULT_HOST),
         "api_module_url": str(env.get("api_module_url") or DEFAULT_API_MODULE_URL),
         "web_module_url": str(env.get("web_module_url") or DEFAULT_WEB_MODULE_URL),
@@ -492,6 +498,40 @@ def list_existing_remote_filenames(
     }
 
 
+# Remote directories pruned of files that no longer exist locally when cleaning. Each is only
+# pruned if the upload actually includes files under it. A removed Java file left on the
+# instance can break compilation of every reactor; Vite renames bundles on every build.
+CLEAN_ROOTS = ("version/assets/java/src", "version/assets/portals/assets")
+
+
+def list_remote_files_recursive(server_connection, project_id: str, remote_dir: str) -> list[str]:
+    """Every file path under a remote directory, walking subdirectories."""
+    files: list[str] = []
+    for item in browse_remote_directory(server_connection, project_id, remote_dir):
+        path = str(item.get("path") or "")
+        if not path:
+            continue
+        if item.get("type") == "directory":
+            files.extend(list_remote_files_recursive(server_connection, project_id, path))
+        else:
+            files.append(path)
+    return files
+
+
+def find_orphaned_remote_files(
+    server_connection, project_id: str, uploaded_remote_paths: set[str]
+) -> list[str]:
+    """Remote files under CLEAN_ROOTS that this upload did not provide."""
+    orphans: list[str] = []
+    for root in CLEAN_ROOTS:
+        if not any(path.startswith(f"{root}/") for path in uploaded_remote_paths):
+            continue
+        for remote_path in list_remote_files_recursive(server_connection, project_id, root):
+            if remote_path not in uploaded_remote_paths:
+                orphans.append(remote_path)
+    return orphans
+
+
 def bulk_upload_to_semoss(
     local_files: list[Path],
     project_id: str,
@@ -500,6 +540,7 @@ def bulk_upload_to_semoss(
     publish: bool = True,
     delete_existing: bool = True,
     compile_reactors: bool = True,
+    clean: bool = False,
 ) -> int:
     """Upload many files in one process, reusing one ServerClient and insight.
 
@@ -576,6 +617,23 @@ def bulk_upload_to_semoss(
 
     print(f"Bulk upload complete: {len(uploaded)} uploaded, {len(deleted)} replaced.")
 
+    if clean:
+        try:
+            orphans = find_orphaned_remote_files(
+                server_connection,
+                project_id,
+                {infer_remote_file_path(local_file) for local_file in local_files},
+            )
+            for orphan in orphans:
+                delete_remote_asset(server_connection, project_id, orphan)
+                print(f"  removed orphan: {orphan}")
+            if not orphans:
+                print("No orphaned remote files.")
+        except Exception as exc:
+            print(f"ERROR: Cleaning orphaned remote files failed: {exc}")
+            print("Skipping compile and publish.")
+            return 1
+
     if compile_reactors:
         print("Compiling reactors...")
         compile_result = compile_app_reactors(server_connection, project_id)
@@ -593,7 +651,7 @@ def bulk_upload_to_semoss(
 
 
 COMMAND_NAMES = frozenset(
-    {"upload", "bulk-upload", "delete", "publish", "sync-from-remote"}
+    {"upload", "bulk-upload", "deploy", "configure", "delete", "publish", "sync-from-remote"}
 )
 
 
@@ -654,9 +712,48 @@ def build_parser() -> argparse.ArgumentParser:
         help="Skip the CompileAppReactors call (use when no Java reactor changes were uploaded).",
     )
     bulk_parser.add_argument(
+        "--clean",
+        action="store_true",
+        help=(
+            "After uploading, delete remote files under java/src and portals/assets that are not in "
+            "this upload (removed/renamed Java files, stale hashed bundles)."
+        ),
+    )
+    bulk_parser.add_argument(
         "--no-delete-existing",
         action="store_true",
         help="Skip the browse-and-delete step. Faster on first deploy when no remote files exist yet.",
+    )
+
+    deploy_parser = subparsers.add_parser(
+        "deploy",
+        help=(
+            "One-command deploy to --env: write client/.env.local, point java/project.properties at "
+            "the env's database, build, upload (cleaning orphans), compile, publish, then restore "
+            "java/project.properties."
+        ),
+    )
+    deploy_parser.add_argument(
+        "paths",
+        nargs="*",
+        help="Paths to upload. Default: portals java mcp, plus py if it exists.",
+    )
+    deploy_parser.add_argument("--no-build", action="store_true", help="Skip `pnpm --dir client build` (reuse portals/).")
+    deploy_parser.add_argument("--no-clean", action="store_true", help="Don't delete orphaned remote files.")
+    deploy_parser.add_argument("--no-compile", action="store_true", help="Skip CompileAppReactors (frontend-only change).")
+    deploy_parser.add_argument("--no-publish", action="store_true", help="Skip PublishProject.")
+    deploy_parser.add_argument(
+        "--no-delete-existing",
+        action="store_true",
+        help="Skip the browse-and-delete step (first deploy to an empty app).",
+    )
+
+    subparsers.add_parser(
+        "configure",
+        help=(
+            "Write client/.env.local and java/project.properties for --env without deploying "
+            "(e.g. before `pnpm dev`). Unlike deploy, leaves project.properties set."
+        ),
     )
 
     delete_parser = subparsers.add_parser("delete", help="Delete a remote asset from the linked SEMOSS project.")
@@ -911,6 +1008,7 @@ def bulk_upload_command(
     no_publish: bool,
     no_delete_existing: bool,
     no_compile: bool,
+    clean: bool = False,
     verify_ssl: bool = True,
     env_name: str | None = None,
 ) -> int:
@@ -927,7 +1025,112 @@ def bulk_upload_command(
         publish=not no_publish,
         delete_existing=not no_delete_existing,
         compile_reactors=not no_compile,
+        clean=clean,
     )
+
+
+CLIENT_ENV_LOCAL_PATH = WORKSPACE_ROOT / "client" / ".env.local"
+PROJECT_PROPERTIES_PATH = WORKSPACE_ROOT / "java" / "project.properties"
+DEFAULT_DEPLOY_PATHS = ("portals", "java", "py", "mcp")
+
+
+def write_client_env_local(config: dict[str, str]) -> None:
+    """Write APP/ENDPOINT/MODULE into client/.env.local, preserving any other keys
+    (e.g. a local-dev ACCESS_KEY/SECRET_KEY)."""
+    values = parse_dotenv(CLIENT_ENV_LOCAL_PATH) if CLIENT_ENV_LOCAL_PATH.exists() else {}
+    values["APP"] = config["app_id"]
+    values["ENDPOINT"] = config["base_url"]
+    values["MODULE"] = config["api_module_url"]
+    CLIENT_ENV_LOCAL_PATH.write_text(
+        "".join(f"{key}={value}\n" for key, value in values.items()), encoding="utf-8"
+    )
+    print(f"Wrote {CLIENT_ENV_LOCAL_PATH.relative_to(WORKSPACE_ROOT)} for app {config['app_id'] or '(no app_id!)'}.")
+
+
+def set_project_database_id(database_id: str) -> None:
+    """Set databaseId in java/project.properties (creating the file), keeping other lines.
+
+    java/ is uploaded with this file, so it must hold the TARGET instance's id: an id from a
+    different instance silently points the app at the wrong database. A blank id is written
+    as-is, so an app that needs a database fails loudly instead of using another env's.
+    """
+    lines = (
+        PROJECT_PROPERTIES_PATH.read_text(encoding="utf-8").splitlines()
+        if PROJECT_PROPERTIES_PATH.exists()
+        else []
+    )
+    new_line = f"databaseId={database_id}"
+    replaced = False
+    for index, line in enumerate(lines):
+        if line.split("=", 1)[0].strip() == "databaseId" and not line.lstrip().startswith("#"):
+            lines[index] = new_line
+            replaced = True
+    if not replaced:
+        lines.append(new_line)
+    PROJECT_PROPERTIES_PATH.parent.mkdir(parents=True, exist_ok=True)
+    PROJECT_PROPERTIES_PATH.write_text("\n".join(lines) + "\n", encoding="utf-8")
+    print(f"Set databaseId in java/project.properties to '{database_id}'.")
+
+
+def configure_for_env(env_name: str) -> dict[str, str]:
+    config = load_env_config(env_name)
+    if not config["app_id"]:
+        raise SystemExit(f"Environment '{env_name}' has no app_id in semoss_config/environments.json.")
+    write_client_env_local(config)
+    if not config["database_id"]:
+        print(
+            f"WARNING: environment '{env_name}' has no database_id; writing a blank databaseId. "
+            "Set it in semoss_config/environments.json if this app uses a database."
+        )
+    set_project_database_id(config["database_id"])
+    return config
+
+
+def configure_command(env_name: str) -> int:
+    configure_for_env(env_name)
+    return 0
+
+
+def deploy_command(
+    raw_paths: list[str],
+    *,
+    no_build: bool,
+    no_clean: bool,
+    no_compile: bool,
+    no_publish: bool,
+    no_delete_existing: bool,
+    verify_ssl: bool = True,
+    env_name: str,
+) -> int:
+    """configure -> build -> bulk-upload (+clean, compile, publish) -> restore project.properties."""
+    original_properties = (
+        PROJECT_PROPERTIES_PATH.read_text(encoding="utf-8") if PROJECT_PROPERTIES_PATH.exists() else None
+    )
+    try:
+        configure_for_env(env_name)
+        if not no_build:
+            print("Building client...")
+            build = subprocess.run(["pnpm", "--dir", "client", "build"], cwd=WORKSPACE_ROOT)
+            if build.returncode != 0:
+                print("ERROR: client build failed; nothing was uploaded.")
+                return build.returncode
+        paths = raw_paths or [path for path in DEFAULT_DEPLOY_PATHS if (WORKSPACE_ROOT / path).exists()]
+        return bulk_upload_command(
+            paths,
+            no_publish=no_publish,
+            no_delete_existing=no_delete_existing,
+            no_compile=no_compile,
+            clean=not no_clean,
+            verify_ssl=verify_ssl,
+            env_name=env_name,
+        )
+    finally:
+        # The local database id belongs in project.properties between deploys.
+        if original_properties is None:
+            PROJECT_PROPERTIES_PATH.unlink(missing_ok=True)
+        else:
+            PROJECT_PROPERTIES_PATH.write_text(original_properties, encoding="utf-8")
+        print("Restored java/project.properties.")
 
 
 def publish_command(verify_ssl: bool = True, env_name: str | None = None) -> int:
@@ -949,6 +1152,21 @@ def main() -> int:
     if args.command == "sync-from-remote":
         return sync_semoss_folder_to_local(args.remote_folder, args.local_dir, args.overwrite, verify_ssl=verify_ssl, env_name=env_name)
 
+    if args.command == "configure":
+        return configure_command(env_name)
+
+    if args.command == "deploy":
+        return deploy_command(
+            args.paths,
+            no_build=args.no_build,
+            no_clean=args.no_clean,
+            no_compile=args.no_compile,
+            no_publish=args.no_publish,
+            no_delete_existing=args.no_delete_existing,
+            verify_ssl=verify_ssl,
+            env_name=env_name,
+        )
+
     if args.command == "delete":
         return delete_remote_assets(args.remote_path, args.yes, verify_ssl=verify_ssl, env_name=env_name)
 
@@ -958,6 +1176,7 @@ def main() -> int:
             no_publish=args.no_publish,
             no_delete_existing=args.no_delete_existing,
             no_compile=args.no_compile,
+            clean=args.clean,
             verify_ssl=verify_ssl,
             env_name=env_name,
         )
