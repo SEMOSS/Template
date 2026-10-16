@@ -19,11 +19,18 @@
 
 import { createHashRouter, Navigate, RouterProvider } from "react-router-dom";
 import type { RouteHandle } from "@/components";
-import { ROUTE_PATH_LOGIN_PAGE } from "@/routes.constants";
+import {
+	ROUTE_PATH_ADD_NOTE,
+	ROUTE_PATH_LOGIN_PAGE,
+	ROUTE_PATH_NOTES,
+} from "@/routes.constants";
+import { AddNotePage } from "./AddNotePage";
 import { ErrorPage } from "./ErrorPage";
 import { HomePage } from "./HomePage";
 import { LoginPage } from "./LoginPage";
 import { AppLayout, AuthorizedLayout, InitializedLayout } from "./layouts";
+import { NoteDetailPage } from "./NoteDetailPage";
+import { NotesPage } from "./NotesPage";
 
 const router = createHashRouter([
 	{
@@ -45,6 +52,50 @@ const router = createHashRouter([
 								handle: {
 									crumbs: () => [{ label: "Home" }],
 								} satisfies RouteHandle,
+							},
+							{
+								handle: {
+									crumbs: () => [{ label: "Examples" }],
+								} satisfies RouteHandle,
+								children: [
+									{
+										// Nested list -> detail/add routes: the breadcrumb trail
+										// builds itself from each route's handle.
+										path: ROUTE_PATH_NOTES,
+										handle: {
+											crumbs: () => [
+												{
+													label: "Notes",
+													path: `/${ROUTE_PATH_NOTES}`,
+												},
+											],
+										} satisfies RouteHandle,
+										children: [
+											{
+												index: true,
+												Component: NotesPage,
+											},
+											{
+												path: ROUTE_PATH_ADD_NOTE,
+												Component: AddNotePage,
+												handle: {
+													crumbs: () => [
+														{ label: "Add Note" },
+													],
+												} satisfies RouteHandle,
+											},
+											{
+												path: ":noteId",
+												Component: NoteDetailPage,
+												handle: {
+													crumbs: () => [
+														{ label: "Note" },
+													],
+												} satisfies RouteHandle,
+											},
+										],
+									},
+								],
 							},
 							// To add a protected page (bare path segment, no leading slash).
 							// Group related pages under a pathless route whose handle gives

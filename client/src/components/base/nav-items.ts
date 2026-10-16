@@ -1,5 +1,6 @@
 import type { LucideIcon } from "lucide-react";
-import { House } from "lucide-react";
+import { House, StickyNote } from "lucide-react";
+import { ROUTE_PATH_NOTES } from "@/routes.constants";
 
 export interface NavItem {
 	title: string;
@@ -19,5 +20,15 @@ export const navGroups: NavGroup[] = [
 	{
 		label: "General",
 		items: [{ title: "Home", path: "/", icon: House }],
+	},
+	{
+		label: "Examples",
+		items: [
+			{
+				title: "Notes",
+				path: `/${ROUTE_PATH_NOTES}`,
+				icon: StickyNote,
+			},
+		],
 	},
 ];

@@ -5,3 +5,5 @@
 // for consistency.
 
 export const ROUTE_PATH_LOGIN_PAGE = "login";
+export const ROUTE_PATH_NOTES = "notes";
+export const ROUTE_PATH_ADD_NOTE = "add";
