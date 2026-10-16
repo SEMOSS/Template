@@ -101,8 +101,7 @@ If the app has no database, delete `sql/`, `java/src/{service,database}/notes`,
 5. Load the schema: open
    `http://localhost:9090/SemossWeb/packages/client/dist/#/database/<database id>/workbench` and
    submit `sql/init.sql` as a multi-statement commit query. **This drops and recreates every
-   table**, so only do it on a database whose data they're happy to lose. (Scripted alternative:
-   `SqlQuery(database="<id>", query=<init.sql text>, commit=true);`.)
+   table**, so only do it on a database whose data they're happy to lose.
 6. In the database's schema editor choose **Update schema**, select all tables, and save.
    `init.sql` alone doesn't update SEMOSS's query metadata.
 

@@ -40,12 +40,8 @@ the `refresh_database_ontology` MCP tool, which only works if the MCP server is 
 instance as your database, so use the UI for a local one). Without this, SEMOSS's query metadata
 is stale and joins fail.
 
-**Scripted load (no UI):** `SqlQuery(database="<database id>", query=<the init.sql text, JSON-escaped>, commit=true);`
-runs the file as a multi-statement commit query (see the `semoss-database` skill). Updating the schema
-metadata afterwards still needs the UI step above.
-
 **No Docker or `psql`?** Install Postgres (`brew install postgresql@16` on macOS, or Postgres.app), create
-the database, then use the workbench or the scripted load above instead of `psql`.
+the database, then load `init.sql` through the SEMOSS workbench instead of `psql`.
 
 ## Changing the schema
 
