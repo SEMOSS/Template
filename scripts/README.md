@@ -1,9 +1,9 @@
 # Scripts
 
-`claude/semoss_asset_sync.py` is the deploy script Claude Code uses to sync local
+`semoss_asset_sync.py` is the deploy script coding agents use to sync local
 build output to a SEMOSS instance over REST. It is the **iterate** tier of the deploy
 flow — for full deploy guidance (manual UI zip, asset sync, ai-repo CLI) see the
-`semoss-deploy` skill under `.claude/skills/`.
+`semoss-deploy` skill under `.agents/skills/`.
 
 ## Setup
 
@@ -27,7 +27,7 @@ at the env's `database_id`, builds, uploads, removes orphaned remote files, comp
 then restores `java/project.properties`):
 
 ```bash
-python scripts/claude/semoss_asset_sync.py --env local deploy
+python scripts/semoss_asset_sync.py --env local deploy
 ```
 
 `deploy` flags: `--no-build`, `--no-clean`, `--no-compile` (frontend-only change), `--no-publish`,
@@ -37,7 +37,7 @@ error there means the backend on the instance is stale even though the upload su
 `configure` does the first two steps only and leaves `java/project.properties` set, for `pnpm dev`:
 
 ```bash
-python scripts/claude/semoss_asset_sync.py --env local configure
+python scripts/semoss_asset_sync.py --env local configure
 ```
 
 The lower-level commands:
@@ -48,20 +48,20 @@ Every command takes `--env <name>` to target a named environment from
 
 ```bash
 # Upload a single file
-python scripts/claude/semoss_asset_sync.py --env local upload portals/index.html
+python scripts/semoss_asset_sync.py --env local upload portals/index.html
 
 # Bulk-upload directories (publishes once at the end). --clean also deletes remote files under
 # java/src and portals/assets that aren't in the upload (bulk-upload alone never deletes them)
-python scripts/claude/semoss_asset_sync.py --env local bulk-upload portals java mcp --clean
+python scripts/semoss_asset_sync.py --env local bulk-upload portals java mcp --clean
 
 # Delete remote assets (e.g. stale hashed bundles before a redeploy)
-python scripts/claude/semoss_asset_sync.py --env local delete portals/assets --yes
+python scripts/semoss_asset_sync.py --env local delete portals/assets --yes
 
 # Publish the project without uploading
-python scripts/claude/semoss_asset_sync.py --env local publish
+python scripts/semoss_asset_sync.py --env local publish
 
 # Download a remote folder to the local workspace
-python scripts/claude/semoss_asset_sync.py --env local sync-from-remote portals
+python scripts/semoss_asset_sync.py --env local sync-from-remote portals
 ```
 
 For self-signed certs (common on preprod), add `--no-verify-ssl`.

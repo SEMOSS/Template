@@ -5,7 +5,7 @@ description: Use when adding or changing a backend endpoint end to end - a new J
 
 # Adding a backend endpoint
 
-**Copy the closest existing feature first** (CLAUDE.md has the table). Paged list:
+**Copy the closest existing feature first** (AGENTS.md has the table). Paged list:
 `GetNotesReactor` → `NoteService.page` → `NoteRepository.page`. Detail with a not-found case:
 `GetNoteReactor` → `NoteService.get`. Write: `AddNoteReactor` → `NoteService.add` →
 `NoteRepository.add`. Everything lives under `java/src/`.
@@ -60,7 +60,7 @@ columns, stored as UTC) as ISO-8601 UTC (`"2026-09-01T14:30:00Z"`).
 - Anything else (detail reads, services): convert with `util.DateFormats` (`isoDate`,
   `isoInstant`, or `localDate` for logic). Don't write another parser.
 - Don't convert to a time zone on the backend. Zone conversion happens in the UI.
-- Full convention (including the required `DATABASE_ZONEID=UTC`): "Dates" in `CLAUDE.md`.
+- Full convention (including the required `DATABASE_ZONEID=UTC`): "Dates" in `AGENTS.md`.
 
 ## Errors
 

@@ -1,6 +1,6 @@
 ---
 name: semoss-ai-repo
-description: Use when submitting a SEMOSS app into the review/repository pipeline with the ai-repo CLI — logging in, registering an app (create-app), publishing a zipped version (publish), and checking workflow status (status, versions). Covers the command set, publish gotchas (build first, what gets zipped, what's excluded), and where credentials are stored. Assumes the ai-repo binary is already installed. Do not use for iterating against a live instance (that's scripts/claude/semoss_asset_sync.py — see semoss-deploy) or for manual UI zip uploads.
+description: Use when submitting a SEMOSS app into the review/repository pipeline with the ai-repo CLI — logging in, registering an app (create-app), publishing a zipped version (publish), and checking workflow status (status, versions). Covers the command set, publish gotchas (build first, what gets zipped, what's excluded), and where credentials are stored. Assumes the ai-repo binary is already installed. Do not use for iterating against a live instance (that's scripts/semoss_asset_sync.py — see semoss-deploy) or for manual UI zip uploads.
 ---
 
 # ai-repo CLI — Submit Tier

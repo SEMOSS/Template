@@ -5,7 +5,7 @@ description: Use when adding or changing a frontend page, route, nav item, data 
 
 # Adding a page or feature
 
-**Copy the closest existing page first** (CLAUDE.md has the table): paged table → `NotesPage` +
+**Copy the closest existing page first** (AGENTS.md has the table): paged table → `NotesPage` +
 `NotesTable`; detail page → `NoteDetailPage`; form → `AddNotePage` + `NoteForm` + `useAddNote`;
 nested routes → the `notes` tree in `Router.tsx`. All paths are under `client/src/`.
 

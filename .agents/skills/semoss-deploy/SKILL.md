@@ -11,7 +11,7 @@ user just names the target (e.g. "deploy to preprod").
 | Tier | Mechanism | When | Requires |
 |------|-----------|------|----------|
 | **Universal** | Manual UI zip drag-and-drop | Always works, no tooling | `zip` (or Windows `tar.exe`) |
-| **Iterate** | `scripts/claude/semoss_asset_sync.py` | Updating an app against a configured instance | Python 3.10+ + creds |
+| **Iterate** | `scripts/semoss_asset_sync.py` | Updating an app against a configured instance | Python 3.10+ + creds |
 | **Submit** | `ai-repo` CLI | Submitting an app to the review pipeline | the CLI + login (see `semoss-ai-repo`) |
 
 The deploy lifecycle is always: **create the app once → write `client/.env.local` → point
@@ -62,7 +62,7 @@ it and is gitignored.
 The default loop while developing against a live instance. One command does everything:
 
 ```bash
-python scripts/claude/semoss_asset_sync.py --env <name> deploy
+python scripts/semoss_asset_sync.py --env <name> deploy
 ```
 
 `deploy`: writes `client/.env.local` (keeping other keys), sets `databaseId` in
@@ -80,7 +80,7 @@ The same thing by hand, or for a custom set of paths:
 
 ```bash
 cd client && pnpm build && cd ..
-python scripts/claude/semoss_asset_sync.py --env <name> bulk-upload portals java mcp --clean
+python scripts/semoss_asset_sync.py --env <name> bulk-upload portals java mcp --clean
 ```
 
 - `--env <name>` selects the entry in `environments.json` + `credentials.env`.
@@ -102,7 +102,7 @@ python scripts/claude/semoss_asset_sync.py --env <name> bulk-upload portals java
 > live data with the repo's seed copy — silent data loss. Keep persisted app data in a
 > directory you never bulk-upload (a top-level `data/`, written via
 > `AssetUtility.getProjectAssetsFolder(projectId)` — see the Java reactor rules in
-> `CLAUDE.md`), and only upload code dirs (`portals py java mcp`; `deploy`'s default). For a one-off code fix
+> `AGENTS.md`), and only upload code dirs (`portals py java mcp`; `deploy`'s default). For a one-off code fix
 > against an app that stores data, prefer single-file `upload` over `bulk-upload`.
 
 **403 at the auth step?** If the script fails with a 403 whose traceback ends in
@@ -117,7 +117,7 @@ Vite emits new content hashes every build, so stale bundles can orphan. To nuke 
 subtree before re-uploading:
 
 ```bash
-python scripts/claude/semoss_asset_sync.py --env <name> delete portals/assets --yes
+python scripts/semoss_asset_sync.py --env <name> delete portals/assets --yes
 ```
 
 Other commands: `upload <file>` (single file), `publish` (publish without uploading),
@@ -177,7 +177,7 @@ directly. Caveats that bite in practice:
   `project_id` came back *before* assuming failure — retrying on a false error creates
   duplicate apps.
 - **You can't tell which instance an MCP server points at** — it's bound to whatever MCP
-  config is active (often a user-level `~/.claude.json`), which may not be the instance you
+  config is active (often a user-level MCP config for your agent tool), which may not be the instance you
   think you're targeting. After creating, confirm the app actually landed on the intended
   instance before saving its ID.
 

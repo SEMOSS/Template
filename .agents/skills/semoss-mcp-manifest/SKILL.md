@@ -1,6 +1,6 @@
 ---
 name: semoss-mcp-manifest
-description: Use when adding, editing, or wiring up a SEMOSS MCP tool manifest — mcp/py_mcp.json (Python tools) or mcp/pixel_mcp.json (Java reactors). Covers the manifest schema, the _meta fields (resourceURI, SMSS_MCP_EXECUTION, displayLocation, loadingMessage), mapping a tool's resourceURI to a hash route in Router.tsx, default vs custom UI, and when to fall back to the MakePythonMCP/MakePixelMCP regenerator reactors. Do not use for the deploy/upload flow (see semoss-deploy) or writing the tool logic itself (Java reactor / Python tool rules live in CLAUDE.md).
+description: Use when adding, editing, or wiring up a SEMOSS MCP tool manifest — mcp/py_mcp.json (Python tools) or mcp/pixel_mcp.json (Java reactors). Covers the manifest schema, the _meta fields (resourceURI, SMSS_MCP_EXECUTION, displayLocation, loadingMessage), mapping a tool's resourceURI to a hash route in Router.tsx, default vs custom UI, and when to fall back to the MakePythonMCP/MakePixelMCP regenerator reactors. Do not use for the deploy/upload flow (see semoss-deploy) or writing the tool logic itself (Java reactor / Python tool rules live in AGENTS.md).
 ---
 
 # MCP Tool Manifests
@@ -11,7 +11,7 @@ Tools surfaced in Playground chat are declared in two manifests:
 - **`mcp/pixel_mcp.json`** — Java reactors from `java/src/reactors/`.
 
 **Hand-edit these directly.** It is the reliable, default path. Working entries (`GetWeather`,
-the temperature converters) are in `.claude/skills/semoss-playground-tool/reference/`; copy one.
+the temperature converters) are in `.agents/skills/semoss-playground-tool/reference/`; copy one.
 The shipped `mcp/pixel_mcp.json` has no tools, and there is no `py_mcp.json` until you add one.
 
 > **When does a manifest entry exist?**

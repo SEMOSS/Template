@@ -6,9 +6,9 @@ for coding agents.
 
 ## Read this first
 
-This template is optimized for Claude. The single source of truth — architecture, SDK
+This template is built to be driven by coding agents (any tool that reads `AGENTS.md`). The single source of truth — architecture, SDK
 usage, deploy flow, conventions, and the full skills index — lives in
-**[CLAUDE.md](CLAUDE.md)**. Agents and humans alike should start there; this README is
+**[AGENTS.md](AGENTS.md)**. Agents and humans alike should start there; this README is
 just a front door. Setting up a new copy? Follow [ONBOARDING.md](ONBOARDING.md).
 
 ## Layout at a glance
@@ -21,16 +21,16 @@ just a front door. Setting up a new copy? Follow [ONBOARDING.md](ONBOARDING.md).
 | `sql/` | `init.sql` (schema + seed) and `compose.yaml` (local Postgres) |
 | `mcp/` | Tool manifests (empty unless the app is a Playground tool) |
 | `semoss_config/` | Per-environment endpoints + credentials (gitignored; copy the `.example`s) |
-| `scripts/claude/` | `semoss_asset_sync.py` (deploy) and `init_app.py` (one-time rename) |
-| `.claude/skills/` | Task-specific guidance, loaded on demand |
+| `scripts/` | `semoss_asset_sync.py` (deploy) and `init_app.py` (one-time rename) |
+| `.agents/skills/` | Task-specific guidance, loaded on demand |
 | `portals/`, `classes/`, `target/` | Generated — don't edit |
 
 The *notes* feature is a worked example of every pattern; copy it, then delete it (see
-[CLAUDE.md](CLAUDE.md#deleting-the-example)).
+[AGENTS.md](AGENTS.md#deleting-the-example)).
 
 ## Task-specific guidance
 
-Deeper playbooks live as skills under `.claude/skills/` and load automatically when a task
+Deeper playbooks live as skills under `.agents/skills/` and load automatically when a task
 calls for them — adding endpoints and pages, databases, models, vectors, deploy, Playground
 tools, MCP manifests, the `ai-repo` CLI, platform backend, and testing/CI setup. See the Skills
-table in [CLAUDE.md](CLAUDE.md) for the index.
+table in [AGENTS.md](AGENTS.md) for the index.

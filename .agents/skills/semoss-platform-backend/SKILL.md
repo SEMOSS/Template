@@ -1,6 +1,6 @@
 ---
 name: semoss-platform-backend
-description: Use when working with the SEMOSS platform control plane via the connected MCP servers — creating/publishing/tagging projects (Semoss_project_manager), creating/querying databases and fetching schema (Semoss_database_helper), or pulling platform guidance (Semoss_Platform_Instructions). Covers the project lifecycle, the MCP project tag that gates Playground-chat visibility, standalone-vs-MCP app modes, and which of the platform MCP's frontend claims to ignore. Do not use for in-app SDK calls from React (see CLAUDE.md + the engine skills) or for the deploy mechanics (see semoss-deploy).
+description: Use when working with the SEMOSS platform control plane via the connected MCP servers — creating/publishing/tagging projects (Semoss_project_manager), creating/querying databases and fetching schema (Semoss_database_helper), or pulling platform guidance (Semoss_Platform_Instructions). Covers the project lifecycle, the MCP project tag that gates Playground-chat visibility, standalone-vs-MCP app modes, and which of the platform MCP's frontend claims to ignore. Do not use for in-app SDK calls from React (see AGENTS.md + the engine skills) or for the deploy mechanics (see semoss-deploy).
 ---
 
 # Platform Backend (MCP Control Plane)
@@ -9,7 +9,7 @@ Several `Semoss_*` MCP servers are usually connected. They drive the platform's 
 plane — creating projects, databases, tagging, publishing. Their **backend** tools are
 genuinely useful; their **frontend** guidance is out of date.
 
-> **Authority:** where these MCPs conflict with `CLAUDE.md`, `CLAUDE.md` wins. In
+> **Authority:** where these MCPs conflict with `AGENTS.md`, `AGENTS.md` wins. In
 > particular, **ignore** any MCP advice to: use `actions.runMCPTool()` / an `echo` tool
 > to return results (use `actions.sendMCPResponseToPlayground()`); hand-roll a portal with
 > vanilla `new Insight()` from a CDN import (this template is React + Vite, use

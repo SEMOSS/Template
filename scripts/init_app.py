@@ -1,7 +1,7 @@
 """Rename this template into a specific app. Run once, right after creating the app.
 
 Usage:
-    python3 scripts/claude/init_app.py "Inventory Tracker"
+    python3 scripts/init_app.py "Inventory Tracker"
 
 Rewrites the places that carry the template's generic name:
   - pom.xml                           groupId / artifactId  -> InventoryTracker
@@ -10,7 +10,7 @@ Rewrites the places that carry the template's generic name:
   - client/src/hooks/useLocalStorageState.ts  storage prefix -> inventory-tracker-storage-
   - sql/compose.yaml, sql/README.md   database name `app`   -> inventory_tracker
 
-It does not touch the docs (CLAUDE.md, README.md); update those for the app by hand. Safe to
+It does not touch the docs (AGENTS.md, README.md); update those for the app by hand. Safe to
 rerun with the same name.
 """
 
@@ -20,7 +20,7 @@ import re
 import sys
 from pathlib import Path
 
-ROOT = Path(__file__).resolve().parents[2]
+ROOT = Path(__file__).resolve().parents[1]
 
 
 def replace_in(path: str, pattern: str, replacement: str, *, count: int = 1) -> None:
@@ -39,7 +39,7 @@ def replace_in(path: str, pattern: str, replacement: str, *, count: int = 1) -> 
 
 def main() -> int:
     if len(sys.argv) != 2 or not sys.argv[1].strip():
-        print('Usage: python3 scripts/claude/init_app.py "App Name"')
+        print('Usage: python3 scripts/init_app.py "App Name"')
         return 2
 
     name = " ".join(sys.argv[1].split())
@@ -70,7 +70,7 @@ def main() -> int:
     replace_in("sql/README.md", r"-d app -f", f"-d {snake} -f")
     print(
         "\nNext: create the app on the platform and put its id in semoss_config/environments.json\n"
-        "(see the semoss-deploy skill), then update CLAUDE.md and README.md for this app."
+        "(see the semoss-deploy skill), then update AGENTS.md and README.md for this app."
     )
     return 0
 

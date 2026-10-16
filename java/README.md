@@ -2,7 +2,7 @@
 
 Backend logic for this SEMOSS app: Java classes for DB access, heavy computation, and
 LLM calls. For the reactor rules, how to expose a reactor as an MCP tool (hand-edit
-`mcp/pixel_mcp.json`), and how to call reactors from the frontend, see [CLAUDE.md](../CLAUDE.md)
+`mcp/pixel_mcp.json`), and how to call reactors from the frontend, see [AGENTS.md](../AGENTS.md)
 and the `semoss-add-reactor` and `semoss-mcp-manifest` skills.
 
 ```

@@ -6,7 +6,7 @@ a terminal, an API key, or a database is. Walk them through getting their own wo
 running end to end, explaining each step in plain language and doing everything yourself that
 you can, rather than handing them commands to type.
 
-This file is for **first-time setup only**. Once the app works, switch to `CLAUDE.md` for how
+This file is for **first-time setup only**. Once the app works, switch to `AGENTS.md` for how
 the app is built and how to change it.
 
 > **Assumption:** a local SEMOSS platform instance is already running at
@@ -45,11 +45,11 @@ Skipping the `client/` install is the usual cause of `biome: command not found` 
 Decide the app's name with the user, then rename the template once:
 
 ```bash
-python3 scripts/claude/init_app.py "Their App Name"
+python3 scripts/init_app.py "Their App Name"
 ```
 
 This sets the Maven artifact, the top-bar and browser-tab names, the localStorage prefix and the
-local database name. Update `README.md` and the first lines of `CLAUDE.md` for the app too.
+local database name. Update `README.md` and the first lines of `AGENTS.md` for the app too.
 
 ## 4. Create their app on the platform and get an API key
 
@@ -79,7 +79,7 @@ These keys belong only in `semoss_config/credentials.env`.
 
 If the app has no database, delete `sql/`, `java/src/{service,database}/notes`,
 `java/src/reactors/notes` and the notes pages and routes (see "Deleting the example" in
-`CLAUDE.md`), then go to step 6.
+`AGENTS.md`), then go to step 6.
 
 1. Get Postgres at `localhost:5432`: `docker compose -f sql/compose.yaml up -d` (database named
    after the app, user `admin`, password `password`), or a native install with a database of that
@@ -92,7 +92,7 @@ If the app has no database, delete `sql/`, `java/src/{service,database}/notes`,
    `java/project.properties` for you.)
 4. Timestamps are stored as UTC: in `Semoss/db/<name>__<database id>.smss` add the line
    `DATABASE_ZONEID<TAB>UTC` (tab-separated like the other properties) and restart SEMOSS.
-   See "Dates" in `CLAUDE.md`.
+   See "Dates" in `AGENTS.md`.
 5. Load the schema: open
    `http://localhost:9090/SemossWeb/packages/client/dist/#/database/<database id>/workbench` and
    submit `sql/init.sql` as a multi-statement commit query. **This drops and recreates every
@@ -103,8 +103,8 @@ If the app has no database, delete `sql/`, `java/src/{service,database}/notes`,
 ## 6. Deploy for the first time
 
 ```bash
-python3 scripts/claude/semoss_asset_sync.py --env local configure
-python3 scripts/claude/semoss_asset_sync.py --env local deploy --no-delete-existing
+python3 scripts/semoss_asset_sync.py --env local configure
+python3 scripts/semoss_asset_sync.py --env local deploy --no-delete-existing
 ```
 
 `deploy` writes `client/.env.local`, points `java/project.properties` at the env's database,

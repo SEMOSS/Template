@@ -4,8 +4,8 @@ Reads project config from semoss_config/environments.json and credentials
 from semoss_config/credentials.env, selected by --env <name>.
 
 Usage:
-    python scripts/claude/semoss_asset_sync.py --env local deploy
-    python scripts/claude/semoss_asset_sync.py --env local configure
+    python scripts/semoss_asset_sync.py --env local deploy
+    python scripts/semoss_asset_sync.py --env local configure
     python scripts/semoss_asset_sync.py upload portals/index.html
     python scripts/semoss_asset_sync.py upload portals/index.html --yes --no-publish
     python scripts/semoss_asset_sync.py bulk-upload portals --no-publish
@@ -35,7 +35,7 @@ from urllib.error import HTTPError, URLError
 from urllib.request import Request, urlopen
 
 
-WORKSPACE_ROOT = Path(__file__).resolve().parents[2]
+WORKSPACE_ROOT = Path(__file__).resolve().parents[1]
 ENVIRONMENTS_CONFIG_PATH = WORKSPACE_ROOT / "semoss_config" / "environments.json"
 CREDENTIALS_ENV_PATH = WORKSPACE_ROOT / "semoss_config" / "credentials.env"
 DEFAULT_HOST = "https://your-instance.example.com"

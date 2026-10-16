@@ -13,10 +13,10 @@ pnpm dlx shadcn@latest add [component]   # add a shadcn/ui component
 
 Before any build, write `client/.env.local` for the target environment (`APP`,
 `ENDPOINT`, `MODULE`) — see the **Multi-environment workflow** section of
-[CLAUDE.md](../CLAUDE.md). `.env` is a committed placeholder; never edit it.
+[AGENTS.md](../AGENTS.md). `.env` is a committed placeholder; never edit it.
 
 For the SDK hook (`useInsight()`), calling reactors and Python tools, returning results to
-Playground, and the React UI rules, see [CLAUDE.md](../CLAUDE.md) and the `semoss-*`
+Playground, and the React UI rules, see [AGENTS.md](../AGENTS.md) and the `semoss-*`
 skills.
 
 ```
