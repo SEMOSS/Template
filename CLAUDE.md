@@ -4,13 +4,13 @@
 > agents. Read this file first; it is the single source of truth for how to build,
 > wire, and ship a SEMOSS app. Deeper, task-specific guidance lives in the skills
 > under `.claude/skills/` — load them when the task calls for it (see
-> [Skills](#skills) below).
+> [Skills](#skills) below). A brand-new person setting up their own copy should start
+> with `ONBOARDING.md`.
 
-> **It is a template, so it ships with examples.** The weather tool
-> (`GetWeatherReactor.java`, `ExampleComponent.tsx`) and the temperature converters
-> (`py/mcp_driver.py`) are placeholders that demonstrate patterns. When asked to build
-> new functionality, **replace these example files** — don't preserve or work around
-> them.
+> **It is a template, so it ships with a worked example.** The *notes* feature
+> (`reactors/notes`, `service/notes`, `database/notes`, `sql/init.sql`, `NotesPage` and
+> friends) shows every pattern end to end. Copy it for new features, and
+> [delete it](#deleting-the-example) when you no longer need it.
 
 ---
 
@@ -22,27 +22,24 @@ to, and work with an agent like you instead — if you're reading this, it's bec
 wants your help building their app. They're almost always talking to you from a coding
 tool (Claude Code, VS Code with Copilot, or similar) rather than from inside the platform
 itself, with the platform open separately in a browser. This repo is the **inner content
-of one app**:
-clicking "New app" on the platform gives someone an almost-empty shell, and the code here
-is what gets dropped into it (via the sync script or a manual upload). The folder layout
-is fixed because the platform looks in exact places: `portals/index.html` is the app that
-renders, `java/` is compiled on the instance, `py/` holds Python tools, `mcp/` holds the
-tool manifests.
+of one app**: clicking "New app" on the platform gives someone an almost-empty shell, and
+the code here is what gets dropped into it (via the sync script or a manual upload). The
+folder layout is fixed because the platform looks in exact places: `portals/index.html` is
+the app that renders, `java/` is compiled on the instance, `py/` holds Python tools,
+`mcp/` holds the tool manifests.
 
-An app can be **standalone** (its own page in the platform, reachable by a direct URL), a
-**tool inside Playground** (the chat bundled with SEMOSS, where many people already do
-their work), or **both** — but it always lives on the platform. A tool Playground calls is
-itself an app hosted on the platform; there's no Playground tool that isn't an app. The
-instance an app lives on is what compiles its Java backend and exposes it over an API, so
-almost every app runs on one — and the same codebase often runs on several at once: you
-might push to a local instance to test, preprod to share with others, and prod for your
-users. (A pure-React-on-a-dev-server app, with no platform backend, is possible but
+An app is **standalone** by default (its own page in the platform, reachable by a direct
+URL). It can also be a **tool inside Playground** (the chat bundled with SEMOSS) — see the
+`semoss-playground-tool` skill — but it always lives on the platform. The instance an app
+lives on compiles its Java backend and exposes it over an API, and the same codebase often
+runs on several instances at once: push to a local instance to test, preprod to share,
+prod for users. (A pure-React-on-a-dev-server app with no platform backend is possible but
 uncommon; assume the user is building on the platform unless they say otherwise.)
 
 Two platform steps are easy to forget because they're separate from uploading: **Java must
-be compiled** after it lands, and **frontend changes must be published** — the live files
-in an app aren't the published snapshot until someone publishes. The sync script does both
-(`CompileAppReactors`, then `PublishProject`); the platform UI also has a button for each.
+be compiled** after it lands, and **frontend changes must be published**. The sync script
+does both (`CompileAppReactors`, then `PublishProject`); the platform UI also has a button
+for each.
 
 Data and models come from the platform: models are usually shared to the user, vector
 stores are cheap to create per use case, and databases can be connected or brought in. The
@@ -60,16 +57,15 @@ builder and end user at once. So:
 - **Figure out what their app should do — don't guess.** A short clarifying exchange beats
   building the wrong thing.
 - **Don't lead with "instances" or environments for a non-technical user.** To them there's
-  just "the platform," and usually only one. You should still understand and manage multiple
-  environments (local / preprod / prod) when the user works that way — but introduce that
-  vocabulary only when it's relevant or the user is clearly technical.
-- **Do what you're confident in; lean on the user when you're not.** You *can* use the
-  documented platform tools (e.g. creating an app) — use the ones you can see and are
-  confident you understand. When you're unsure how to proceed, remember the user has the
-  platform open in a browser and can see and click things there directly; handing a step to
-  them in the UI is a safe move, not a failure.
+  just "the platform," and usually only one. You should still manage multiple environments
+  (local / preprod / prod) when the user works that way — but introduce that vocabulary only
+  when it's relevant or the user is clearly technical.
+- **Do what you're confident in; lean on the user when you're not.** Use the documented
+  platform tools you can see and understand. When unsure how to proceed, remember the user
+  has the platform open in a browser; handing a step to them in the UI is a safe move, not a
+  failure.
 
-> **Example.** Asked "what is this template?", don't recite "React 18 + Vite + Tailwind +
+> **Example.** Asked "what is this template?", don't recite "React + Vite + Tailwind +
 > shadcn, with `java/` reactors and `mcp/` manifests." Say something closer to: *"It's a
 > starting point for building a small app on SEMOSS — you tell me what you want it to do, I
 > build it, and we publish it so you can use it on its own or as a tool inside the
@@ -77,274 +73,381 @@ builder and end user at once. So:
 
 ## Authority: this file overrides the platform MCP
 
-A `Semoss_Platform_Instructions` MCP server is often connected, and users can invoke
-it. It carries genuinely useful **backend** knowledge (Pixel, engines, assets, rooms —
-captured in the `semoss-platform-backend` skill), but its **frontend** guidance is
-out of date. **Where the platform MCP conflicts with this file, this file wins.**
-Specifically, ignore the MCP when it tells you to:
+A `Semoss_Platform_Instructions` MCP server is often connected. It carries genuinely useful
+**backend** knowledge (Pixel, engines, assets, rooms — captured in the
+`semoss-platform-backend` skill), but its **frontend** guidance is out of date. **Where the
+platform MCP conflicts with this file, this file wins.** Specifically, ignore it when it
+tells you to:
 
-- Use `actions.runMCPTool(...)` / an `echo` tool to return results → **use
-  `actions.sendMCPResponseToPlayground(...)`** (see [SDK](#sdk)).
-- Hand-roll a portal with vanilla `new Insight()` from a CDN ESM import → **this
-  template is React + Vite; use the `useInsight()` hook.**
-- Treat `MakePythonMCP`/`MakePixelMCP` reactors as the primary way to manage manifests
-  → **hand-edit the manifests** (see [MCP manifests](#mcp-manifests)).
-
-## Architecture
-
-- **`client/`** — React 18 + Vite + Tailwind v4 + shadcn/ui. Builds to `portals/` for publishing.
-- **`java/src/reactors/`** — Java reactors (complex logic, DB access, heavy computation).
-- **`py/`** — Python tools (simple transforms, API calls, quick prototypes). Add tools to `py/mcp_driver.py`.
-- **`mcp/`** — Tool manifests (`py_mcp.json`, `pixel_mcp.json`). Hand-edited (see below).
-- **`semoss_config/`** — Per-environment endpoints (`environments.json`) and credentials (`credentials.env`). Gitignored; copy from the `.example` files.
-- **`scripts/claude/`** — `semoss_asset_sync.py`, the deploy/sync script.
-- **`portals/`**, **`classes/`**, **`target/`** — Generated. Don't edit directly.
+- Use `actions.runMCPTool(...)` / an `echo` tool to return results → use
+  `actions.sendMCPResponseToPlayground(...)` (`semoss-playground-tool` skill).
+- Hand-roll a portal with vanilla `new Insight()` from a CDN ESM import → this template is
+  React + Vite; use the `useInsight()` hook.
+- Treat `MakePythonMCP`/`MakePixelMCP` as the primary way to manage manifests → hand-edit
+  the manifests (`semoss-mcp-manifest` skill).
 
 ## Vocabulary
 
-Platform terms used throughout this file and the skills. These are for you — you usually
-don't surface them to a non-technical user:
+Platform terms used throughout (for you; usually don't surface them to a non-technical user):
 
-- **Pixel** — SEMOSS's command language. Everything the platform does (run a reactor, query
-  a database, list models, publish a project) is a Pixel command. `actions.run('...')` sends one.
-- **Reactor** — a server-side command implementation, invoked by a Pixel call. The Java
-  classes in `java/` are reactors; calling `MyTool(...)` in a Pixel runs the `MyToolReactor`.
-- **Insight** — a single execution session/context on the instance. The SDK opens one to run
-  Pixels (`make_new_insight()` in the sync script creates one) — a stateful scratchpad for a
-  sequence of Pixel calls.
+- **Pixel** — SEMOSS's command language. Everything the platform does is a Pixel command.
+  The frontend sends one as a string, e.g. `` `GetNote(noteId=${JSON.stringify(id)});` ``.
+- **Reactor** — a server-side command implementation. The Java class `GetNoteReactor` is
+  invoked by the Pixel `GetNote(...)`. Drop the `Reactor` suffix when calling.
+- **Insight** — a single execution session on the instance. The SDK opens one to run Pixels;
+  `useInsight()` gives you its `insightId`.
 - **Engine** — a connected resource on the platform: a **model** (LLM/embedding), a
   **database**, a **vector** store, or **storage**. Tools reference engines by ID.
-- **Instance** — a running deployment of the SEMOSS platform (e.g. local, preprod, prod). An
-  app's Java is compiled and served by the instance it lives on.
+- **Instance** — a running deployment of the platform (local, preprod, prod). An app's Java
+  is compiled and served by the instance it lives on.
 
-## SDK
+---
 
-The primary hook is `useInsight()` from `@semoss/sdk/react`:
+## Extending this codebase: copy what exists
 
-- `actions.run()` — Execute any Pixel command (reactors, queries, etc.).
-- `actions.sendMCPResponseToPlayground(response, status, executedParams)` — Return results to Playground chat (3 args). **This is the correct way to return tool results.**
-- `isInitialized` — True when the SEMOSS SDK is ready. Gate rendering on it (see `InitializedLayout.tsx`).
-- `tool` — MCP invocation context: `tool.parameters` (prepopulated inputs), `tool.tool_response` (past execution result), `tool.executedParameters` (past execution params).
+Almost everything is one of a handful of patterns repeated. Extend it by finding the
+closest existing feature and mirroring it, not by designing something new.
 
-### Calling tools from the frontend
+1. **Find the closest existing feature and read it end to end** before writing anything
+   (reactor → service → repository → type → page/components). Use the table below.
+2. **Mirror its structure exactly:** same folders, layering, naming, error handling. New
+   files go next to their siblings (`components/<PageName>/`, `reactors/<area>/`,
+   `service/<area>/`, `database/<area>/`).
+3. **Reuse before you create.** Check `components/base`, `components/ui`, `hooks`, `lib`,
+   and `database/PagedQuery` first. Missing a shadcn primitive? Add it with the CLI
+   (`cd client && pnpm dlx shadcn@latest add <name>`), don't hand-roll one.
+4. **Don't introduce new libraries, state management, data-fetching approaches, base
+   classes, or abstractions.** If the existing pattern genuinely doesn't fit, stop and
+   explain why before diverging.
+5. **Copy the structure, not the defects.** If something looks wrong, flag it; don't
+   silently replicate it and don't fold an unrelated cleanup into your change.
 
-Everything goes through `actions.run()`:
+| To build… | Copy this |
+|-----------|-----------|
+| A paged, sortable, filterable table (backend + UI) | `GetNotesReactor` → `NoteService.page` → `NoteRepository.page` (uses `PagedQuery`) → `types/note.types.ts` → `NotesTable.tsx` |
+| A read-one / detail endpoint | `GetNoteReactor` → `NoteService.get` (throws `NOT_FOUND`) → `NoteRepository.findById` → `NoteDetailPage.tsx` |
+| A write endpoint + form | `AddNoteReactor` → `NoteService.add` → `NoteRepository.add` → `NoteForm.tsx` + `useAddNote` + `AddNotePage.tsx` |
+| A detail/add page nested under a list page | the `notes` route tree in `Router.tsx` (breadcrumbs come from route `handle`) |
+| A one-shot read inside a component | `usePixelQuery` (see `NoteDetailPage.tsx`) |
+| Showing a date or time in the UI | `formatDate` / `formatDateTime` in `lib/date.ts` |
+| Returning a date from Java | `PagedQuery.Column.date` / `.instant`, or `util.DateFormats` |
 
-- **Java reactors:** `actions.run('YourTool(param=...)')` — drop the `Reactor` suffix from the class name.
-- **Python MCP tools:** `actions.run('RunMCPTool(function=["tool_name"], paramValues=[{"param": "value"}])')` — calls the `RunMCPTool` Pixel reactor.
-- **Escape params with `JSON.stringify()`:** `` actions.run(`Your(text=${JSON.stringify(userInput)})`) ``.
-- **Check for errors:** `pixelReturn[0].operationType.includes("ERROR")`.
-- **Return to Playground:** `actions.sendMCPResponseToPlayground(JSON.stringify(result), "success", { param })`.
+Step-by-step versions are in the `semoss-add-reactor` and `semoss-add-page` skills.
 
-### `actions.runMCPTool()` is deprecated
+## Repo map
 
-`actions.runMCPTool()` (SDK method) and `RunMCPTool()` (Pixel reactor) look similar but differ:
+| Path | What |
+|------|------|
+| `client/` | React + Vite + Tailwind v4 + shadcn/ui frontend. Builds to `portals/`. |
+| `java/src/reactors/<area>/` | Reactors: Pixel entry points. Parse params, call a service, return a map. No logic. |
+| `java/src/reactors/base/` | `AbstractProjectReactor`: error handling, DB connection, param helpers. |
+| `java/src/service/<area>/` | Validation, orchestration, response shaping. Throws `AppException`. |
+| `java/src/database/<area>/` | Repositories: all SQL. `database/PagedQuery` is the shared sort/filter/paginate adapter. |
+| `java/src/domain/<area>/` | Optional records/enums with `toMap()`. |
+| `java/src/util/` | `AppException`, `ErrorCode`, `DateFormats`, `ProjectProperties`, `Constants`, `HelperMethods`. |
+| `sql/` | `init.sql` (schema + seed data), `compose.yaml` (local Postgres). Delete for an app with no database. |
+| `mcp/` | Tool manifests; empty by default (Playground tools only). |
+| `semoss_config/` | Per-environment endpoints + credentials (gitignored; copy the `.example`s). |
+| `scripts/claude/` | `semoss_asset_sync.py` (deploy) and `init_app.py` (one-time rename). |
+| `portals/`, `classes/`, `target/` | Generated. Never edit. |
 
-- **`actions.runMCPTool()`** — Deprecated SDK method. Calls Python tools but **also immediately sends the response to Playground**, which is usually unintended. Do not use it.
-- **`RunMCPTool()`** — Normal Pixel reactor called via `actions.run()`. No auto-send. This is the correct way to call Python tools.
+---
 
-## Auth
+## Backend (Java)
 
-The template ships native username/password auth, layered cleanly on top of the SDK:
+### Layers
 
-- **`AuthProvider` / `useAuth()`** (`client/src/contexts/AuthContext.tsx`) — wraps the SDK auth surface. `useAuth()` exposes `login(username, password)`, `logout()`, `userLoginName`, and `isUserLoginLoading`. `AuthProvider` sits inside `InsightProvider` in `App.tsx`. **It is auth-only by design** — it does *not* wrap `runPixel`/`sendMCPResponseToPlayground`; call those via `useInsight()`/`actions.run()` as documented above.
-- **`LoginPage`** (`pages/LoginPage.tsx`) — the login form, mounted at the `login` route *outside* the auth gate.
-- **`AuthorizedLayout`** (`pages/layouts/AuthorizedLayout.tsx`) — route gate. Redirects logged-out users to `LoginPage`, stashing their intended path in location state so they're returned after login. Wrap protected routes with it in `Router.tsx`.
-- Auth flows directly off the SDK: `useInsight().isAuthorized` is the source of truth; `actions.login({type:"native",...})` / `actions.logout()` do the work; `getSystemConfig()` yields the display name.
+`reactor → service → repository`, with `domain` records where useful.
 
-No logout button or nav bar ships by default — see the `semoss-user-menu` skill to add one.
+- **Reactor** (`reactors/<area>/<Name>Reactor`): extends `AbstractProjectReactor`. Declares
+  `keysToGet`/`keyRequired` (`1` = required, `0` = optional), reads params from `keyValue`
+  (`getList` / `getMap` for arrays/objects), builds a service from `requireDatabase()` and
+  `connection`, returns `new NounMetadata(map, PixelDataType.MAP)`. Implements
+  `getReactorDescription()` and `getDescriptionForKey()`. No logic, no SQL.
+- **Service** (`service/<area>/`): validation, orchestration, response shaping, and turning
+  DB failures into `AppException` (e.g. SQLState 23505/23503 → `INVALID_INPUT`). Skip it only
+  for a trivial read that forwards to a repository.
+- **Repository** (`database/<area>/`): all SQL. Reads use a SEMOSS `SelectQueryStruct` +
+  `QueryExecutionUtility.flushRsToMap` with columns written `table__column` and camelCase
+  aliases. Writes use a `PreparedStatement` on `connection`, one statement per write (use a
+  CTE if you need several effects; there are no transactions).
+
+### `AbstractProjectReactor`
+
+Every reactor extends it. `execute()` runs `preExecute()` then `doExecute()`; any exception is
+logged and returned as an `ERROR` pixel with payload `{code, message}`; the DB connection is
+released in `finally`. `preExecute()` resolves `projectId`, loads `ProjectProperties`, opens
+the database connection if `databaseId` is set, and calls `organizeKeys()` (don't call it
+again in `doExecute()`).
+
+Fields in `doExecute()`: `user`, `projectId`, `projectProperties`, `database` (null without a
+database; use `requireDatabase()` when you need it), `connection` (for raw JDBC; never open
+your own), `keyValue`, plus `getCurrentUsername()`, `getList()`, `getMap()`. Override
+`preExecute()` (calling `super.preExecute()` first) to add resources, such as a second engine
+or a per-user authorization check.
+
+### Errors
+
+Throw `new AppException(ErrorCode.X, "message")` from a service or reactor. `ErrorCode` is
+`NOT_FOUND`, `PERMISSION_DENIED`, `INTERNAL_ERROR`, `INVALID_INPUT`; add a code only if the
+frontend will branch on it. Any other exception becomes `INTERNAL_ERROR` with its message. The
+message reaches the UI verbatim, so write it for a user. Don't use
+`NounMetadata.getErrorNounMessage`.
+
+### Paged lists (`PagedQuery`)
+
+A repository declares a `List<Column>` (`text`, `number`, `bool`, `textArray`, `date`,
+`instant`; the first column is the default sort). The reactor takes
+`sortField, sortDirection, limit, offset, filters` and the result is `{rows, totalCount}`.
+Filters are `[{id, value}]`: `id` must be a declared field (unknown ids are silently ignored);
+a **list** value is an exact `IN` match for non-date columns, a text **scalar** is a
+`LIKE %v%` substring match, and a number/boolean scalar is `==`. A `date` column takes one
+`yyyy-MM-dd`; an `instant` column takes a UTC interval `start/end` of ISO-8601 instants (end
+exclusive), which `DataTable` builds from the day the user picks in their zone. Date columns
+reject list values and malformed input with `INVALID_INPUT`. A non-numeric string on a number
+column surfaces as `INTERNAL_ERROR`.
+
+### Database
+
+Schema and seed data live in `sql/init.sql` (running it **drops and recreates every table**).
+After any schema change run **Update schema** in the SEMOSS database editor (or the
+`refresh_database_ontology` MCP tool); SEMOSS query metadata doesn't follow DDL on its own and
+stale metadata breaks joins. The `semoss-database` skill covers querying and the MCP helpers.
+Snake_case tables and columns; camelCase aliases and JSON.
+
+### Dates
+
+Two kinds, handled differently end to end:
+
+| Kind | Example | DB column | Wire format | UI helper |
+|---|---|---|---|---|
+| Calendar date (no time of day) | `due_date` | `DATE` | `"2026-09-01"` | `formatDate` |
+| Instant (when something happened) | `created_at` | `timestamp`, **stored as UTC** | `"2026-09-01T14:30:00Z"` | `formatDateTime` |
+
+- A calendar date is the same day for everyone: never zone-convert it. An instant is converted
+  to the viewer's local zone, with the zone abbreviation, only in the UI.
+- The database's `.smss` must set `DATABASE_ZONEID` to `UTC` (every environment). SEMOSS reads
+  `timestamp` columns as wall-clock time in that zone; any other value shifts instants.
+- Java: never serialize a raw SEMOSS value. Declare list columns as `Column.date` /
+  `Column.instant`, or pass values through `util.DateFormats.isoDate` / `isoInstant` (and
+  `localDate` for logic).
+- UI: type fields as `IsoDate` / `IsoDateTime` (`@/types/date.types`) and render only through
+  `@/lib/date`; no ad hoc `toLocaleDateString` / `new Date(...)`.
+- New SQL columns: `DATE` for calendar dates, `timestamp -- UTC` for instants.
+
+### Config: `java/project.properties`
+
+Gitignored; create from `project.properties.example`. Keys: `databaseId` (the database engine
+ID **on the instance you deploy to**; empty for an app with no database). It is uploaded with
+`java/`, so deploying to instance X while it holds instance Y's ID silently points the app at
+the wrong database. `deploy` and `configure` set it from `database_id` in
+`environments.json`. `ProjectProperties` caches it, so a changed value needs a recompile. Add
+a property by adding a field, getter, and read in `ProjectProperties.loadProp()`.
+
+### Other reactor rules
+
+- `IModelEngine.ask()` returns response objects, not strings — call `getResponse()` by
+  reflection, never `toString()`. Resolve a model with `Utility.getModel(modelId)` (null if
+  not found).
+- **Persisting app data** (files, not the database): write under
+  `Utility.normalizePath(AssetUtility.getProjectAssetsFolder(projectId) + "/data/yourfile.json")`
+  with ordinary Java file I/O (`ProjectProperties.java` does this). `insight.getInsightFolder()`
+  is for ephemeral, insight-scoped files only. **Keep persisted data in a directory you never
+  bulk-upload (e.g. a top-level `data/`)**: re-uploading a synced dir overwrites remote files
+  with the repo's copy and destroys live data (see `semoss-deploy`).
+- **Available libraries:** the instance provides the platform classpath (`gson`, log4j,
+  `prerna.util.*`, …). You won't get confirmation a less-common lib is available until it
+  compiles on deploy.
+- `mcp/pixel_mcp.json` exposes reactors as tools in Playground chat. The app's own frontend
+  calls reactors by name and doesn't need an entry (`semoss-mcp-manifest`,
+  `semoss-playground-tool` skills).
+
+---
+
+## Frontend (`client/`)
+
+React 19 · Vite · Tailwind v4 · shadcn/ui · react-router v7 (**hash router**, required for
+SEMOSS) · zustand · TanStack Table · sonner · `@semoss/sdk`. Biome lints/formats (`pnpm fix`).
+
+### Structure
+
+```
+client/src/
+  App.tsx            InsightProvider > AuthProvider > Router, plus <Toaster>
+  app.config.ts      APP_NAME (shown in the top bar)
+  pages/             one file per route; Router.tsx; layouts/ (Initialized, Authorized, App)
+  components/
+    base/            shared: DataTable, AlertBlurb, Chip, StatCard, nav, breadcrumbs, user menu
+    ui/              shadcn primitives
+    <PageName>/      components belonging to one page
+  hooks/ lib/ contexts/ types/   see below
+  routes.constants.ts   route path segments
+```
+
+### Routing, layout, auth
+
+- `Router.tsx` is a `createHashRouter` tree: `InitializedLayout` (waits for the SDK, shows
+  `ErrorPage` on failure) → `AuthorizedLayout` (login gate) → `AppLayout` (top bar, sidebar,
+  breadcrumbs) → pathless group routes → pages. `login` sits outside the gate. A route that
+  must render without the shell (a Playground tool iframe) goes under `AuthorizedLayout` but
+  outside `AppLayout`.
+- **Breadcrumbs** come from each route's `handle: { crumbs } satisfies RouteHandle`;
+  `PageBreadcrumbs` flattens `useMatches()`. Nest detail routes under their list route so the
+  trail builds itself. Path segments are constants in `routes.constants.ts`.
+- **Nav**: `components/base/nav-items.ts`; active state is an exact `pathname` match.
+- **Auth:** `AuthProvider` / `useAuth()` (`contexts/AuthContext.tsx`) wraps the SDK auth
+  surface: `login(username, password)`, `logout()` (also clears persisted UI state),
+  `userLoginName`, `isUserLoginLoading`. It is **auth-only by design**. `AuthorizedLayout`
+  redirects logged-out users to `LoginPage`, stashing their target in location state. App-level
+  authorization (an app-user table) is not built in: add a reactor-side check in an overridden
+  `preExecute()` and a gate in `AuthorizedLayout`, rather than growing `AuthContext`.
 
 **Previewing locally past the login gate.** The login page ships on purpose — don't remove
-it to make iteration easier. When you need to render the UI locally to verify your work
-(common for standalone/in-memory apps), get past the gate one of these ways, cheapest
-first:
+it. To render the UI locally, cheapest first: (1) set `ACCESS_KEY`/`SECRET_KEY` in
+`client/.env.local` and the app authenticates automatically; (2) if the same instance is open
+and logged in in your browser, the SDK shares that cookie; (3) last resort: temporarily
+short-circuit the gate in `AuthorizedLayout` — scratch only, never commit or deploy it.
 
-1. **Key pair** — set `ACCESS_KEY`/`SECRET_KEY` in `client/.env.local`; the app
-   authenticates with them automatically, no form (see [Development workflow](#development-workflow)).
-2. **Existing session** — if you already have the same instance open and logged in in your
-   browser, the SDK shares that auth cookie, so the app is often already authorized with no
-   login needed.
-3. **Last resort** — temporarily short-circuit the gate in `AuthorizedLayout` (e.g. render
-   children unconditionally) to inspect the UI. This is a scratch change for local
-   verification only — never commit or deploy it.
+### Calling the backend
 
-## Multi-environment workflow
+- **Always use `runPixelQuery` (`lib/pixel-query.ts`) or `usePixelQuery` (`hooks/`).** They
+  wrap `runPixel` and throw `PixelQueryError` (`Error` with the reactor's real message and
+  `code`). Do **not** use `actions.run()` for reactor calls: it collapses the `{code,
+  message}` payload into `"[object Object]"` (fixed upstream in SEMOSS/semoss-ui#3674,
+  pending an SDK release; re-check before changing this rule).
+- `usePixelQuery<T>(pixel | null)` returns `{status: "loading"} | {status: "error",
+  errorMessage} | {status: "success", data}`; `null` holds off fetching. Use it for reads in
+  components. Imperative calls (submit, button): `runPixelQuery` in `try/catch`.
+- `DataTable mode="server"` takes a `useCallback`-stable `getData({sortField, sortDirection,
+  limit, offset, filters})` that calls `runPixelQuery` and returns `{rows, totalCount}`.
+- Build Pixel strings with `JSON.stringify` for every string/array argument. Batch statements
+  that are always needed together into one call. Type each result with an interface in
+  `types/<name>.types.ts` that mirrors the reactor's output exactly.
+- **Surfacing errors:** inline `AlertBlurb` (`danger` = failure, `warning` = empty/not found)
+  for a page's or card's own load; an `errorMessage` prop for form submits (`useAddNote`);
+  `toast.error` for background or non-blocking failures. No Retry buttons.
 
-You will often target several backends (local, preprod, prod). **The agent owns
-environment switching — the user just names the target.** Config lives in
-`semoss_config/` (see the `semoss-deploy` skill for the full flow):
+### State
 
-- `semoss_config/environments.json` — named envs, each with `base_url`, `api_module_url`, `web_module_url`, `app_id`.
-- `semoss_config/credentials.env` — one key pair per env, prefixed by the uppercased env name (`LOCAL_ACCESS_KEY`/`LOCAL_SECRET_KEY`, `PROD_ACCESS_KEY`/…).
+- Local component state for most things. A zustand store (`stores/useXStore.ts`) for lookup
+  data shared across pages, filled once by a loader component mounted in `AppLayout`.
+- `useLocalStorageState(id, initial?)` mirrors `useState` into localStorage under the app's
+  storage prefix; `logout()` clears all of it. An empty id means in-memory only. `DataTable`
+  uses it for sort/filter/pagination, keyed by its `title` (**titles must be unique**;
+  renaming one orphans saved state).
 
-**Before every build, write `client/.env.local`** with the target env's values
-(`APP=<app_id>`, `ENDPOINT=<base_url>`, `MODULE=<api_module_url>`). `client/.env` is a
-committed dummy placeholder — never edit it; `.env.local` overrides it and is gitignored.
+### Components worth knowing
 
-The sync script selects an env with `--env <name>`:
-`python scripts/claude/semoss_asset_sync.py --env preprod bulk-upload portals py java mcp`.
-Add `--no-verify-ssl` for self-signed preprod certs.
+`components/base`: `DataTable` (client or server mode; column `meta.filterVariant` of
+`text | select | date | datetime`), `AlertBlurb`, `Chip`, `StatCard` (all take a semantic
+`color`: `primary | info | success | warning | danger`, from `lib/accent-colors.ts`),
+`PagePlaceholder`. `DataTable` gotchas: `getData` must be `useCallback`-stable or the table
+refetches in a loop; a column `id` must equal the server's sort/filter field; changing sort or
+filters resets to page 1.
 
-## Deploy
+### Theme
 
-Three tiers, by capability — full detail in the `semoss-deploy` skill:
+`src/index.css` holds the theme as CSS variables (shadcn tokens plus `--success`, `--warning`,
+`--info`). A rebrand edits `:root` / `.dark` there; components use tokens (`bg-background`,
+`text-muted-foreground`, `text-success`), never hex/rgb.
 
-| Tier | Mechanism | When | Requires |
-|------|-----------|------|----------|
-| **Universal** | Manual UI zip | Always works. Build, then `zip -r bundle.zip portals py java mcp`, drag into the SEMOSS editor, check **unzip**, click **Compile and publish**. | Nothing (use `zip`, or Windows `tar.exe` — **not** PowerShell `Compress-Archive`) |
-| **Iterate** | `scripts/claude/semoss_asset_sync.py bulk-upload` | Updating an app's code against a configured instance | Python + creds |
-| **Submit** | `ai-repo` CLI | Submitting an app to the review pipeline | the CLI + login (see `semoss-ai-repo` skill) |
+### Conventions
 
-## MCP manifests
+- One exported component per file; `export interface <Component>Props`; named exports only; no
+  `React.FC`, no `export default`. Import from the barrels (`@/components`, `@/hooks`).
+- `interface` for object shapes, `type` for unions. No `any`, no `as` to silence a type error.
+- Arrow functions only (the one `function` use is the `useLocalStorageState` overloads).
+  `async/await` with `try/catch`, not `.then()`.
+- Dates: render only through `lib/date.ts`; see [Dates](#dates).
+- Tailwind theme tokens only; `cn()` for conditional classes.
+- Page header: `<h1 className="font-semibold text-xl">` + `text-muted-foreground text-sm`
+  subtitle.
+- shadcn files in `components/ui` and `hooks/use-mobile.tsx` are vendored and exempt from the
+  above. Add more with `cd client && pnpm dlx shadcn@latest add <name>`.
 
-Tools are described by `mcp/py_mcp.json` (Python) and `mcp/pixel_mcp.json` (Java).
-**Hand-edit these manifests directly** — it is the reliable, default path (see the
-`semoss-mcp-manifest` skill for the schema and field reference).
-
-The platform also exposes regenerator reactors, `MakePythonMCP()` and `MakePixelMCP()`,
-which rebuild the manifests from source decorators/annotations. They are the "ideal" in
-principle but are finicky in practice — reach for them only to troubleshoot a manifest
-that hand-editing isn't getting right.
-
-**MCP metadata options:** `resourceURI` (React route for custom UI — must match a route
-in `Router.tsx`; omit for default UI), `execution` (`"ask"` / `"auto"` / `"disabled"`),
-`loadingMessage` (shown during auto-execution), `displayLocation` (`"inline"` /
-`"sidebar"` / `"none"`).
-
-## Default UI vs custom UI
-
-- **Default UI:** When a tool's `resourceURI` is missing/null, Playground auto-generates a form from the parameters. Best for simple input→output tools (e.g. temperature conversion). No React needed — the `py/mcp_driver.py` examples use this.
-- **Custom UI:** When `resourceURI` points to a React route (e.g. `/#/`), Playground renders your app in an iframe. Use for rich interactions, visualizations, or multi-step flows. Routes **must** use the hash router (`/#/path`) — standard browser routing won't work in the iframe.
-
-### Routing for custom-UI tools
-
-`resourceURI` maps directly to a route in `client/src/pages/Router.tsx`. Be deliberate:
-
-- **`/#/`** → root route. Use only if the app has a single custom-UI tool, or you intentionally share one UI.
-- **`/#/tool-name`** → dedicated route. Use when multiple tools each need their own UI.
-
-When adding a custom-UI tool, always do both: (1) add the route in `Router.tsx`, and
-(2) set `resourceURI` in the manifest to match. Two tools sharing a `resourceURI` render
-the same component — disambiguate via `tool.parameters` if you must.
-
-**Standalone (non-tool) apps** are the same React app with no manifest wiring: add your
-routes in `Router.tsx` and build the pages — there's no `mcp/*.json` entry and no
-`resourceURI` to match. The MCP example (`ExampleComponent.tsx`) still demonstrates every
-SDK pattern you need (`useInsight`, `actions.run`, init gating, auth); a standalone app
-just calls those from its own pages and uses ordinary client-side state and navigation
-instead of being invoked from Playground. No second example is needed — extrapolate from
-the one that ships.
-
-**Frontend-only app with no backend?** Delete `java/`, `py/`, and `mcp/` outright. Left in
-place, the example weather reactor and temperature tools linger — and a `bulk-upload … java
-mcp` would deploy them as stray, unwanted tools in the user's app.
-
-## Java reactor rules
-
-- Extend `AbstractProjectReactor`. See `GetWeatherReactor.java` for a working example.
-- `organizeKeys()` is called automatically by `preExecute()` — don't call it again in `doExecute()`.
-- Define params via `keysToGet` and `keyRequired` arrays (`1` = required, `0` = optional).
-- Return `new NounMetadata(responseMap, PixelDataType.MAP)` — SEMOSS handles serialization.
-- Report errors by throwing `new AppException(ErrorCode.X, "user-readable message")` (`util/`). `AbstractProjectReactor.execute()` returns it as an ERROR pixel with `{code, message}`; any other exception becomes `INTERNAL_ERROR`. Don't use `NounMetadata.getErrorNounMessage`. Add an `ErrorCode` only if the frontend will branch on it.
-- Implement `getDescriptionForKey()` and `getReactorDescription()` for manifest generation.
-- `IModelEngine.ask()` returns response objects, not strings — use reflection to call `getResponse()`, never `toString()`.
-- Resolve a model engine by ID: `IModelEngine modelEngine = Utility.getModel(modelId);` (import `prerna.util.Utility`) — returns `null` if not found.
-- **Base-class fields** available in every reactor: `projectId`, `user`, and `projectProperties` (set by `AbstractProjectReactor.preExecute()`), plus `insight`, `store`, `curRow`, and `keyValue` inherited from `AbstractReactor`. Read params with `this.keyValue.get("name")` after `organizeKeys()`.
-- **Persisting app data** (the canonical recipe for a stateful app): write under the app's asset folder via `Utility.normalizePath(AssetUtility.getProjectAssetsFolder(projectId) + "/data/yourfile.json")` (import `prerna.util.AssetUtility`), then do ordinary Java file I/O. `ProjectProperties.java` already uses exactly this pattern. Use `this.insight.getInsightFolder()` only for ephemeral, insight-scoped files — not durable app state. **Keep persisted data in a directory you never bulk-upload (e.g. a top-level `data/`)** — re-uploading a synced dir overwrites remote files with the repo's seed copy and silently destroys live data (see the `semoss-deploy` skill).
-- **Available libraries:** the instance provides the platform classpath, so common libs — `com.google.gson.Gson` (+ `TypeToken`), log4j, the `prerna.util.*` helpers — are usable without declaring dependencies. You won't get confirmation a less-common lib is on the classpath until it compiles on deploy.
-
-## Python MCP tool rules
-
-- Define tools in `py/mcp_driver.py` — the entry point SEMOSS looks for.
-- Every tool needs the `@mcp_metadata` decorator (from `smssutil`, auto-injected by SEMOSS): `@mcp_metadata({"execution": "auto"})`.
-- Use type hints on all parameters — they become required MCP parameters.
-- Tool title comes from the function name; description from the docstring.
-- Return JSON strings.
-- Omit `resourceURI` in `@mcp_metadata` for the default UI (recommended for simple tools).
-- `ROOT` is injected by SEMOSS for file-path access.
-- Use `ModelEngine` from `ai_server` for LLM calls; always accept `model_id` as a parameter.
-
-## React UI rules
-
-- Use `tool.parameters` for prepopulated values (**not** `tool.inputs`).
-- **`tool` is the invocation signal:** it's `null` when the page is opened standalone and non-null only during a Playground tool call. Branch on it so one page serves both modes. (`tool: MCPToolRequest | null`.)
-- **Branch on `tool.tool_response` for ask/form tools** — a re-opened tool gets its prior result back, so render a result state, not a fresh empty form. `tool.executedParameters` holds the params actually used. `ExampleComponent.tsx` shows all three entry states (standalone / fresh invocation / past execution) — copy that structure.
-- Handle responses that may be objects, strings, or double-encoded strings.
-- Fetch models via: `actions.run('MyEngines(metaKeys=[], metaFilters=[{"tag":"text-generation"}], engineTypes=["MODEL"])')`.
-- Call `sendMCPResponseToPlayground()` directly — don't wrap it. The SDK handles tool-name matching.
-- Gate rendering on `isInitialized` (see `InitializedLayout.tsx`).
-- Only a few shadcn/ui primitives ship (button, input, label, spinner, textarea). When you
-  need more (Card, Select, Badge, Table, Dialog, …), **add them** — don't hand-roll:
-  `cd client && pnpm dlx shadcn@latest add card select badge table`. They land in
-  `client/src/components/ui/` configured against this template's theme.
+---
 
 ## Development workflow
 
 **The frontend runs locally but talks to a live instance for everything** — auth, Pixel
-calls, models, data. `pnpm dev` is not self-contained: it serves the React app from your
-machine while every `actions.run()` hits the `ENDPOINT` in `client/.env.local`. So you need
-access to a running SEMOSS instance before any of this works; a missing or unreachable
-endpoint shows up as an infinite spinner or a dead login. The app is gated behind login by
-default — to iterate locally without typing credentials each time, set `ACCESS_KEY` and
-`SECRET_KEY` in `client/.env.local` (a platform access/secret key pair) and the app
-authenticates with them automatically.
+calls, models, data. `pnpm dev` serves the React app from your machine while every call hits
+the `ENDPOINT` in `client/.env.local`, so you need a running SEMOSS instance; a missing or
+unreachable endpoint shows up as an infinite spinner or a dead login.
 
-1. `pnpm i` in **both** root and `client/`. (Skipping `client/` is the usual cause of a
-   cryptic `biome: command not found` or missing-binary error.)
-2. Write `client/.env.local` for the target env (see [Multi-environment workflow](#multi-environment-workflow)).
-3. `pnpm dev` for development, `cd client && pnpm build` for production.
-4. `pnpm fix` to format and lint (Biome) before committing.
-5. Deploy via one of the three tiers above.
+1. `pnpm i` in **both** root and `client/` (skipping `client/` is the usual cause of a
+   cryptic `biome: command not found`).
+2. `python3 scripts/claude/semoss_asset_sync.py --env <name> configure` writes
+   `client/.env.local` and `java/project.properties` for that env.
+3. `pnpm dev` for development; `pnpm --dir client build` for production.
+4. Before committing: `pnpm fix` (Biome) and `pnpm typecheck` (`tsconfig` isn't strict; there
+   are no automated tests or CI by default — see `semoss-testing-ci`).
+
+## Multi-environment and deploy
+
+You will often target several backends (local, preprod, prod). **The agent owns environment
+switching — the user just names the target.** Config lives in `semoss_config/`:
+`environments.json` (per env: `base_url`, `api_module_url`, `web_module_url`, `app_id`,
+`database_id`) and `credentials.env` (one key pair per env, prefixed by the uppercased env
+name). Both are gitignored; copy the `.example`s. `client/.env` is a committed dummy; never
+edit it (`client/.env.local` overrides it).
+
+**Deploy:** `python3 scripts/claude/semoss_asset_sync.py --env <name> deploy` writes
+`client/.env.local`, sets `databaseId`, builds, uploads, removes orphaned remote files,
+compiles, publishes, and restores `java/project.properties`. **Read the "Compiling reactors"
+output**: an error there means the backend is stale even though the upload "succeeded".
+
+| Tier | Mechanism | When | Requires |
+|------|-----------|------|----------|
+| **Universal** | Manual UI zip | Always works. | `zip` (not PowerShell `Compress-Archive`) |
+| **Iterate** | `semoss_asset_sync.py deploy` | Updating an app on a configured instance | Python + creds |
+| **Submit** | `ai-repo` CLI | Submitting to the review pipeline | the CLI + login |
+
+Full detail, flags, and failure modes: `semoss-deploy` skill.
+
+## Deleting the example
+
+When the notes example is no longer needed, delete: `java/src/{reactors,service,database}/notes`,
+`client/src/components/NotesPage`, `client/src/pages/{NotesPage,NoteDetailPage,AddNotePage}.tsx`,
+`client/src/hooks/useAddNote.ts` (and its barrel export), `client/src/types/note.types.ts`, the
+notes route group in `Router.tsx` and nav item in `nav-items.ts`, the `ROUTE_PATH_NOTES` /
+`ROUTE_PATH_ADD_NOTE` constants, the `note` table in `sql/init.sql`, and `HomePage`'s link to it.
+For a **frontend-only app with no backend**, delete `java/`, `mcp/`, `sql/` and
+`semoss_config`'s `database_id` use outright; left in place, `deploy` uploads them.
 
 ## Skills
 
-Load these from `.claude/skills/` when the task calls for it:
+Load from `.claude/skills/` when the task calls for it:
 
 | Skill | Use when |
 |-------|----------|
+| `semoss-add-reactor` | Adding or changing a backend endpoint end to end (repository, service, reactor, FE type). |
+| `semoss-add-page` | Adding a page, route, nav item, table, or form. |
 | `semoss-database` | Querying a relational or graph database from a tool (`SqlQuery`, schema). |
 | `semoss-model` | Calling an LLM / embedding model, or listing models the user can access. |
 | `semoss-vector` | Querying a vector store, RAG retrieval, or managing embedded documents. |
-| `semoss-deploy` | Publishing or updating an app — picking among the three deploy tiers, multi-env. |
+| `semoss-deploy` | Publishing or updating an app — deploy tiers, multi-env, failures. |
+| `semoss-playground-tool` | Making the app (or part of it) a tool inside Playground chat; Python tools. |
 | `semoss-mcp-manifest` | Writing or editing `mcp/*.json`, wiring `resourceURI`, execution modes. |
 | `semoss-ai-repo` | Submitting an app to the review pipeline with the `ai-repo` CLI. |
 | `semoss-platform-backend` | Deep platform/Pixel work: engine discovery, asset APIs, workspace/room control plane. |
 | `semoss-testing-ci` | Adding JUnit/Mockito reactor tests, pre-commit hooks, or GitHub Actions CI (not shipped by default). |
-| `semoss-user-menu` | Adding a top nav bar / user profile dropdown / logout button on top of the shipped auth (not shipped by default). |
-
-## File pointers
-
-| What | Where |
-|------|-------|
-| React entry | `client/src/index.tsx`, `client/src/App.tsx` |
-| Routes | `client/src/pages/Router.tsx` |
-| Auth context / hook | `client/src/contexts/AuthContext.tsx` (`AuthProvider`, `useAuth`) |
-| Login page | `client/src/pages/LoginPage.tsx` |
-| Auth route gate | `client/src/pages/layouts/AuthorizedLayout.tsx` |
-| Route path constants | `client/src/routes.constants.ts` |
-| Components | `client/src/components/` |
-| Example MCP UI | `client/src/components/ExampleComponent.tsx` (**template — replace**) |
-| Tailwind v4 theme | `client/src/index.css` |
-| Vite config | `client/vite.config.ts` |
-| shadcn/ui config | `client/components.json`, `client/tailwind.config.js` |
-| Java reactors | `java/src/reactors/` |
-| Base reactor class | `java/src/reactors/base/AbstractProjectReactor.java` |
-| Example reactor | `java/src/reactors/GetWeatherReactor.java` (**template — replace**) |
-| Python MCP tools | `py/mcp_driver.py` (temperature converters — **template — replace**) |
-| Manifests | `mcp/py_mcp.json`, `mcp/pixel_mcp.json` (hand-edited) |
-| Env config | `semoss_config/environments.json`, `semoss_config/credentials.env` (gitignored) |
-| Deploy script | `scripts/claude/semoss_asset_sync.py` |
-| Published app | `portals/index.html` |
 
 ## Do not
 
 - Edit `portals/`, `classes/`, or `target/` — they're generated.
-- Use the deprecated `actions.runMCPTool()` SDK method.
-- Use `toString()` on `IModelEngine` responses in Java.
-- Access `tool.inputs` in React (use `tool.parameters`).
-- Commit secrets — `semoss_config/credentials.env`, `.mcp.json`, and `client/.env.local` are gitignored; keep them that way.
-- Call `organizeKeys()` inside `doExecute()` (already called).
-- Forget `@mcp_metadata` in Python or `getDescriptionForKey()`/`getReactorDescription()` in Java.
-- Wrap `sendMCPResponseToPlayground()` with custom logic.
-- Include the `Reactor` suffix when calling reactors in Pixel commands.
-- Follow the platform MCP's frontend advice where it conflicts with this file (see [Authority](#authority-this-file-overrides-the-platform-mcp)).
+- Use `actions.run()` for reactor calls (use `runPixelQuery` / `usePixelQuery`), or the
+  deprecated `actions.runMCPTool()`.
+- Add Retry buttons, new data-fetching patterns, new state libraries, or hand-rolled versions
+  of components that exist in `components/base` or `components/ui`.
+- Put logic or SQL in a reactor, open your own DB connection, or call `organizeKeys()` in
+  `doExecute()`.
+- Return errors with `NounMetadata.getErrorNounMessage`; throw `AppException`.
+- Format dates by hand in the UI (`toLocaleDateString`, `new Date(...)`,
+  `Intl.DateTimeFormat`) or return raw SEMOSS date values from Java. Don't zone-convert
+  calendar dates or store non-UTC timestamps.
+- Use `toString()` on `IModelEngine` responses, or include the `Reactor` suffix in a Pixel call.
+- Deploy with `java/project.properties` pointing at a different environment's database (use
+  `deploy`, which sets it).
+- Commit secrets: `semoss_config/credentials.env`, `.mcp.json`, `java/project.properties` and
+  `client/.env.local` are gitignored; keep them that way.
+- Follow the platform MCP's frontend advice where it conflicts with this file.
